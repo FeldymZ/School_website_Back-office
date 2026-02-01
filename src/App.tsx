@@ -1,5 +1,11 @@
-import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 /* ================= COMMON ================= */
@@ -37,115 +43,91 @@ import BannerList from "./components/banners/BannerList";
 
 /* ================= UTILS ================= */
 import { UserRole } from "./types/user";
-import { getUserFromToken } from "./utils/auth";
 
-const App = () => {
+/* ================= APP WRAPPER ================= */
+const AppRoutes = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
-  /* ================= LOADING VISUEL ================= */
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   if (isLoading) {
-    return <LoadingPage />;
+    return (
+      <LoadingPage
+        onComplete={() => {
+          setIsLoading(false);
+          navigate("/login", { replace: true });
+        }}
+      />
+    );
   }
 
-  const user = getUserFromToken();
+  return (
+    <Routes>
+      {/* ================= LOGIN ================= */}
+      <Route path="/login" element={<LoginPage />} />
 
+      {/* ============== ZONE AUTHENTIFIÉE ============== */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<DashboardPage />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+
+        <Route path="formations" element={<FormationsPage />} />
+        <Route path="agenda" element={<AgendaPage />} />
+        <Route path="actualites" element={<ActualitesPage />} />
+        <Route path="banners" element={<BannerList />} />
+        <Route path="commentaires" element={<CommentairesPage />} />
+        <Route path="partenaires" element={<PartenairesPage />} />
+
+        <Route path="contact" element={<ContactListPage />} />
+        <Route path="contact/unreplied" element={<ContactUnrepliedPage />} />
+        <Route path="contact/:id" element={<ContactDetailsPage />} />
+
+        <Route
+          path="messages"
+          element={<Navigate to="/contact" replace />}
+        />
+
+        <Route
+          path="statistiques"
+          element={<KeyFiguresPage />}
+        />
+
+        <Route
+          path="utilisateurs"
+          element={
+            <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
+              <UsersPage />
+            </RoleProtectedRoute>
+          }
+        />
+
+        <Route
+          path="configuration"
+          element={
+            <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
+              <ConfigurationPage />
+            </RoleProtectedRoute>
+          }
+        />
+      </Route>
+
+      {/* ================= FALLBACK ================= */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  );
+};
+
+const App = () => {
   return (
     <LayoutProvider>
       <BrowserRouter>
-        {/* 🔔 TOAST GLOBAL */}
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-
-        <Routes>
-          {/* ================= LOGIN ================= */}
-          <Route
-            path="/login"
-            element={
-              user ? <Navigate to="/dashboard" replace /> : <LoginPage />
-            }
-          />
-
-          {/* ============== ZONE AUTHENTIFIÉE ============== */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            {/* ===== Dashboard ===== */}
-            <Route index element={<DashboardPage />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-
-            {/* ===== Modules ===== */}
-            <Route path="formations" element={<FormationsPage />} />
-            <Route path="agenda" element={<AgendaPage />} />
-            <Route path="actualites" element={<ActualitesPage />} />
-            <Route path="banners" element={<BannerList />} />
-            <Route path="commentaires" element={<CommentairesPage />} />
-            <Route path="partenaires" element={<PartenairesPage />} />
-
-            {/* ================= CONTACT ================= */}
-            <Route path="contact" element={<ContactListPage />} />
-            <Route
-              path="contact/unreplied"
-              element={<ContactUnrepliedPage />}
-            />
-            <Route
-              path="contact/:id"
-              element={<ContactDetailsPage />}
-            />
-
-            {/* 🔁 Alias UX */}
-            <Route
-              path="messages"
-              element={<Navigate to="/contact" replace />}
-            />
-
-            {/* ================= STATISTIQUES ================= */}
-            <Route
-              path="statistiques"
-              element={<KeyFiguresPage />}
-            />
-
-            {/* ============== SUPERADMIN ONLY ============== */}
-            <Route
-              path="utilisateurs"
-              element={
-                <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
-                  <UsersPage />
-                </RoleProtectedRoute>
-              }
-            />
-
-            <Route
-              path="configuration"
-              element={
-                <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
-                  <ConfigurationPage />
-                </RoleProtectedRoute>
-              }
-            />
-          </Route>
-
-          {/* ================= FALLBACK ================= */}
-          <Route
-            path="*"
-            element={
-              <Navigate
-                to={user ? "/dashboard" : "/login"}
-                replace
-              />
-            }
-          />
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </LayoutProvider>
   );
