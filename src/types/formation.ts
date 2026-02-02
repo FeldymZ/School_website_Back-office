@@ -14,6 +14,7 @@ export interface Formation {
   title: string;
   coverImageUrl: string;
   level: FormationLevel;
+  enabled: boolean; // ✅ OBLIGATOIRE
 }
 
 /* ============================
@@ -29,7 +30,7 @@ export interface FormationDetails extends Formation {
    UPDATE REQUEST
    ============================ */
 export interface FormationUpdateRequest {
-  name?: string;
+  title?: string;
   description?: string;
   level?: FormationLevel;
   displayOrder?: number;

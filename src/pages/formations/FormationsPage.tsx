@@ -15,6 +15,9 @@ import {
   Sparkles,
   Filter,
   BookOpen,
+
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 import { FormationService } from "@/services/formation.service";
@@ -77,7 +80,8 @@ const FormationsPage = () => {
 
   const [deleting, setDeleting] = useState(false);
 
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  // ✅ CHANGEMENT : Vue "list" par défaut au lieu de "grid"
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [searchQuery, setSearchQuery] = useState("");
 
   const user = getUserFromToken();
@@ -155,20 +159,20 @@ const FormationsPage = () => {
             <div className="h-12 bg-gray-200 rounded-xl animate-pulse" />
           </div>
 
-          {/* Cards Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="bg-white rounded-2xl overflow-hidden border border-gray-100">
-                <div className="h-48 bg-gray-200 animate-pulse" />
-                <div className="p-6 space-y-3">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse" />
-                  <div className="flex gap-2 pt-2">
-                    <div className="h-10 flex-1 bg-gray-200 rounded animate-pulse" />
+          {/* Table Skeleton */}
+          <div className="bg-white rounded-2xl border border-gray-100">
+            <div className="p-6 space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <div className="w-20 h-20 bg-gray-200 rounded-xl animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-6 bg-gray-200 rounded animate-pulse w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
                   </div>
+                  <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -285,24 +289,26 @@ const FormationsPage = () => {
 
               <div className="flex bg-gray-100 rounded-xl p-1">
                 <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "grid"
-                      ? "bg-white shadow-sm text-[#00A4E0]"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  <LayoutGrid size={18} />
-                </button>
-                <button
                   onClick={() => setViewMode("list")}
                   className={`p-2 rounded-lg transition-all ${
                     viewMode === "list"
                       ? "bg-white shadow-sm text-[#00A4E0]"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
+                  title="Vue liste"
                 >
                   <List size={18} />
+                </button>
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-lg transition-all ${
+                    viewMode === "grid"
+                      ? "bg-white shadow-sm text-[#00A4E0]"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                  title="Vue grille"
+                >
+                  <LayoutGrid size={18} />
                 </button>
               </div>
             </div>
@@ -345,7 +351,174 @@ const FormationsPage = () => {
           </div>
         )}
 
-        {/* ================= GRID VIEW ================= */}
+        {/* ================= LIST VIEW (PRIORITAIRE) ================= */}
+        {viewMode === "list" && filteredFormations.length > 0 && (
+          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Formation
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Niveau
+                    </th>
+                    {/* ✅ NOUVELLE COLONNE : Date de création */}
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Statut
+                    </th>
+                    {/* ✅ NOUVELLE COLONNE : Fichiers */}
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Fichiers
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredFormations.map((f, index) => {
+                    const cfg = LEVEL_CONFIG[f.level];
+                    return (
+                      <tr
+                        key={f.id}
+                        className="group hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent transition-all duration-200"
+                        style={{
+                          animation: `fadeIn 0.3s ease-out ${index * 0.05}s both`
+                        }}
+                      >
+                        {/* Formation Info */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="relative">
+                              <img
+                                src={resolveImageUrl(f.coverImageUrl)}
+                                alt={f.title}
+                                className="w-20 h-20 object-cover rounded-xl border-2 border-gray-100
+                                           group-hover:border-[#00A4E0] transition-all duration-200 shadow-sm"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                            <div className="space-y-1">
+                              <h3 className="font-bold text-gray-900 group-hover:text-[#00A4E0] transition-colors">
+                                {f.title}
+                              </h3>
+                              <p className="text-sm text-gray-500 flex items-center gap-2">
+                                <Clock size={12} />
+                                Formation initiale
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Level */}
+                        <td className="px-6 py-4">
+                          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl
+                                          ${cfg.lightBg} ${cfg.text} font-medium text-sm`}>
+                            <GraduationCap size={16} />
+                            {cfg.label}
+                          </div>
+                        </td>
+
+                        {/* ✅ NOUVELLE COLONNE : Statut */}
+                        <td className="px-6 py-4">
+                          {f.enabled ? (
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-sm font-medium">
+                              <CheckCircle size={14} />
+                              Active
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-sm font-medium">
+                              <XCircle size={14} />
+                              Inactive
+                            </div>
+                          )}
+                        </td>
+
+                        {/* ✅ NOUVELLE COLONNE : Fichiers */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center gap-3">
+                            <button
+                              onClick={() => {
+                                setSelectedId(f.id);
+                                setOpenGallery(true);
+                              }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700
+                                         hover:bg-purple-100 transition-all text-xs font-medium"
+                              title="Galerie"
+                            >
+                              <ImageIcon size={14} />
+                              Galerie
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setSelectedId(f.id);
+                                setOpenPdf(true);
+                              }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 text-orange-700
+                                         hover:bg-orange-100 transition-all text-xs font-medium"
+                              title="PDF"
+                            >
+                              <FileText size={14} />
+                              PDF
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-6 py-4">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedId(f.id);
+                                setOpenDetails(true);
+                              }}
+                              className="p-2.5 rounded-xl text-gray-600 hover:text-[#00A4E0]
+                                         hover:bg-blue-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                              title="Voir les détails"
+                            >
+                              <Eye size={18} />
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setSelectedId(f.id);
+                                setOpenEdit(true);
+                              }}
+                              className="p-2.5 rounded-xl text-gray-600 hover:text-green-600
+                                         hover:bg-green-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                              title="Modifier"
+                            >
+                              <Pencil size={18} />
+                            </button>
+
+                            {isSuperAdmin && (
+                              <button
+                                onClick={() => {
+                                  setSelectedId(f.id);
+                                  setOpenDelete(true);
+                                }}
+                                className="p-2.5 rounded-xl text-gray-600 hover:text-red-600
+                                           hover:bg-red-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                                title="Supprimer"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ================= GRID VIEW (SECONDAIRE) ================= */}
         {viewMode === "grid" && filteredFormations.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {filteredFormations.map((f, index) => {
@@ -376,6 +549,21 @@ const FormationsPage = () => {
                         <GraduationCap size={14} />
                         {cfg.label}
                       </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="absolute top-4 left-4">
+                      {f.enabled ? (
+                        <div className="px-2 py-1 rounded-full backdrop-blur-xl bg-green-500/90 text-white text-xs font-medium flex items-center gap-1">
+                          <CheckCircle size={12} />
+                          Active
+                        </div>
+                      ) : (
+                        <div className="px-2 py-1 rounded-full backdrop-blur-xl bg-gray-500/90 text-white text-xs font-medium flex items-center gap-1">
+                          <XCircle size={12} />
+                          Inactive
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -471,143 +659,6 @@ const FormationsPage = () => {
             })}
           </div>
         )}
-
-        {/* ================= LIST VIEW ================= */}
-        {viewMode === "list" && filteredFormations.length > 0 && (
-          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                      Formation
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                      Niveau
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredFormations.map((f, index) => {
-                    const cfg = LEVEL_CONFIG[f.level];
-                    return (
-                      <tr
-                        key={f.id}
-                        className="group hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent transition-all duration-200"
-                        style={{
-                          animation: `fadeIn 0.3s ease-out ${index * 0.05}s both`
-                        }}
-                      >
-                        {/* Formation Info */}
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-4">
-                            <div className="relative">
-                              <img
-                                src={resolveImageUrl(f.coverImageUrl)}
-                                alt={f.title}
-                                className="w-20 h-20 object-cover rounded-xl border-2 border-gray-100
-                                           group-hover:border-[#00A4E0] transition-all duration-200 shadow-sm"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                            <div className="space-y-1">
-                              <h3 className="font-bold text-gray-900 group-hover:text-[#00A4E0] transition-colors">
-                                {f.title}
-                              </h3>
-                              <p className="text-sm text-gray-500 flex items-center gap-2">
-                                <Clock size={12} />
-                                Formation initiale
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Level */}
-                        <td className="px-6 py-4">
-                          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl
-                                          ${cfg.lightBg} ${cfg.text} font-medium text-sm`}>
-                            <GraduationCap size={16} />
-                            {cfg.label}
-                          </div>
-                        </td>
-
-                        {/* Actions */}
-                        <td className="px-6 py-4">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => {
-                                setSelectedId(f.id);
-                                setOpenDetails(true);
-                              }}
-                              className="p-2.5 rounded-xl text-gray-600 hover:text-[#00A4E0]
-                                         hover:bg-blue-50 transition-all duration-200 hover:scale-110 active:scale-95"
-                              title="Voir les détails"
-                            >
-                              <Eye size={18} />
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                setSelectedId(f.id);
-                                setOpenEdit(true);
-                              }}
-                              className="p-2.5 rounded-xl text-gray-600 hover:text-green-600
-                                         hover:bg-green-50 transition-all duration-200 hover:scale-110 active:scale-95"
-                              title="Modifier"
-                            >
-                              <Pencil size={18} />
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                setSelectedId(f.id);
-                                setOpenGallery(true);
-                              }}
-                              className="p-2.5 rounded-xl text-gray-600 hover:text-purple-600
-                                         hover:bg-purple-50 transition-all duration-200 hover:scale-110 active:scale-95"
-                              title="Galerie"
-                            >
-                              <ImageIcon size={18} />
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                setSelectedId(f.id);
-                                setOpenPdf(true);
-                              }}
-                              className="p-2.5 rounded-xl text-gray-600 hover:text-orange-600
-                                         hover:bg-orange-50 transition-all duration-200 hover:scale-110 active:scale-95"
-                              title="PDF"
-                            >
-                              <FileText size={18} />
-                            </button>
-
-                            {isSuperAdmin && (
-                              <button
-                                onClick={() => {
-                                  setSelectedId(f.id);
-                                  setOpenDelete(true);
-                                }}
-                                className="p-2.5 rounded-xl text-gray-600 hover:text-red-600
-                                           hover:bg-red-50 transition-all duration-200 hover:scale-110 active:scale-95"
-                                title="Supprimer"
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ================= MODALS ================= */}
@@ -659,6 +710,7 @@ const FormationsPage = () => {
         loading={deleting}
         title="Supprimer la formation"
         message="Cette action est définitive. Voulez-vous vraiment supprimer cette formation ?"
+        canConfirm={isSuperAdmin}
         onCancel={() => {
           setOpenDelete(false);
           setSelectedId(null);
@@ -685,7 +737,6 @@ const FormationsPage = () => {
           }
           to {
             opacity: 1;
-            transform: translateY(0);
           }
         }
       `}</style>

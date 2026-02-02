@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Upload, Image as ImageIcon, Loader, Plus } from "lucide-react";
+import { X, Upload, Image as ImageIcon, Loader, Plus, Trash2 } from "lucide-react";
 
 import { FormationDetails } from "@/types/formation";
 import { FormationService } from "@/services/formation.service";
@@ -15,6 +15,7 @@ const FormationGalleryModal = ({ formationId, open, onClose }: Props) => {
   const [formation, setFormation] = useState<FormationDetails | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null); // ✅ AJOUT pour la suppression
   const [previews, setPreviews] = useState<string[]>([]);
 
   useEffect(() => {
@@ -58,6 +59,25 @@ const FormationGalleryModal = ({ formationId, open, onClose }: Props) => {
       setPreviews([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ NOUVELLE FONCTION pour supprimer une image
+  const handleDeleteImage = async (imageId: number) => {
+    if (!confirm("Voulez-vous vraiment supprimer cette image ?")) return;
+
+    try {
+      setDeletingId(imageId);
+      await FormationService.deleteImage(imageId);
+
+      // Recharger les détails
+      const updated = await FormationService.getDetails(formation.id);
+      setFormation(updated);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la suppression de l'image");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -193,24 +213,45 @@ const FormationGalleryModal = ({ formationId, open, onClose }: Props) => {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {formation.galleryImages.map((img, index) => (
-                  <div
-                    key={img}
-                    className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-purple-500 transition-all cursor-pointer"
-                  >
-                    <img
-                      src={resolveImageUrl(img)}
-                      alt={`Galerie ${index + 1}`}
-                      className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-sm">
-                        <span className="font-medium">Image {index + 1}</span>
-                        <ImageIcon size={16} />
+                {formation.galleryImages.map((img, index) => {
+                  // ✅ Extraire l'ID de l'image depuis l'URL
+                  // Format attendu: "/uploads/formations/gallery/123_filename.jpg"
+                  const imageId = parseInt(img.split('/').pop()?.split('_')[0] || '0');
+
+                  return (
+                    <div
+                      key={img}
+                      className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-purple-500 transition-all cursor-pointer"
+                    >
+                      <img
+                        src={resolveImageUrl(img)}
+                        alt={`Galerie ${index + 1}`}
+                        className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-sm">
+                          <span className="font-medium">Image {index + 1}</span>
+
+                          {/* ✅ BOUTON DE SUPPRESSION */}
+                          <button
+                            onClick={() => handleDeleteImage(imageId)}
+                            disabled={deletingId === imageId}
+                            className="p-2 bg-red-500 hover:bg-red-600 rounded-lg transition-all
+                                       disabled:opacity-50 disabled:cursor-not-allowed
+                                       hover:scale-110 active:scale-95"
+                            title="Supprimer cette image"
+                          >
+                            {deletingId === imageId ? (
+                              <Loader size={16} className="animate-spin" />
+                            ) : (
+                              <Trash2 size={16} />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

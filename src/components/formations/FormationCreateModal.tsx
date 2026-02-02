@@ -6,6 +6,7 @@ import {
   GraduationCap,
   Sparkles,
   Check,
+  FileText,
 } from "lucide-react";
 
 import { FormationService } from "@/services/formation.service";
@@ -26,7 +27,7 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
   const [displayOrder] = useState<number>(0);
   const [enabled] = useState<boolean>(true);
   const [cover, setCover] = useState<File | null>(null);
-  const [pdf] = useState<File | null>(null);
+  const [pdf, setPdf] = useState<File | null>(null); // ✅ AJOUT de setPdf
   const [loading, setLoading] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
@@ -45,6 +46,12 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
     } else {
       setCoverPreview(null);
     }
+  };
+
+  // ✅ NOUVELLE FONCTION pour gérer le PDF
+  const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setPdf(file);
   };
 
   const handleSubmit = async () => {
@@ -222,6 +229,58 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
                   type="file"
                   accept="image/*"
                   onChange={handleCoverChange}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
+
+          {/* ✅ NOUVEAU : Section PDF */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Document PDF (optionnel)
+            </label>
+
+            {pdf ? (
+              <div className="flex items-center gap-3 p-4 bg-orange-50 border-2 border-orange-200 rounded-xl">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">{pdf.name}</p>
+                  <p className="text-sm text-gray-600">
+                    {(pdf.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPdf(null)}
+                  className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ) : (
+              <label className="block cursor-pointer">
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 hover:border-orange-500 hover:bg-orange-50/50 transition-all">
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <FileText className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        Ajouter un document PDF
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Cliquez pour sélectionner un fichier
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handlePdfChange}
                   className="hidden"
                 />
               </label>

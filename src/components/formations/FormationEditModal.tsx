@@ -31,8 +31,9 @@ const FormationEditModal = ({ formationId, open, onClose, onSuccess }: Props) =>
     try {
       setLoading(true);
 
+      // ✅ CORRECTION: Utiliser "title" au lieu de "name"
       await FormationService.update(formation.id, {
-        name: formation.title.replace(`${formation.level} `, ""),
+        title: formation.title.replace(`${formation.level} `, ""),
         description: normalizeHtml(formation.description ?? ""),
         level: formation.level,
       });

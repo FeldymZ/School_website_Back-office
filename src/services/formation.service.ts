@@ -28,7 +28,7 @@ export const FormationService = {
   },
 
   /* ============================
-     CRÉATION (PDF ICI)
+     CRÉATION
      ============================ */
   async create(data: FormData): Promise<Formation> {
     const res = await api.post<Formation>(
@@ -53,7 +53,21 @@ export const FormationService = {
   },
 
   /* ============================
-     SUPPRESSION FORMATION
+     VISIBILITÉ
+     ============================ */
+  async toggleVisibility(
+    id: number,
+    enabled: boolean
+  ): Promise<Formation> {
+    const res = await api.put<Formation>(
+      `/api/admin/formations/initiale/${id}`,
+      { enabled }
+    );
+    return res.data;
+  },
+
+  /* ============================
+     SUPPRESSION
      ============================ */
   async delete(id: number): Promise<void> {
     await api.delete(
@@ -69,9 +83,7 @@ export const FormationService = {
     images: File[]
   ): Promise<void> {
     const formData = new FormData();
-    images.forEach((f) =>
-      formData.append("images", f)
-    );
+    images.forEach((f) => formData.append("images", f));
 
     await api.post(
       `/api/admin/formations/initiale/${formationId}/images`,
@@ -96,7 +108,7 @@ export const FormationService = {
   },
 
   /* ============================
-     PDF (SUPPRESSION UNIQUEMENT)
+     PDF
      ============================ */
   async deletePdf(id: number): Promise<void> {
     await api.delete(
@@ -104,21 +116,16 @@ export const FormationService = {
     );
   },
 
-
   async updateCover(
-  id: number,
-  file: File
-): Promise<void> {
-  const formData = new FormData();
-  formData.append("cover", file);
+    id: number,
+    file: File
+  ): Promise<void> {
+    const formData = new FormData();
+    formData.append("cover", file);
 
-  await api.put(
-    `/api/admin/formations/initiale/${id}/cover`,
-    formData
-  );
-},
-
+    await api.put(
+      `/api/admin/formations/initiale/${id}/cover`,
+      formData
+    );
+  },
 };
-
-
-
