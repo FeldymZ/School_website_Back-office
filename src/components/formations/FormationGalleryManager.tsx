@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
-import { X, Upload, Image as ImageIcon, Loader, Plus, Trash2 } from "lucide-react";
+import {
+  X,
+  Upload,
+  Image as ImageIcon,
+  Loader,
+  Plus,
+  Trash2,
+} from "lucide-react";
 
 import { FormationDetails } from "@/types/formation";
 import { FormationService } from "@/services/formation.service";
 import { resolveImageUrl } from "@/utils/image";
+import { getUserFromToken } from "@/utils/auth";
+import { UserRole } from "@/types/user";
 
 interface Props {
   formationId: number | null;
@@ -14,10 +23,16 @@ interface Props {
 const FormationGalleryModal = ({ formationId, open, onClose }: Props) => {
   const [formation, setFormation] = useState<FormationDetails | null>(null);
   const [files, setFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null); // ✅ AJOUT pour la suppression
   const [previews, setPreviews] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  const user = getUserFromToken();
+  const isSuperAdmin = user?.role === UserRole.SUPERADMIN;
+
+  /* =========================
+     FETCH
+     ========================= */
   useEffect(() => {
     if (!open || !formationId) return;
 
@@ -28,24 +43,31 @@ const FormationGalleryModal = ({ formationId, open, onClose }: Props) => {
 
   if (!open || !formation) return null;
 
-  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files ? Array.from(e.target.files) : [];
-    setFiles(selectedFiles);
+  const images = formation.galleryImages ?? [];
 
-    // Generate previews
-    const newPreviews: string[] = [];
-    selectedFiles.forEach(file => {
+  /* =========================
+     FILE SELECTION
+     ========================= */
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files ? Array.from(e.target.files) : [];
+    setFiles(selected);
+
+    const previewsTmp: string[] = [];
+    selected.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        newPreviews.push(reader.result as string);
-        if (newPreviews.length === selectedFiles.length) {
-          setPreviews(newPreviews);
+        previewsTmp.push(reader.result as string);
+        if (previewsTmp.length === selected.length) {
+          setPreviews(previewsTmp);
         }
       };
       reader.readAsDataURL(file);
     });
   };
 
+  /* =========================
+     UPLOAD
+     ========================= */
   const handleUpload = async () => {
     if (!files.length) return;
 
@@ -53,8 +75,9 @@ const FormationGalleryModal = ({ formationId, open, onClose }: Props) => {
       setLoading(true);
       await FormationService.addImages(formation.id, files);
 
-      const updated = await FormationService.getDetails(formation.id);
-      setFormation(updated);
+      const refreshed = await FormationService.getDetails(formation.id);
+      setFormation(refreshed);
+
       setFiles([]);
       setPreviews([]);
     } finally {
@@ -62,27 +85,31 @@ const FormationGalleryModal = ({ formationId, open, onClose }: Props) => {
     }
   };
 
-  // ✅ NOUVELLE FONCTION pour supprimer une image
+  /* =========================
+     DELETE IMAGE (SUPERADMIN)
+     ========================= */
   const handleDeleteImage = async (imageId: number) => {
-    if (!confirm("Voulez-vous vraiment supprimer cette image ?")) return;
+    if (!confirm("Supprimer définitivement cette image ?")) return;
 
     try {
       setDeletingId(imageId);
       await FormationService.deleteImage(imageId);
 
-      // Recharger les détails
-      const updated = await FormationService.getDetails(formation.id);
-      setFormation(updated);
+      const refreshed = await FormationService.getDetails(formation.id);
+      setFormation(refreshed);
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la suppression de l'image");
+      alert("Erreur lors de la suppression");
     } finally {
       setDeletingId(null);
     }
   };
 
+  /* =========================
+     UI
+     ========================= */
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -90,179 +117,121 @@ const FormationGalleryModal = ({ formationId, open, onClose }: Props) => {
       />
 
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-5xl rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white w-full max-w-5xl rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 opacity-10" />
-          <div className="relative flex items-center justify-between px-8 py-6 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
-                <ImageIcon className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Galerie d'images
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {formation.title}
-                </p>
-              </div>
+        <div className="flex items-center justify-between px-8 py-6 border-b">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+              <ImageIcon className="w-6 h-6 text-white" />
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
+            <div>
+              <h2 className="text-2xl font-bold">Galerie d’images</h2>
+              <p className="text-sm text-gray-500">{formation.title}</p>
+            </div>
           </div>
+
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
+            <X />
+          </button>
         </div>
 
         {/* Content */}
         <div className="p-8 space-y-6">
-          {/* Upload Section */}
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
-            <div className="flex flex-col md:flex-row items-center gap-4">
+          {/* Upload */}
+          <div className="bg-purple-50 rounded-xl p-6 border-2 border-dashed border-purple-300">
+            <div className="flex flex-col md:flex-row gap-4 items-center">
               <label className="flex-1 cursor-pointer">
-                <div className="flex items-center gap-3 p-4 bg-white rounded-xl border-2 border-dashed border-purple-300 hover:border-purple-500 transition-all">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                    <Plus className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">
-                      {files.length > 0 ? `${files.length} fichier(s) sélectionné(s)` : 'Sélectionner des images'}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      PNG, JPG ou WEBP
-                    </p>
-                  </div>
+                <div className="flex items-center gap-3 p-4 bg-white rounded-xl">
+                  <Plus />
+                  <span>
+                    {files.length
+                      ? `${files.length} image(s) sélectionnée(s)`
+                      : "Sélectionner des images"}
+                  </span>
                 </div>
                 <input
                   type="file"
                   multiple
                   accept="image/*"
-                  onChange={handleFilesChange}
                   className="hidden"
+                  onChange={handleFilesChange}
                 />
               </label>
 
               <button
                 onClick={handleUpload}
-                disabled={loading || files.length === 0}
-                className="px-6 py-4 rounded-xl font-medium text-white
-                           bg-gradient-to-r from-purple-500 to-pink-600
-                           hover:shadow-lg hover:scale-105 active:scale-95
-                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-                           transition-all duration-200 flex items-center gap-2"
+                disabled={!files.length || loading}
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600
+                           text-white disabled:opacity-50 flex items-center gap-2"
               >
-                {loading ? (
-                  <>
-                    <Loader size={18} className="animate-spin" />
-                    Upload...
-                  </>
-                ) : (
-                  <>
-                    <Upload size={18} />
-                    Ajouter
-                  </>
-                )}
+                {loading ? <Loader className="animate-spin" /> : <Upload />}
+                Ajouter
               </button>
             </div>
 
-            {/* Preview Selected Files */}
+            {/* Previews */}
             {previews.length > 0 && (
-              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-                {previews.map((preview, idx) => (
-                  <div key={idx} className="relative group">
-                    <img
-                      src={preview}
-                      alt={`Preview ${idx}`}
-                      className="w-full h-24 object-cover rounded-lg border-2 border-purple-200"
-                    />
-                    <div className="absolute inset-0 bg-purple-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                {previews.map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    className="h-24 object-cover rounded-lg border"
+                  />
                 ))}
               </div>
             )}
           </div>
 
-          {/* Gallery Grid */}
-          {formation.galleryImages.length === 0 ? (
-            <div className="text-center py-16 space-y-4">
-              <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto">
-                <ImageIcon className="w-10 h-10 text-gray-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Aucune image dans la galerie
-                </h3>
-                <p className="text-gray-500 mt-1">
-                  Commencez par ajouter vos premières images
-                </p>
-              </div>
+          {/* Gallery */}
+          {images.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              Aucune image dans la galerie
             </div>
           ) : (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
-                  <ImageIcon size={20} className="text-purple-500" />
-                  Images de la galerie
-                  <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded-full">
-                    {formation.galleryImages.length}
-                  </span>
-                </h3>
-              </div>
+              <h3 className="font-bold mb-4">
+                Images ({images.length})
+              </h3>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {formation.galleryImages.map((img, index) => {
-                  // ✅ Extraire l'ID de l'image depuis l'URL
-                  // Format attendu: "/uploads/formations/gallery/123_filename.jpg"
-                  const imageId = parseInt(img.split('/').pop()?.split('_')[0] || '0');
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {images.map((img, index) => (
+                  <div
+                    key={img.id}
+                    className="group relative rounded-xl overflow-hidden border"
+                  >
+                    <img
+                      src={resolveImageUrl(img.url)}
+                      alt={`Galerie ${index + 1}`}
+                      className="w-full h-40 object-cover"
+                    />
 
-                  return (
-                    <div
-                      key={img}
-                      className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-purple-500 transition-all cursor-pointer"
-                    >
-                      <img
-                        src={resolveImageUrl(img)}
-                        alt={`Galerie ${index + 1}`}
-                        className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-sm">
-                          <span className="font-medium">Image {index + 1}</span>
-
-                          {/* ✅ BOUTON DE SUPPRESSION */}
-                          <button
-                            onClick={() => handleDeleteImage(imageId)}
-                            disabled={deletingId === imageId}
-                            className="p-2 bg-red-500 hover:bg-red-600 rounded-lg transition-all
-                                       disabled:opacity-50 disabled:cursor-not-allowed
-                                       hover:scale-110 active:scale-95"
-                            title="Supprimer cette image"
-                          >
-                            {deletingId === imageId ? (
-                              <Loader size={16} className="animate-spin" />
-                            ) : (
-                              <Trash2 size={16} />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                    {isSuperAdmin && (
+                      <button
+                        onClick={() => handleDeleteImage(img.id)}
+                        disabled={deletingId === img.id}
+                        className="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg
+                                   opacity-0 group-hover:opacity-100 transition"
+                      >
+                        {deletingId === img.id ? (
+                          <Loader size={16} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={16} />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 border-t border-gray-100 bg-gray-50">
+        <div className="px-8 py-4 border-t bg-gray-50">
           <button
             onClick={onClose}
-            className="w-full px-6 py-3 rounded-xl border-2 border-gray-200 font-medium text-gray-700
-                       hover:bg-white hover:border-gray-300 transition-all"
+            className="w-full px-6 py-3 rounded-xl border hover:bg-white"
           >
             Fermer
           </button>

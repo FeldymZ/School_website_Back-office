@@ -12,6 +12,7 @@ import {
   BarChart3,
   Settings,
   Sparkles,
+  Grid3x3, // ✅ AJOUT pour icône activités distincte
 } from "lucide-react";
 
 import { ContactService } from "@/services/contactService";
@@ -73,7 +74,6 @@ const Sidebar = () => {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-8">
-
         {/* ================= GÉNÉRAL ================= */}
         <Section title="Général">
           <NavLink to="/dashboard" end className={linkClass}>
@@ -129,6 +129,18 @@ const Sidebar = () => {
             )}
           </NavLink>
 
+          {/* ✅ ACTIVITÉS avec icône distincte */}
+          <NavLink to="/activites" end className={linkClass}>
+            {({ isActive }) => (
+              <>
+                <IconWrap isActive={isActive}>
+                  <Grid3x3 size={20} />
+                </IconWrap>
+                <span className="font-medium">Activités</span>
+              </>
+            )}
+          </NavLink>
+
           <NavLink to="/banners" end className={linkClass}>
             {({ isActive }) => (
               <>
@@ -165,19 +177,23 @@ const Sidebar = () => {
             )}
           </NavLink>
 
+          {/* ✅ FIX: Messages avec badge toujours présent pour layout consistant */}
           <NavLink to="/messages" end className={linkClass}>
             {({ isActive }) => (
               <>
                 <IconWrap isActive={isActive}>
                   <Mail size={20} />
                 </IconWrap>
-                <span className="font-medium">Messages</span>
+                <span className="font-medium flex-1">Messages</span>
 
-                {unrepliedCount !== null && unrepliedCount > 0 && (
-                  <span className="ml-auto text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
-                    {unrepliedCount}
-                  </span>
-                )}
+                {/* Badge toujours à droite, visible uniquement si > 0 */}
+                <div className="ml-auto">
+                  {unrepliedCount !== null && unrepliedCount > 0 && (
+                    <span className="inline-flex items-center justify-center text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full min-w-[20px] h-5 animate-pulse">
+                      {unrepliedCount}
+                    </span>
+                  )}
+                </div>
               </>
             )}
           </NavLink>
@@ -197,7 +213,7 @@ const Sidebar = () => {
           </NavLink>
         </Section>
 
-        {/* ================= ADMINISTRATION (SUPERADMIN ONLY) ================= */}
+        {/* ================= ADMINISTRATION ================= */}
         {isSuperAdmin && (
           <Section title="Administration">
             <NavLink to="/utilisateurs" end className={linkClass}>

@@ -1,16 +1,32 @@
 export interface Actualite {
   id: number;
   title: string;
+  slug: string;
   coverImageUrl: string;
   publishedAt: string | null;
 }
 
+export interface ActualiteGalleryImage {
+  id: number;
+  url: string;          // ✅ EXACTEMENT comme le backend
+  displayOrder: number;
+}
+
+
+
 export interface ActualiteDetails {
   id: number;
   title: string;
+  slug: string;
   content: string;
   coverImageUrl: string;
+
+  // 🌍 PUBLIC
   galleryImages: string[];
+
+  // 🔐 ADMIN
+  galleryImagesAdmin: ActualiteGalleryImage[];
+
   displayOrder: number | null;
   publishedAt: string | null;
 }

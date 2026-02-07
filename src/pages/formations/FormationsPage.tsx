@@ -452,6 +452,7 @@ const FormationsPage = () => {
                               Galerie
                             </button>
 
+
                             <button
                               onClick={() => {
                                 setSelectedId(f.id);

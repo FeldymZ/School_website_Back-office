@@ -25,6 +25,7 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import FormationsPage from "./pages/formations/FormationsPage";
 import AgendaPage from "./pages/agenda/AgendaPage";
 import ActualitesPage from "./pages/actualites/ActualitesPage";
+import ActivitesPage from "./pages/activites/ActivitesPage"; // ✅ AJOUT
 import CommentairesPage from "./pages/commentaires/CommentairesPage";
 import PartenairesPage from "./pages/partenaires/PartenairesPage";
 import UsersPage from "./pages/utilisateurs/UsersPage";
@@ -44,7 +45,7 @@ import BannerList from "./components/banners/BannerList";
 /* ================= UTILS ================= */
 import { UserRole } from "./types/user";
 
-/* ================= APP WRAPPER ================= */
+/* ================= APP ROUTES ================= */
 const AppRoutes = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -76,13 +77,18 @@ const AppRoutes = () => {
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
 
+        {/* ACADÉMIQUE */}
         <Route path="formations" element={<FormationsPage />} />
         <Route path="agenda" element={<AgendaPage />} />
+
+        {/* CONTENU */}
         <Route path="actualites" element={<ActualitesPage />} />
+        <Route path="activites" element={<ActivitesPage />} /> {/* ✅ */}
         <Route path="banners" element={<BannerList />} />
         <Route path="commentaires" element={<CommentairesPage />} />
         <Route path="partenaires" element={<PartenairesPage />} />
 
+        {/* CONTACT */}
         <Route path="contact" element={<ContactListPage />} />
         <Route path="contact/unreplied" element={<ContactUnrepliedPage />} />
         <Route path="contact/:id" element={<ContactDetailsPage />} />
@@ -92,11 +98,13 @@ const AppRoutes = () => {
           element={<Navigate to="/contact" replace />}
         />
 
+        {/* STATS */}
         <Route
           path="statistiques"
           element={<KeyFiguresPage />}
         />
 
+        {/* SUPERADMIN */}
         <Route
           path="utilisateurs"
           element={
@@ -122,6 +130,7 @@ const AppRoutes = () => {
   );
 };
 
+/* ================= APP ================= */
 const App = () => {
   return (
     <LayoutProvider>

@@ -7,13 +7,12 @@ import {
 } from "@/types/actualite";
 
 export const ActualiteService = {
+  /* =========================
+     LISTE / DÉTAIL
+     ========================= */
+
   getAll(): Promise<Actualite[]> {
     return api.get<Actualite[]>("/api/admin/actualites")
-      .then(res => res.data);
-  },
-
-  getById(id: number): Promise<ActualiteDetails> {
-    return api.get<ActualiteDetails>(`/api/admin/actualites/${id}`)
       .then(res => res.data);
   },
 
@@ -21,6 +20,10 @@ export const ActualiteService = {
     return api.get<ActualiteDetails>(`/api/admin/actualites/${id}`)
       .then(res => res.data);
   },
+
+  /* =========================
+     CRÉATION / UPDATE
+     ========================= */
 
   create(formData: FormData): Promise<Actualite> {
     return api.post<Actualite>("/api/admin/actualites", formData)
@@ -31,12 +34,10 @@ export const ActualiteService = {
     id: number,
     data: ActualiteUpdateRequest
   ): Promise<Actualite> {
-    return api.put<Actualite>(`/api/admin/actualites/${id}`, data)
-      .then(res => res.data);
-  },
-
-  delete(id: number): Promise<void> {
-    return api.delete(`/api/admin/actualites/${id}`);
+    return api.put<Actualite>(
+      `/api/admin/actualites/${id}`,
+      data
+    ).then(res => res.data);
   },
 
   updateCover(id: number, file: File): Promise<Actualite> {
@@ -49,9 +50,13 @@ export const ActualiteService = {
     ).then(res => res.data);
   },
 
+  /* =========================
+     GALERIE
+     ========================= */
+
   addImages(id: number, files: File[]): Promise<void> {
     const formData = new FormData();
-    files.forEach(f => formData.append("images", f));
+    files.forEach(file => formData.append("images", file));
 
     return api.post(
       `/api/admin/actualites/${id}/images`,
@@ -61,13 +66,23 @@ export const ActualiteService = {
 
   replaceImages(id: number, files: File[]): Promise<void> {
     const formData = new FormData();
-    files.forEach(f => formData.append("images", f));
+    files.forEach(file => formData.append("images", file));
 
     return api.put(
       `/api/admin/actualites/${id}/images`,
       formData
     );
   },
+
+  deleteImage(imageId: number): Promise<void> {
+    return api.delete(
+      `/api/admin/actualites/images/${imageId}`
+    );
+  },
+
+  /* =========================
+     HISTORIQUE / ORDRE
+     ========================= */
 
   getHistory(id: number): Promise<ActualitePublicationHistory[]> {
     return api.get<ActualitePublicationHistory[]>(
@@ -76,6 +91,13 @@ export const ActualiteService = {
   },
 
   reorder(orderedIds: number[]): Promise<void> {
-    return api.put("/api/admin/actualites/reorder", { orderedIds });
+    return api.put(
+      "/api/admin/actualites/reorder",
+      { orderedIds }
+    );
+  },
+
+  delete(id: number): Promise<void> {
+    return api.delete(`/api/admin/actualites/${id}`);
   },
 };

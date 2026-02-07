@@ -28,8 +28,6 @@ export const DashboardService = {
     return res.data.length;
   },
 
-  /* ================= AJOUT ================= */
-
   getFormationsLicenceCount: async () => {
     return DashboardService.getFormationsByLevel(
       "LICENCE"
@@ -41,8 +39,6 @@ export const DashboardService = {
       "MASTER"
     );
   },
-
-  /* ======================================== */
 
   getPreinscriptionsTotal: async () => {
     const res = await api.get(API_CONFIG.PREINSCRIPTIONS.ALL);
@@ -58,6 +54,12 @@ export const DashboardService = {
 
   getActualitesCount: async () => {
     const res = await api.get(API_CONFIG.ACTUALITES);
+    return res.data.length;
+  },
+
+  /* ✅ NOUVEAU - Nombre d'activités */
+  getActivitesCount: async () => {
+    const res = await api.get("/api/admin/activites");
     return res.data.length;
   },
 

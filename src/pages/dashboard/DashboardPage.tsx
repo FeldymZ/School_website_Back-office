@@ -13,7 +13,8 @@ import {
   Sparkles,
   Award,
   BookOpen,
-  AlertCircle
+  AlertCircle,
+  Grid3x3, // ✅ AJOUT pour l'icône activités
 } from "lucide-react";
 
 import { DashboardService } from "../../services/dashboard.service";
@@ -28,11 +29,12 @@ const DashboardPage = () => {
 
   const [stats, setStats] = useState({
     formations: 0,
-    licences: 0, // ✅ AJOUT
+    licences: 0,
     masters: 0,
     preinscriptions: 0,
     preinscriptionsAttente: 0,
     actualites: 0,
+    activites: 0, // ✅ AJOUT
     partenaires: 0,
     messages: 0,
     eventsUpcoming: 0,
@@ -44,22 +46,24 @@ const DashboardPage = () => {
       try {
         const [
           formations,
-          licences, // ✅ AJOUT
+          licences,
           masters,
           preinscriptions,
           enAttente,
           actualites,
+          activites, // ✅ AJOUT
           partenaires,
           messages,
           upcoming,
           past,
         ] = await Promise.all([
           DashboardService.getFormationsCount(),
-          DashboardService.getFormationsLicenceCount(), // ✅ AJOUT
+          DashboardService.getFormationsLicenceCount(),
           DashboardService.getFormationsMasterCount(),
           DashboardService.getPreinscriptionsTotal(),
           DashboardService.getPreinscriptionsEnAttente(),
           DashboardService.getActualitesCount(),
+          DashboardService.getActivitesCount(), // ✅ AJOUT
           DashboardService.getPartenairesCount(),
           DashboardService.getMessagesCount(),
           DashboardService.getEvenementsAVenir(),
@@ -68,11 +72,12 @@ const DashboardPage = () => {
 
         setStats({
           formations,
-          licences, // ✅ AJOUT
+          licences,
           masters,
           preinscriptions,
           preinscriptionsAttente: enAttente,
           actualites,
+          activites, // ✅ AJOUT
           partenaires,
           messages,
           eventsUpcoming: upcoming,
@@ -120,7 +125,8 @@ const DashboardPage = () => {
     { name: "Formations", value: stats.formations, color: "#00A4E0" },
     { name: "Préinscriptions", value: stats.preinscriptions, color: "#8B5CF6" },
     { name: "Actualités", value: stats.actualites, color: "#10B981" },
-    { name: "Messages", value: stats.messages, color: "#F59E0B" },
+    { name: "Activités", value: stats.activites, color: "#F59E0B" }, // ✅ AJOUT
+    { name: "Messages", value: stats.messages, color: "#EF4444" },
   ];
 
   const pieData = [
@@ -221,7 +227,7 @@ const DashboardPage = () => {
             </div>
 
             <div className="space-y-3">
-              {/* ✅ NOUVELLE CARD - Licences */}
+              {/* Licences */}
               <div className="group relative overflow-hidden p-4 bg-gradient-to-br from-cyan-50 to-cyan-100/50 rounded-xl hover:shadow-md transition-all duration-300 cursor-pointer">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-colors"></div>
                 <div className="relative flex items-center space-x-3">
@@ -283,18 +289,36 @@ const DashboardPage = () => {
                 </div>
               </div>
 
-              {/* Partenaires */}
-              <div className="group relative overflow-hidden p-4 bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl hover:shadow-md transition-all duration-300 cursor-pointer">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-colors"></div>
+              {/* ✅ NOUVELLE CARD - Activités */}
+              <div
+                className="group relative overflow-hidden p-4 bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-xl hover:shadow-md transition-all duration-300 cursor-pointer"
+                onClick={() => navigate("/activites")}
+              >
+                <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-colors"></div>
                 <div className="relative flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Grid3x3 size={20} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600 font-medium">Activités</p>
+                    <p className="text-3xl font-bold text-gray-800">{stats.activites}</p>
+                  </div>
+                  <ArrowUpRight size={18} className="text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </div>
+
+              {/* Partenaires */}
+              <div className="group relative overflow-hidden p-4 bg-gradient-to-br from-rose-50 to-rose-100/50 rounded-xl hover:shadow-md transition-all duration-300 cursor-pointer">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-colors"></div>
+                <div className="relative flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg">
                     <Users size={20} className="text-white" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-600 font-medium">Partenaires</p>
                     <p className="text-3xl font-bold text-gray-800">{stats.partenaires}</p>
                   </div>
-                  <ArrowUpRight size={18} className="text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ArrowUpRight size={18} className="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
             </div>

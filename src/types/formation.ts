@@ -14,7 +14,16 @@ export interface Formation {
   title: string;
   coverImageUrl: string;
   level: FormationLevel;
-  enabled: boolean; // ✅ OBLIGATOIRE
+  enabled: boolean;
+}
+
+/* ============================
+   GALERIE IMAGE
+   ============================ */
+export interface FormationGalleryImage {
+  id: number;
+  url: string;            // ✅ url simple
+  displayOrder: number;
 }
 
 /* ============================
@@ -22,7 +31,7 @@ export interface Formation {
    ============================ */
 export interface FormationDetails extends Formation {
   description?: string;
-  galleryImages: string[];
+  galleryImages: FormationGalleryImage[];
   pdfUrl?: string;
 }
 
@@ -30,7 +39,7 @@ export interface FormationDetails extends Formation {
    UPDATE REQUEST
    ============================ */
 export interface FormationUpdateRequest {
-  title?: string;
+  name?: string;
   description?: string;
   level?: FormationLevel;
   displayOrder?: number;

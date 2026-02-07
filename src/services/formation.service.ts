@@ -7,9 +7,9 @@ import {
 } from "@/types/formation";
 
 export const FormationService = {
-  /* ============================
+  /* =========================
      LISTE
-     ============================ */
+     ========================= */
   async getAll(): Promise<Formation[]> {
     const res = await api.get<Formation[]>(
       "/api/admin/formations/initiale"
@@ -17,9 +17,9 @@ export const FormationService = {
     return res.data;
   },
 
-  /* ============================
+  /* =========================
      DÉTAILS
-     ============================ */
+     ========================= */
   async getDetails(id: number): Promise<FormationDetails> {
     const res = await api.get<FormationDetails>(
       `/api/admin/formations/initiale/${id}`
@@ -27,9 +27,9 @@ export const FormationService = {
     return res.data;
   },
 
-  /* ============================
+  /* =========================
      CRÉATION
-     ============================ */
+     ========================= */
   async create(data: FormData): Promise<Formation> {
     const res = await api.post<Formation>(
       "/api/admin/formations/initiale",
@@ -38,9 +38,9 @@ export const FormationService = {
     return res.data;
   },
 
-  /* ============================
+  /* =========================
      UPDATE
-     ============================ */
+     ========================= */
   async update(
     id: number,
     payload: FormationUpdateRequest
@@ -52,9 +52,9 @@ export const FormationService = {
     return res.data;
   },
 
-  /* ============================
+  /* =========================
      VISIBILITÉ
-     ============================ */
+     ========================= */
   async toggleVisibility(
     id: number,
     enabled: boolean
@@ -66,18 +66,18 @@ export const FormationService = {
     return res.data;
   },
 
-  /* ============================
+  /* =========================
      SUPPRESSION
-     ============================ */
+     ========================= */
   async delete(id: number): Promise<void> {
     await api.delete(
       `/api/admin/formations/initiale/${id}`
     );
   },
 
-  /* ============================
+  /* =========================
      GALERIE
-     ============================ */
+     ========================= */
   async addImages(
     formationId: number,
     images: File[]
@@ -107,15 +107,32 @@ export const FormationService = {
     );
   },
 
-  /* ============================
-     PDF
-     ============================ */
+  /* =========================
+     PDF  ✅ CORRIGÉ ICI
+     ========================= */
+ async uploadPdf(
+  formationId: number,
+  file: File
+): Promise<void> {
+  const formData = new FormData();
+  formData.append("pdf", file);
+
+  await api.put(
+    `/api/admin/formations/initiale/${formationId}/pdf`,
+    formData
+  );
+}
+,
+
   async deletePdf(id: number): Promise<void> {
     await api.delete(
       `/api/admin/formations/initiale/${id}/pdf`
     );
   },
 
+  /* =========================
+     COVER
+     ========================= */
   async updateCover(
     id: number,
     file: File

@@ -1,58 +1,95 @@
 import { useState } from "react";
-import { X, Save, Loader, Newspaper, FileText, Hash, Eye, EyeOff, Upload, Sparkles, Image as ImageIcon, Zap } from "lucide-react";
-import { ActualiteService } from "@/services/actualiteService";
-import RichTextEditor from "../editor/RichTextEditor";
-import { normalizeHtml } from "@/utils/html";
+import {
+  X,
+  Image as ImageIcon,
+  Video,
+  Loader,
+  Check,
+  Upload,
+  Sparkles,
+  Grid3x3,
+  FileText,
+  Zap,
+  Film,
+} from "lucide-react";
+
+import { ActiviteService } from "@/services/activite.service";
+import RichTextEditor from "@/components/editor/RichTextEditor";
 
 interface Props {
+  open: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onSuccess: () => void;
 }
 
-const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [displayOrder, setDisplayOrder] = useState<number>(0);
-  const [enabled, setEnabled] = useState(false);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
+const ActiviteCreateModal = ({ open, onClose, onSuccess }: Props) => {
+  const [titre, setTitre] = useState("");
+  const [contenu, setContenu] = useState("");
+
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [video, setVideo] = useState<File | null>(null);
+
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState<string>("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setCoverImage(file);
+  if (!open) return null;
 
-    if (file) {
+  /* ========================= PHOTOS ========================= */
+  const handlePhotosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    setPhotos(files);
+
+    const previews: string[] = [];
+    files.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreview(reader.result as string);
+        previews.push(reader.result as string);
+        if (previews.length === files.length) {
+          setPhotoPreviews(previews);
+        }
       };
       reader.readAsDataURL(file);
+    });
+  };
+
+  /* ========================= VIDEO ========================= */
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setVideo(file);
+
+    if (file) {
+      setVideoPreview(URL.createObjectURL(file));
     } else {
-      setPreview("");
+      setVideoPreview(null);
     }
   };
 
+  /* ========================= SUBMIT ========================= */
   const handleSubmit = async () => {
-    if (!title || !content || !coverImage) {
-      alert("Tous les champs obligatoires doivent être remplis");
+    if (!titre || !contenu || photos.length === 0) {
+      alert("Titre, contenu et au moins une photo sont obligatoires");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", normalizeHtml(content));
-    formData.append("displayOrder", String(displayOrder));
-    formData.append("enabled", String(enabled));
-    formData.append("coverImage", coverImage);
-
     try {
       setLoading(true);
-      await ActualiteService.create(formData);
-      onCreated();
+
+      const formData = new FormData();
+      formData.append("titre", titre);
+      formData.append("contenu", contenu);
+
+      photos.forEach((p) => formData.append("photos", p));
+      if (video) formData.append("video", video);
+
+      await ActiviteService.create(formData);
+
+      onSuccess();
       onClose();
-    } catch {
-      alert("Erreur lors de la création");
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la création de l'activité");
     } finally {
       setLoading(false);
     }
@@ -78,16 +115,16 @@ const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
               <div className="relative group">
                 <div className="absolute inset-0 bg-white rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity animate-pulse" />
                 <div className="relative w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-2xl border border-white/30 group-hover:scale-110 transition-transform duration-300">
-                  <Newspaper className="text-white drop-shadow-lg" size={28} />
+                  <Grid3x3 className="text-white drop-shadow-lg" size={28} />
                 </div>
               </div>
               <div>
                 <h2 className="text-3xl font-black text-white flex items-center gap-3 drop-shadow-lg">
-                  Nouvelle actualité
+                  Nouvelle activité
                   <Sparkles size={22} className="text-yellow-300 animate-pulse drop-shadow-lg" />
                 </h2>
                 <p className="text-sm text-white/90 mt-1 font-medium drop-shadow">
-                  Créez et partagez des actualités percutantes
+                  Créez et partagez des activités étudiantes
                 </p>
               </div>
             </div>
@@ -107,16 +144,16 @@ const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
           <div className="space-y-3">
             <label className="flex items-center gap-3 text-sm font-bold text-gray-800">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
-                <Newspaper size={16} className="text-white" />
+                <Grid3x3 size={16} className="text-white" />
               </div>
-              Titre de l'actualité
+              Titre de l'activité
               <span className="px-2 py-0.5 bg-red-500 text-white rounded text-xs font-semibold">Obligatoire</span>
             </label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex: Rentrée académique 2024-2025"
+              value={titre}
+              onChange={(e) => setTitre(e.target.value)}
+              placeholder="Ex: Journée sportive inter-promotions"
               className="w-full border-2 border-gray-200 rounded-xl px-5 py-4 text-lg
                          focus:outline-none focus:ring-4 focus:ring-[#00A4E0]/20 focus:border-[#00A4E0]
                          transition-all hover:border-gray-300 placeholder:text-gray-400
@@ -134,54 +171,60 @@ const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
               <span className="px-2 py-0.5 bg-red-500 text-white rounded text-xs font-semibold">Obligatoire</span>
             </label>
             <div className="border-2 border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 transition-colors shadow-sm hover:shadow-md">
-              <RichTextEditor value={content} onChange={setContent} />
+              <RichTextEditor value={contenu} onChange={setContenu} />
             </div>
           </div>
 
-          {/* Image de couverture */}
+          {/* Photos */}
           <div className="space-y-3">
             <label className="flex items-center gap-3 text-sm font-bold text-gray-800">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
                 <ImageIcon size={16} className="text-white" />
               </div>
-              Image de couverture
-              <span className="px-2 py-0.5 bg-red-500 text-white rounded text-xs font-semibold">Obligatoire</span>
+              Photos
+              <span className="px-2 py-0.5 bg-red-500 text-white rounded text-xs font-semibold">Au moins 1</span>
             </label>
 
-            {preview ? (
-              <div className="relative group">
-                <div className="overflow-hidden rounded-2xl border-3 border-[#00A4E0] shadow-2xl shadow-[#00A4E0]/30">
-                  <img
-                    src={preview}
-                    alt="Aperçu"
-                    className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            {photoPreviews.length > 0 ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {photoPreviews.map((src, i) => (
+                    <div key={i} className="relative group">
+                      <div className="overflow-hidden rounded-xl border-2 border-[#00A4E0] shadow-lg shadow-[#00A4E0]/20">
+                        <img
+                          src={src}
+                          alt={`Photo ${i + 1}`}
+                          className="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1 shadow-lg border border-white/50">
+                        <p className="text-xs font-bold text-[#00A4E0]">Photo {i + 1}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+
                 <button
                   onClick={() => {
-                    setCoverImage(null);
-                    setPreview("");
+                    setPhotos([]);
+                    setPhotoPreviews([]);
                   }}
-                  className="absolute top-4 right-4 p-3 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-2xl hover:scale-110 active:scale-95 group/btn"
+                  className="w-full px-6 py-3 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl
+                             hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-xl
+                             hover:scale-[1.02] active:scale-95 font-bold flex items-center justify-center gap-2"
                 >
-                  <X size={20} className="group-hover/btn:rotate-90 transition-transform duration-300" />
+                  <X size={18} />
+                  Supprimer toutes les photos
                 </button>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3 shadow-xl border border-white/50">
-                    <p className="text-sm font-semibold text-[#00A4E0] flex items-center gap-2">
-                      <Zap size={16} className="animate-pulse" />
-                      Image sélectionnée !
-                    </p>
-                  </div>
-                </div>
               </div>
             ) : (
               <label className="group relative block cursor-pointer">
                 <input
                   type="file"
+                  multiple
                   accept="image/*"
-                  onChange={handleFileChange}
+                  onChange={handlePhotosChange}
                   className="sr-only"
                 />
                 <div className="relative overflow-hidden border-3 border-dashed border-[#00A4E0]/40 rounded-2xl p-16 text-center bg-gradient-to-br from-[#cfe3ff]/30 via-blue-50/20 to-transparent hover:border-[#00A4E0] hover:from-[#cfe3ff]/50 hover:bg-blue-50/30 transition-all duration-500 group-hover:scale-[1.01]">
@@ -193,10 +236,10 @@ const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
                       <Upload className="w-10 h-10 text-white animate-bounce" />
                     </div>
                     <p className="text-xl font-bold text-gray-900 mb-2">
-                      Cliquez pour sélectionner une image
+                      Cliquez pour sélectionner des photos
                     </p>
                     <p className="text-sm text-gray-600 mb-3">
-                      Ou glissez-déposez votre fichier ici
+                      Vous pouvez sélectionner plusieurs fichiers
                     </p>
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-lg border border-gray-200">
                       <div className="flex gap-1">
@@ -204,7 +247,7 @@ const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
                         <span className="px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded text-xs font-semibold">JPG</span>
                         <span className="px-2 py-0.5 bg-sky-100 text-sky-700 rounded text-xs font-semibold">WEBP</span>
                       </div>
-                      <span className="text-xs text-gray-500">jusqu'à 10MB</span>
+                      <span className="text-xs text-gray-500">jusqu'à 10MB chacune</span>
                     </div>
                   </div>
                 </div>
@@ -212,78 +255,70 @@ const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
             )}
           </div>
 
-          {/* Options */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Ordre d'affichage */}
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 text-sm font-bold text-gray-800">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
-                  <Hash size={16} className="text-white" />
-                </div>
-                Ordre d'affichage
-              </label>
-              <div className="relative">
-                <Hash className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                <input
-                  type="number"
-                  value={displayOrder}
-                  onChange={(e) => setDisplayOrder(Number(e.target.value))}
-                  min="0"
-                  className="w-full border-2 border-gray-200 rounded-xl pl-14 pr-5 py-4 text-lg
-                             focus:outline-none focus:ring-4 focus:ring-[#00A4E0]/20 focus:border-[#00A4E0]
-                             transition-all hover:border-gray-300 shadow-sm hover:shadow-md"
-                />
+          {/* Vidéo */}
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 text-sm font-bold text-gray-800">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+                <Film size={16} className="text-white" />
               </div>
-              <p className="text-xs text-gray-600 flex items-center gap-2 bg-blue-50 p-3 rounded-lg">
-                <Sparkles size={14} className="text-[#00A4E0]" />
-                Plus le nombre est petit, plus l'actualité est prioritaire
-              </p>
-            </div>
+              Vidéo
+              <span className="px-2 py-0.5 bg-gray-400 text-white rounded text-xs font-semibold">Optionnel</span>
+            </label>
 
-            {/* Statut Publication */}
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 text-sm font-bold text-gray-800">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
-                  <Eye size={16} className="text-white" />
+            {videoPreview ? (
+              <div className="relative group">
+                <div className="overflow-hidden rounded-2xl border-3 border-purple-500 shadow-2xl shadow-purple-500/30">
+                  <video
+                    src={videoPreview}
+                    controls
+                    className="w-full max-h-80 bg-black"
+                  />
                 </div>
-                Publication
-              </label>
-              <div className="relative overflow-hidden rounded-2xl border-3 border-[#cfe3ff] bg-gradient-to-br from-[#cfe3ff]/20 to-transparent p-5 shadow-lg hover:shadow-xl transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 ${
-                      enabled
-                        ? "bg-gradient-to-br from-[#00A4E0] to-[#0077A8] scale-110"
-                        : "bg-gradient-to-br from-[#A6A6A6] to-gray-500"
-                    }`}>
-                      {enabled ? (
-                        <Eye size={20} className="text-white" />
-                      ) : (
-                        <EyeOff size={20} className="text-white" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-900 text-base">
-                        {enabled ? "Publier immédiatement" : "Enregistrer en brouillon"}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">
-                        {enabled ? "Visible dès la création" : "Visible uniquement pour vous"}
-                      </p>
-                    </div>
+                <button
+                  onClick={() => {
+                    setVideo(null);
+                    setVideoPreview(null);
+                  }}
+                  className="absolute top-4 right-4 p-3 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl
+                             hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-2xl
+                             hover:scale-110 active:scale-95 group/btn"
+                >
+                  <X size={20} className="group-hover/btn:rotate-90 transition-transform duration-300" />
+                </button>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3 shadow-xl border border-white/50">
+                    <p className="text-sm font-semibold text-purple-600 flex items-center gap-2">
+                      <Zap size={16} className="animate-pulse" />
+                      Vidéo sélectionnée !
+                    </p>
                   </div>
-
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={enabled}
-                      onChange={(e) => setEnabled(e.target.checked)}
-                    />
-                    <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#00A4E0]/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-[#00A4E0] peer-checked:to-[#0077A8] shadow-inner"></div>
-                  </label>
                 </div>
               </div>
-            </div>
+            ) : (
+              <label className="group relative block cursor-pointer">
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                  className="sr-only"
+                />
+                <div className="relative overflow-hidden border-3 border-dashed border-purple-400/40 rounded-2xl p-12 text-center bg-gradient-to-br from-purple-50/30 via-pink-50/20 to-transparent hover:border-purple-500 hover:from-purple-50/50 hover:bg-purple-50/30 transition-all duration-500 group-hover:scale-[1.01]">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="relative">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-purple-500/40 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                      <Video className="w-8 h-8 text-white animate-pulse" />
+                    </div>
+                    <p className="text-lg font-bold text-gray-900 mb-2">
+                      Ajouter une vidéo (optionnel)
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      MP4, MOV, AVI jusqu'à 50MB
+                    </p>
+                  </div>
+                </div>
+              </label>
+            )}
           </div>
         </div>
 
@@ -322,8 +357,8 @@ const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
               </>
             ) : (
               <>
-                <Save size={22} className="group-hover/save:scale-110 transition-transform" />
-                <span className="relative">Créer l'actualité</span>
+                <Check size={22} className="group-hover/save:scale-110 transition-transform" />
+                <span className="relative">Créer l'activité</span>
               </>
             )}
           </button>
@@ -367,4 +402,4 @@ const ActualiteCreateModal = ({ onClose, onCreated }: Props) => {
   );
 };
 
-export default ActualiteCreateModal;
+export default ActiviteCreateModal;
