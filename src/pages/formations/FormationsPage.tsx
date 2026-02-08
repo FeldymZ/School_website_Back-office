@@ -15,7 +15,6 @@ import {
   Sparkles,
   Filter,
   BookOpen,
-
   CheckCircle,
   XCircle,
 } from "lucide-react";
@@ -31,6 +30,7 @@ import FormationDetailsModal from "@/components/formations/FormationDetailsModal
 import FormationEditModal from "@/components/formations/FormationEditModal";
 import FormationGalleryModal from "@/components/formations/FormationGalleryManager";
 import FormationPdfModal from "@/components/formations/FormationPdfModal";
+import FormationCoverModal from "@/components/formations/FormationCoverModal";
 import ConfirmDeleteModal from "@/components/common/ConfirmDeleteModal";
 
 /* ============================
@@ -77,10 +77,10 @@ const FormationsPage = () => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openGallery, setOpenGallery] = useState(false);
   const [openPdf, setOpenPdf] = useState(false);
+  const [openCover, setOpenCover] = useState(false);
 
   const [deleting, setDeleting] = useState(false);
 
-  // ✅ CHANGEMENT : Vue "list" par défaut au lieu de "grid"
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -351,7 +351,7 @@ const FormationsPage = () => {
           </div>
         )}
 
-        {/* ================= LIST VIEW (PRIORITAIRE) ================= */}
+        {/* ================= LIST VIEW ================= */}
         {viewMode === "list" && filteredFormations.length > 0 && (
           <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
             <div className="overflow-x-auto">
@@ -364,11 +364,9 @@ const FormationsPage = () => {
                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Niveau
                     </th>
-                    {/* ✅ NOUVELLE COLONNE : Date de création */}
                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Statut
                     </th>
-                    {/* ✅ NOUVELLE COLONNE : Fichiers */}
                     <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Fichiers
                     </th>
@@ -421,7 +419,7 @@ const FormationsPage = () => {
                           </div>
                         </td>
 
-                        {/* ✅ NOUVELLE COLONNE : Statut */}
+                        {/* Status */}
                         <td className="px-6 py-4">
                           {f.enabled ? (
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-sm font-medium">
@@ -436,9 +434,22 @@ const FormationsPage = () => {
                           )}
                         </td>
 
-                        {/* ✅ NOUVELLE COLONNE : Fichiers */}
+                        {/* Fichiers */}
                         <td className="px-6 py-4">
-                          <div className="flex items-center justify-center gap-3">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedId(f.id);
+                                setOpenCover(true);
+                              }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700
+                                         hover:bg-blue-100 transition-all text-xs font-medium"
+                              title="Couverture"
+                            >
+                              <ImageIcon size={14} />
+                              Cover
+                            </button>
+
                             <button
                               onClick={() => {
                                 setSelectedId(f.id);
@@ -451,7 +462,6 @@ const FormationsPage = () => {
                               <ImageIcon size={14} />
                               Galerie
                             </button>
-
 
                             <button
                               onClick={() => {
@@ -519,7 +529,7 @@ const FormationsPage = () => {
           </div>
         )}
 
-        {/* ================= GRID VIEW (SECONDAIRE) ================= */}
+        {/* ================= GRID VIEW ================= */}
         {viewMode === "grid" && filteredFormations.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {filteredFormations.map((f, index) => {
@@ -595,7 +605,7 @@ const FormationsPage = () => {
                         Voir les détails
                       </button>
 
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className={`grid ${isSuperAdmin ? 'grid-cols-5' : 'grid-cols-4'} gap-2`}>
                         <button
                           onClick={() => {
                             setSelectedId(f.id);
@@ -607,6 +617,19 @@ const FormationsPage = () => {
                           title="Modifier"
                         >
                           <Pencil size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setSelectedId(f.id);
+                            setOpenCover(true);
+                          }}
+                          className="p-2.5 rounded-xl border border-gray-200 text-gray-600
+                                     hover:bg-blue-50 hover:border-blue-500 hover:text-blue-600
+                                     transition-all duration-200"
+                          title="Couverture"
+                        >
+                          <ImageIcon size={16} />
                         </button>
 
                         <button
@@ -703,6 +726,16 @@ const FormationsPage = () => {
         onClose={() => {
           setOpenPdf(false);
           setSelectedId(null);
+        }}
+      />
+
+      <FormationCoverModal
+        open={openCover}
+        formationId={selectedId}
+        onClose={() => {
+          setOpenCover(false);
+          setSelectedId(null);
+          loadFormations();
         }}
       />
 
