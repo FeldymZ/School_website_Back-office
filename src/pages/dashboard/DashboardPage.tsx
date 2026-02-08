@@ -336,7 +336,7 @@ const DashboardPage = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <button
-                onClick={() => navigate("/formations/new")}
+                onClick={() => navigate("/formations")}
                 className="group relative overflow-hidden bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -354,7 +354,7 @@ const DashboardPage = () => {
               </button>
 
               <button
-                onClick={() => navigate("/actualites/new")}
+                onClick={() => navigate("/actualites")}
                 className="group relative overflow-hidden bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
