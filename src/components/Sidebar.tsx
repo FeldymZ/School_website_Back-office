@@ -13,13 +13,13 @@ import {
   Settings,
   Sparkles,
   Grid3x3,
-  Info,          // ✅ pour BannerMessage
+  Info,
 } from "lucide-react";
 
 import { ContactService } from "@/services/contactService";
 import { getUserFromToken } from "@/utils/auth";
 import { UserRole } from "@/types/user";
-
+import { hasRequiredRole } from "@/utils/role";
 /* ================= STYLES ================= */
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -35,12 +35,16 @@ export default function Sidebar() {
   const [unrepliedCount, setUnrepliedCount] = useState<number | null>(null);
 
   const user = getUserFromToken();
-  const isSuperAdmin = user?.role === UserRole.SUPERADMIN;
+  const userRole = user?.role;
+
+  // Vérifications de permissions basées sur hasRequiredRole
+  const canAccessAdmin = userRole && hasRequiredRole(userRole, [UserRole.ADMIN]);
+  const canAccessSuperAdmin = userRole && hasRequiredRole(userRole, [UserRole.SUPERADMIN]);
 
   /* ================= INIT UNREPLIED COUNT ================= */
 
   useEffect(() => {
-    if (!user || !["ADMIN", "SUPERADMIN"].includes(user.role)) return;
+    if (!canAccessAdmin) return;
 
     const loadUnreplied = async () => {
       try {
@@ -52,7 +56,7 @@ export default function Sidebar() {
     };
 
     loadUnreplied();
-  }, [user]);
+  }, [canAccessAdmin]);
 
   return (
     <aside className="w-64 bg-gradient-to-b from-white to-[#cfe3ff]/10 border-r border-gray-200 h-screen flex flex-col shadow-sm">
@@ -94,138 +98,155 @@ export default function Sidebar() {
 
         {/* ================= ACADÉMIQUE ================= */}
         <Section title="Académique">
-          <NavLink to="/formations" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <GraduationCap size={20} />
-                </IconWrap>
-                <span className="font-medium">Formations</span>
-              </>
-            )}
-          </NavLink>
+          {/* Formations - SUPERADMIN uniquement */}
+          {canAccessSuperAdmin && (
+            <NavLink to="/formations" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <GraduationCap size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Formations</span>
+                </>
+              )}
+            </NavLink>
+          )}
 
-          <NavLink to="/agenda" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <Calendar size={20} />
-                </IconWrap>
-                <span className="font-medium">Agenda</span>
-              </>
-            )}
-          </NavLink>
+          {/* Agenda - ADMIN + SUPERADMIN */}
+          {canAccessAdmin && (
+            <NavLink to="/agenda" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <Calendar size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Agenda</span>
+                </>
+              )}
+            </NavLink>
+          )}
         </Section>
 
         {/* ================= CONTENU ================= */}
-        <Section title="Contenu">
-          <NavLink to="/actualites" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <Newspaper size={20} />
-                </IconWrap>
-                <span className="font-medium">Actualités</span>
-              </>
-            )}
-          </NavLink>
+        {canAccessAdmin && (
+          <Section title="Contenu">
+            {/* Actualités - ADMIN + SUPERADMIN */}
+            <NavLink to="/actualites" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <Newspaper size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Actualités</span>
+                </>
+              )}
+            </NavLink>
 
-          <NavLink to="/activites" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <Grid3x3 size={20} />
-                </IconWrap>
-                <span className="font-medium">Activités</span>
-              </>
+            {/* Activités - SUPERADMIN uniquement */}
+            {canAccessSuperAdmin && (
+              <NavLink to="/activites" end className={linkClass}>
+                {({ isActive }) => (
+                  <>
+                    <IconWrap isActive={isActive}>
+                      <Grid3x3 size={20} />
+                    </IconWrap>
+                    <span className="font-medium">Activités</span>
+                  </>
+                )}
+              </NavLink>
             )}
-          </NavLink>
 
-          {/* ================= BANNIÈRES (IMAGES) ================= */}
-          <NavLink to="/banners" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <Image size={20} />
-                </IconWrap>
-                <span className="font-medium">Bannières</span>
-              </>
-            )}
-          </NavLink>
+            {/* Bannières (images) - ADMIN + SUPERADMIN */}
+            <NavLink to="/banners" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <Image size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Bannières</span>
+                </>
+              )}
+            </NavLink>
 
-          {/* ================= BANNER MESSAGE (TEXTE) ================= */}
-          <NavLink to="/banner-messages" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <Info size={20} />
-                </IconWrap>
-                <span className="font-medium">
-                  Pop-up
-                </span>
-              </>
-            )}
-          </NavLink>
+            {/* Pop-up (banner messages) - ADMIN + SUPERADMIN */}
+            <NavLink to="/banner-messages" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <Info size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Pop-up</span>
+                </>
+              )}
+            </NavLink>
 
-          <NavLink to="/commentaires" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <MessageSquare size={20} />
-                </IconWrap>
-                <span className="font-medium">Commentaires</span>
-              </>
-            )}
-          </NavLink>
-        </Section>
+            {/* Commentaires - ADMIN + SUPERADMIN */}
+            <NavLink to="/commentaires" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <MessageSquare size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Commentaires</span>
+                </>
+              )}
+            </NavLink>
+          </Section>
+        )}
 
         {/* ================= COMMUNICATION ================= */}
-        <Section title="Communication">
-          <NavLink to="/partenaires" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <Users size={20} />
-                </IconWrap>
-                <span className="font-medium">Partenaires</span>
-              </>
-            )}
-          </NavLink>
+        {canAccessAdmin && (
+          <Section title="Communication">
+            {/* Partenaires - ADMIN + SUPERADMIN */}
+            <NavLink to="/partenaires" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <Users size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Partenaires</span>
+                </>
+              )}
+            </NavLink>
 
-          <NavLink to="/messages" end className={linkClass}>
-            {() => (
-              <>
-                <IconWrap isActive={false}>
-                  <Mail size={20} />
-                </IconWrap>
-                <span className="font-medium flex-1">Messages</span>
+            {/* Messages - ADMIN + SUPERADMIN */}
+            <NavLink to="/messages" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <Mail size={20} />
+                  </IconWrap>
+                  <span className="font-medium flex-1">Messages</span>
 
-                {unrepliedCount !== null && unrepliedCount > 0 && (
-                  <span className="inline-flex items-center justify-center text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full min-w-[20px] h-5 animate-pulse ml-auto">
-                    {unrepliedCount}
-                  </span>
-                )}
-              </>
-            )}
-          </NavLink>
-        </Section>
+                  {unrepliedCount !== null && unrepliedCount > 0 && (
+                    <span className="inline-flex items-center justify-center text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full min-w-[20px] h-5 animate-pulse ml-auto">
+                      {unrepliedCount}
+                    </span>
+                  )}
+                </>
+              )}
+            </NavLink>
+          </Section>
+        )}
 
-        {/* ================= STATISTIQUES ================= */}
-        <Section title="Statistiques">
-          <NavLink to="/statistiques" end className={linkClass}>
-            {({ isActive }) => (
-              <>
-                <IconWrap isActive={isActive}>
-                  <BarChart3 size={20} />
-                </IconWrap>
-                <span className="font-medium">Chiffres clés</span>
-              </>
-            )}
-          </NavLink>
-        </Section>
+        {/* ================= STATISTIQUES - SUPERADMIN uniquement ================= */}
+        {canAccessSuperAdmin && (
+          <Section title="Statistiques">
+            <NavLink to="/statistiques" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <BarChart3 size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Chiffres clés</span>
+                </>
+              )}
+            </NavLink>
+          </Section>
+        )}
 
-        {/* ================= ADMINISTRATION ================= */}
-        {isSuperAdmin && (
+        {/* ================= ADMINISTRATION - SUPERADMIN uniquement ================= */}
+        {canAccessSuperAdmin && (
           <Section title="Administration">
             <NavLink to="/utilisateurs" end className={linkClass}>
               {({ isActive }) => (
