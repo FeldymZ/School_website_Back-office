@@ -25,7 +25,7 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import FormationsPage from "./pages/formations/FormationsPage";
 import AgendaPage from "./pages/agenda/AgendaPage";
 import ActualitesPage from "./pages/actualites/ActualitesPage";
-import ActivitesPage from "./pages/activites/ActivitesPage"; // ✅ AJOUT
+import ActivitesPage from "./pages/activites/ActivitesPage";
 import CommentairesPage from "./pages/commentaires/CommentairesPage";
 import PartenairesPage from "./pages/partenaires/PartenairesPage";
 import UsersPage from "./pages/utilisateurs/UsersPage";
@@ -39,8 +39,9 @@ import ContactDetailsPage from "./pages/contact/ContactDetailsPage";
 /* ================= STATISTIQUES ================= */
 import KeyFiguresPage from "./pages/key-figures/KeyFiguresPage";
 
-/* ================= BANNERS ================= */
-import BannerList from "./components/banners/BannerList";
+/* ================= BANNIÈRES ================= */
+import BannerList from "./components/banners/BannerList"; // ✅ BANNIÈRES (images)
+import BannerMessagePage from "./pages/bannerMessage/BannerMessagePage"; // ✅ MESSAGES DE BANNIÈRE
 
 /* ================= UTILS ================= */
 import { UserRole } from "./types/user";
@@ -77,20 +78,27 @@ const AppRoutes = () => {
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
 
-        {/* ACADÉMIQUE */}
+        {/* ================= ACADÉMIQUE ================= */}
         <Route path="formations" element={<FormationsPage />} />
         <Route path="agenda" element={<AgendaPage />} />
 
-        {/* CONTENU */}
+        {/* ================= CONTENU ================= */}
         <Route path="actualites" element={<ActualitesPage />} />
-        <Route path="activites" element={<ActivitesPage />} /> {/* ✅ */}
-        <Route path="banners" element={<BannerList />} />
+        <Route path="activites" element={<ActivitesPage />} />
+        <Route path="banners" element={<BannerList />} /> {/* Images */}
+        <Route
+          path="banner-messages"
+          element={<BannerMessagePage />}
+        /> {/* Texte */}
         <Route path="commentaires" element={<CommentairesPage />} />
         <Route path="partenaires" element={<PartenairesPage />} />
 
-        {/* CONTACT */}
+        {/* ================= CONTACT ================= */}
         <Route path="contact" element={<ContactListPage />} />
-        <Route path="contact/unreplied" element={<ContactUnrepliedPage />} />
+        <Route
+          path="contact/unreplied"
+          element={<ContactUnrepliedPage />}
+        />
         <Route path="contact/:id" element={<ContactDetailsPage />} />
 
         <Route
@@ -98,13 +106,13 @@ const AppRoutes = () => {
           element={<Navigate to="/contact" replace />}
         />
 
-        {/* STATS */}
+        {/* ================= STATS ================= */}
         <Route
           path="statistiques"
           element={<KeyFiguresPage />}
         />
 
-        {/* SUPERADMIN */}
+        {/* ================= SUPERADMIN ================= */}
         <Route
           path="utilisateurs"
           element={

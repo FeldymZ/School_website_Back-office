@@ -12,11 +12,13 @@ import {
   BarChart3,
   Settings,
   Sparkles,
-  Grid3x3, // ✅ AJOUT pour icône activités distincte
+  Grid3x3,
+  Info,          // ✅ pour BannerMessage
 } from "lucide-react";
 
 import { ContactService } from "@/services/contactService";
 import { getUserFromToken } from "@/utils/auth";
+import { UserRole } from "@/types/user";
 
 /* ================= STYLES ================= */
 
@@ -29,18 +31,16 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 
 /* ================= COMPONENT ================= */
 
-const Sidebar = () => {
+export default function Sidebar() {
   const [unrepliedCount, setUnrepliedCount] = useState<number | null>(null);
 
   const user = getUserFromToken();
-  const isSuperAdmin = user?.role === "SUPERADMIN";
+  const isSuperAdmin = user?.role === UserRole.SUPERADMIN;
 
   /* ================= INIT UNREPLIED COUNT ================= */
 
   useEffect(() => {
-    if (!user || !["ADMIN", "SUPERADMIN"].includes(user.role)) {
-      return;
-    }
+    if (!user || !["ADMIN", "SUPERADMIN"].includes(user.role)) return;
 
     const loadUnreplied = async () => {
       try {
@@ -73,6 +73,7 @@ const Sidebar = () => {
         </div>
       </div>
 
+      {/* ================= NAV ================= */}
       <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-8">
         {/* ================= GÉNÉRAL ================= */}
         <Section title="Général">
@@ -129,7 +130,6 @@ const Sidebar = () => {
             )}
           </NavLink>
 
-          {/* ✅ ACTIVITÉS avec icône distincte */}
           <NavLink to="/activites" end className={linkClass}>
             {({ isActive }) => (
               <>
@@ -141,6 +141,7 @@ const Sidebar = () => {
             )}
           </NavLink>
 
+          {/* ================= BANNIÈRES (IMAGES) ================= */}
           <NavLink to="/banners" end className={linkClass}>
             {({ isActive }) => (
               <>
@@ -148,6 +149,20 @@ const Sidebar = () => {
                   <Image size={20} />
                 </IconWrap>
                 <span className="font-medium">Bannières</span>
+              </>
+            )}
+          </NavLink>
+
+          {/* ================= BANNER MESSAGE (TEXTE) ================= */}
+          <NavLink to="/banner-messages" end className={linkClass}>
+            {({ isActive }) => (
+              <>
+                <IconWrap isActive={isActive}>
+                  <Info size={20} />
+                </IconWrap>
+                <span className="font-medium">
+                  Pop-up
+                </span>
               </>
             )}
           </NavLink>
@@ -177,23 +192,19 @@ const Sidebar = () => {
             )}
           </NavLink>
 
-          {/* ✅ FIX: Messages avec badge toujours présent pour layout consistant */}
           <NavLink to="/messages" end className={linkClass}>
-            {({ isActive }) => (
+            {() => (
               <>
-                <IconWrap isActive={isActive}>
+                <IconWrap isActive={false}>
                   <Mail size={20} />
                 </IconWrap>
                 <span className="font-medium flex-1">Messages</span>
 
-                {/* Badge toujours à droite, visible uniquement si > 0 */}
-                <div className="ml-auto">
-                  {unrepliedCount !== null && unrepliedCount > 0 && (
-                    <span className="inline-flex items-center justify-center text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full min-w-[20px] h-5 animate-pulse">
-                      {unrepliedCount}
-                    </span>
-                  )}
-                </div>
+                {unrepliedCount !== null && unrepliedCount > 0 && (
+                  <span className="inline-flex items-center justify-center text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full min-w-[20px] h-5 animate-pulse ml-auto">
+                    {unrepliedCount}
+                  </span>
+                )}
               </>
             )}
           </NavLink>
@@ -242,7 +253,7 @@ const Sidebar = () => {
       </nav>
     </aside>
   );
-};
+}
 
 /* ================= HELPERS ================= */
 
@@ -279,5 +290,3 @@ const IconWrap = ({
     {children}
   </div>
 );
-
-export default Sidebar;
