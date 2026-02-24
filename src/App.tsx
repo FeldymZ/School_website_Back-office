@@ -21,6 +21,8 @@ import RoleProtectedRoute from "./app/RoleProtectedRoute";
 import { LayoutProvider } from "./context/LayoutProvider";
 
 /* ================= PAGES ================= */
+
+
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import FormationsPage from "./pages/formations/FormationsPage";
 import AgendaPage from "./pages/agenda/AgendaPage";
@@ -45,6 +47,7 @@ import BannerMessagePage from "./pages/bannerMessage/BannerMessagePage"; // ✅ 
 
 /* ================= UTILS ================= */
 import { UserRole } from "./types/user";
+import FormationsContinuesPage from "./pages/Formationscontinues/FormationsContinuesPage";
 
 /* ================= APP ROUTES ================= */
 const AppRoutes = () => {
@@ -79,8 +82,16 @@ const AppRoutes = () => {
         <Route path="dashboard" element={<DashboardPage />} />
 
         {/* ================= ACADÉMIQUE ================= */}
-        <Route path="formations" element={<FormationsPage />} />
-        <Route path="agenda" element={<AgendaPage />} />
+<Route path="formations" element={<FormationsPage />} />
+<Route path="agenda" element={<AgendaPage />} />
+<Route
+  path="formations-continues"
+  element={
+    <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+      <FormationsContinuesPage />
+    </RoleProtectedRoute>
+  }
+/>
 
         {/* ================= CONTENU ================= */}
         <Route path="actualites" element={<ActualitesPage />} />

@@ -96,36 +96,50 @@ export default function Sidebar() {
           </NavLink>
         </Section>
 
-        {/* ================= ACADÉMIQUE ================= */}
-        <Section title="Académique">
-          {/* Formations - SUPERADMIN uniquement */}
-          {canAccessSuperAdmin && (
-            <NavLink to="/formations" end className={linkClass}>
-              {({ isActive }) => (
-                <>
-                  <IconWrap isActive={isActive}>
-                    <GraduationCap size={20} />
-                  </IconWrap>
-                  <span className="font-medium">Formations</span>
-                </>
-              )}
-            </NavLink>
-          )}
+       {/* ================= ACADÉMIQUE ================= */}
+<Section title="Académique">
+  {/* Formations initiales - SUPERADMIN uniquement */}
+  {canAccessSuperAdmin && (
+    <NavLink to="/formations" end className={linkClass}>
+      {({ isActive }) => (
+        <>
+          <IconWrap isActive={isActive}>
+            <GraduationCap size={20} />
+          </IconWrap>
+          <span className="font-medium">Formations</span>
+        </>
+      )}
+    </NavLink>
+  )}
 
-          {/* Agenda - ADMIN + SUPERADMIN */}
-          {canAccessAdmin && (
-            <NavLink to="/agenda" end className={linkClass}>
-              {({ isActive }) => (
-                <>
-                  <IconWrap isActive={isActive}>
-                    <Calendar size={20} />
-                  </IconWrap>
-                  <span className="font-medium">Agenda</span>
-                </>
-              )}
-            </NavLink>
-          )}
-        </Section>
+  {/* 🔥 NOUVEAU : Formations continues */}
+  {canAccessAdmin && (
+    <NavLink to="/formations-continues" end className={linkClass}>
+      {({ isActive }) => (
+        <>
+          <IconWrap isActive={isActive}>
+            <GraduationCap size={20} />
+          </IconWrap>
+          <span className="font-medium">Formations continues</span>
+        </>
+      )}
+    </NavLink>
+  )}
+
+  {/* Agenda */}
+  {canAccessAdmin && (
+    <NavLink to="/agenda" end className={linkClass}>
+      {({ isActive }) => (
+        <>
+          <IconWrap isActive={isActive}>
+            <Calendar size={20} />
+          </IconWrap>
+          <span className="font-medium">Agenda</span>
+        </>
+      )}
+    </NavLink>
+  )}
+</Section>
 
         {/* ================= CONTENU ================= */}
         {canAccessAdmin && (
