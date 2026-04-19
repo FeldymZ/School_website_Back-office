@@ -1,13 +1,14 @@
 import { UserRole } from "@/types/user";
 
 /**
- * Ordre de puissance des rôles
- * index élevé = plus de privilèges
+ * Hiérarchie des rôles
+ * valeur élevée = plus de privilèges
  */
-const ROLE_HIERARCHY: UserRole[] = [
-  UserRole.ADMIN,
-  UserRole.SUPERADMIN,
-];
+const ROLE_HIERARCHY: Record<UserRole, number> = {
+
+  [UserRole.ADMIN]: 1,
+  [UserRole.SUPERADMIN]: 2,
+};
 
 /**
  * Vérifie si un rôle utilisateur satisfait
@@ -17,10 +18,9 @@ export const hasRequiredRole = (
   userRole: UserRole,
   allowedRoles: UserRole[]
 ): boolean => {
-  const userLevel = ROLE_HIERARCHY.indexOf(userRole);
+  const userLevel = ROLE_HIERARCHY[userRole];
 
   return allowedRoles.some(
-    (allowedRole) =>
-      userLevel >= ROLE_HIERARCHY.indexOf(allowedRole)
+    (allowedRole) => userLevel >= ROLE_HIERARCHY[allowedRole]
   );
 };

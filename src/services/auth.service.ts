@@ -20,13 +20,11 @@ export const login = async (
 ): Promise<LoginResponse> => {
   const response = await axios.post<LoginResponse>(
     `${API_CONFIG.BASE_URL}${API_CONFIG.AUTH.LOGIN}`,
-    data,
-    { withCredentials: true }
+    data
   );
 
   const { accessToken } = response.data;
 
-  // 🔐 sauvegarde UNIQUE du token
   saveToken(accessToken);
 
   return response.data;

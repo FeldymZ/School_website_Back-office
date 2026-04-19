@@ -14,12 +14,17 @@ import {
   Sparkles,
   Grid3x3,
   Info,
+  FileText,
 } from "lucide-react";
 
 import { ContactService } from "@/services/contactService";
+
 import { getUserFromToken } from "@/utils/auth";
 import { UserRole } from "@/types/user";
 import { hasRequiredRole } from "@/utils/role";
+import DetailDemandeDevisModal from "./devis/DetailDemandeDevisModal";
+import DemandeDevisContinuesService from "@/services/DemandeDevisContinuesService";
+
 /* ================= STYLES ================= */
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -33,43 +38,57 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 
 export default function Sidebar() {
   const [unrepliedCount, setUnrepliedCount] = useState<number | null>(null);
+  const [devisCount, setDevisCount] = useState<number | null>(null);
+
+  // 🔥 AJOUT UNIQUEMENT ICI
+  const [openFormationMenu, setOpenFormationMenu] = useState(true);
 
   const user = getUserFromToken();
   const userRole = user?.role;
 
-  // Vérifications de permissions basées sur hasRequiredRole
-  const canAccessAdmin = userRole && hasRequiredRole(userRole, [UserRole.ADMIN]);
-  const canAccessSuperAdmin = userRole && hasRequiredRole(userRole, [UserRole.SUPERADMIN]);
+  const canAccessAdmin =
+    userRole && hasRequiredRole(userRole, [UserRole.ADMIN]);
 
-  /* ================= INIT UNREPLIED COUNT ================= */
+  const canAccessSuperAdmin =
+    userRole && hasRequiredRole(userRole, [UserRole.SUPERADMIN]);
+
+  /* ================= INIT COUNTS ================= */
 
   useEffect(() => {
     if (!canAccessAdmin) return;
 
-    const loadUnreplied = async () => {
+    const loadData = async () => {
       try {
-        const data = await ContactService.getUnreplied();
-        setUnrepliedCount(data.length);
-      } catch {
-        // ignore
-      }
+        const contacts = await ContactService.getUnreplied();
+        setUnrepliedCount(contacts.length);
+      } catch {}
+
+      try {
+        const count =
+          await DemandeDevisContinuesService.countNonTraitees();
+        setDevisCount(count);
+      } catch {}
     };
 
-    loadUnreplied();
+    loadData();
   }, [canAccessAdmin]);
 
   return (
     <aside className="w-64 bg-gradient-to-b from-white to-[#cfe3ff]/10 border-r border-gray-200 h-screen flex flex-col shadow-sm">
+
       {/* ================= LOGO ================= */}
+
       <div className="h-16 flex items-center px-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl flex items-center justify-center shadow-lg">
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
+
           <div>
             <h1 className="font-bold text-base bg-gradient-to-r from-[#00A4E0] to-[#0077A8] bg-clip-text text-transparent">
               ESIITECH
             </h1>
+
             <p className="text-[10px] text-[#A6A6A6] font-medium">
               Administration
             </p>
@@ -78,8 +97,11 @@ export default function Sidebar() {
       </div>
 
       {/* ================= NAV ================= */}
+
       <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-8">
+
         {/* ================= GÉNÉRAL ================= */}
+
         <Section title="Général">
           <NavLink to="/dashboard" end className={linkClass}>
             {({ isActive }) => (
@@ -87,7 +109,9 @@ export default function Sidebar() {
                 <IconWrap isActive={isActive}>
                   <LayoutDashboard size={20} />
                 </IconWrap>
+
                 <span className="font-medium">Dashboard</span>
+
                 {isActive && (
                   <Sparkles size={16} className="ml-auto animate-pulse" />
                 )}
@@ -96,67 +120,105 @@ export default function Sidebar() {
           </NavLink>
         </Section>
 
-       {/* ================= ACADÉMIQUE ================= */}
-<Section title="Académique">
-  {/* Formations initiales - SUPERADMIN uniquement */}
-  {canAccessSuperAdmin && (
-    <NavLink to="/formations" end className={linkClass}>
-      {({ isActive }) => (
-        <>
-          <IconWrap isActive={isActive}>
-            <GraduationCap size={20} />
-          </IconWrap>
-          <span className="font-medium">Formations</span>
-        </>
-      )}
-    </NavLink>
-  )}
+        {/* ================= ACADÉMIQUE ================= */}
 
-  {/* 🔥 NOUVEAU : Formations continues */}
-  {canAccessAdmin && (
-    <NavLink to="/formations-continues" end className={linkClass}>
-      {({ isActive }) => (
-        <>
-          <IconWrap isActive={isActive}>
-            <GraduationCap size={20} />
-          </IconWrap>
-          <span className="font-medium">Formations continues</span>
-        </>
-      )}
-    </NavLink>
-  )}
+        <Section title="Académique">
 
-  {/* Agenda */}
-  {canAccessAdmin && (
-    <NavLink to="/agenda" end className={linkClass}>
-      {({ isActive }) => (
-        <>
-          <IconWrap isActive={isActive}>
-            <Calendar size={20} />
-          </IconWrap>
-          <span className="font-medium">Agenda</span>
-        </>
-      )}
-    </NavLink>
-  )}
-</Section>
+          {canAccessSuperAdmin && (
+            <NavLink to="/formations" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <GraduationCap size={20} />
+                  </IconWrap>
+                  <span className="font-medium">Formations</span>
+                </>
+              )}
+            </NavLink>
+          )}
+
+          {/* 🔥 MODIFICATION UNIQUEMENT ICI */}
+          {canAccessAdmin && (
+            <div className="space-y-1">
+
+              {/* PARENT */}
+              <button
+                onClick={() => setOpenFormationMenu(!openFormationMenu)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-[#cfe3ff]/30 hover:text-[#00A4E0]"
+              >
+                <GraduationCap size={20} />
+                <span className="font-medium flex-1">
+                  Formations continues
+                </span>
+              </button>
+
+              {/* SOUS MENU */}
+              {openFormationMenu && (
+                <div className="ml-6 space-y-1 border-l border-gray-200 pl-3">
+
+                  {canAccessSuperAdmin && (
+                    <NavLink to="/categories" className={linkClass}>
+                      Catégories
+                    </NavLink>
+                  )}
+
+                  {canAccessSuperAdmin && (
+                    <NavLink to="/sous-categories" className={linkClass}>
+                      Sous-catégories
+                    </NavLink>
+                  )}
+
+                  <NavLink to="/formations-continues" className={linkClass}>
+                    Formations
+                  </NavLink>
+
+                  <NavLink to="/demandes-devis" className={linkClass}>
+                    <span className="flex-1">Devis</span>
+
+                    {devisCount !== null && devisCount > 0 && (
+                      <span className="ml-auto text-xs bg-red-500 text-white px-2 rounded-full">
+                        {devisCount}
+                      </span>
+                    )}
+                  </NavLink>
+
+                </div>
+              )}
+            </div>
+          )}
+
+          {canAccessAdmin && (
+            <NavLink to="/agenda" end className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <IconWrap isActive={isActive}>
+                    <Calendar size={20} />
+                  </IconWrap>
+
+                  <span className="font-medium">Agenda</span>
+                </>
+              )}
+            </NavLink>
+          )}
+        </Section>
 
         {/* ================= CONTENU ================= */}
+
         {canAccessAdmin && (
           <Section title="Contenu">
-            {/* Actualités - ADMIN + SUPERADMIN */}
+
             <NavLink to="/actualites" end className={linkClass}>
               {({ isActive }) => (
                 <>
                   <IconWrap isActive={isActive}>
                     <Newspaper size={20} />
                   </IconWrap>
+
                   <span className="font-medium">Actualités</span>
                 </>
               )}
             </NavLink>
 
-            {/* Activités - SUPERADMIN uniquement */}
             {canAccessSuperAdmin && (
               <NavLink to="/activites" end className={linkClass}>
                 {({ isActive }) => (
@@ -164,43 +226,44 @@ export default function Sidebar() {
                     <IconWrap isActive={isActive}>
                       <Grid3x3 size={20} />
                     </IconWrap>
+
                     <span className="font-medium">Activités</span>
                   </>
                 )}
               </NavLink>
             )}
 
-            {/* Bannières (images) - ADMIN + SUPERADMIN */}
             <NavLink to="/banners" end className={linkClass}>
               {({ isActive }) => (
                 <>
                   <IconWrap isActive={isActive}>
                     <Image size={20} />
                   </IconWrap>
+
                   <span className="font-medium">Bannières</span>
                 </>
               )}
             </NavLink>
 
-            {/* Pop-up (banner messages) - ADMIN + SUPERADMIN */}
             <NavLink to="/banner-messages" end className={linkClass}>
               {({ isActive }) => (
                 <>
                   <IconWrap isActive={isActive}>
                     <Info size={20} />
                   </IconWrap>
+
                   <span className="font-medium">Pop-up</span>
                 </>
               )}
             </NavLink>
 
-            {/* Commentaires - ADMIN + SUPERADMIN */}
             <NavLink to="/commentaires" end className={linkClass}>
               {({ isActive }) => (
                 <>
                   <IconWrap isActive={isActive}>
                     <MessageSquare size={20} />
                   </IconWrap>
+
                   <span className="font-medium">Commentaires</span>
                 </>
               )}
@@ -209,27 +272,29 @@ export default function Sidebar() {
         )}
 
         {/* ================= COMMUNICATION ================= */}
+
         {canAccessAdmin && (
           <Section title="Communication">
-            {/* Partenaires - ADMIN + SUPERADMIN */}
+
             <NavLink to="/partenaires" end className={linkClass}>
               {({ isActive }) => (
                 <>
                   <IconWrap isActive={isActive}>
                     <Users size={20} />
                   </IconWrap>
+
                   <span className="font-medium">Partenaires</span>
                 </>
               )}
             </NavLink>
 
-            {/* Messages - ADMIN + SUPERADMIN */}
             <NavLink to="/messages" end className={linkClass}>
               {({ isActive }) => (
                 <>
                   <IconWrap isActive={isActive}>
                     <Mail size={20} />
                   </IconWrap>
+
                   <span className="font-medium flex-1">Messages</span>
 
                   {unrepliedCount !== null && unrepliedCount > 0 && (
@@ -243,7 +308,8 @@ export default function Sidebar() {
           </Section>
         )}
 
-        {/* ================= STATISTIQUES - SUPERADMIN uniquement ================= */}
+        {/* ================= STATISTIQUES ================= */}
+
         {canAccessSuperAdmin && (
           <Section title="Statistiques">
             <NavLink to="/statistiques" end className={linkClass}>
@@ -252,6 +318,7 @@ export default function Sidebar() {
                   <IconWrap isActive={isActive}>
                     <BarChart3 size={20} />
                   </IconWrap>
+
                   <span className="font-medium">Chiffres clés</span>
                 </>
               )}
@@ -259,15 +326,18 @@ export default function Sidebar() {
           </Section>
         )}
 
-        {/* ================= ADMINISTRATION - SUPERADMIN uniquement ================= */}
+        {/* ================= ADMINISTRATION ================= */}
+
         {canAccessSuperAdmin && (
           <Section title="Administration">
+
             <NavLink to="/utilisateurs" end className={linkClass}>
               {({ isActive }) => (
                 <>
                   <IconWrap isActive={isActive}>
                     <Users size={20} />
                   </IconWrap>
+
                   <span className="font-medium">Utilisateurs</span>
                 </>
               )}
@@ -279,12 +349,15 @@ export default function Sidebar() {
                   <IconWrap isActive={isActive}>
                     <Settings size={20} />
                   </IconWrap>
+
                   <span className="font-medium">Audits</span>
                 </>
               )}
             </NavLink>
+
           </Section>
         )}
+
       </nav>
     </aside>
   );

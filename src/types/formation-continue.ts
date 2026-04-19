@@ -1,36 +1,63 @@
+import { UniteDuree } from "@/types/common"
+
 /* ============================
-   FORMATION CONTINUE (LIST)
+   RELATIONS
+   ============================ */
+
+export interface CategorieLight {
+  id: number
+  libelle: string
+}
+
+export interface SousCategorieLight {
+  id: number
+  libelle: string
+  categorieId?: number
+}
+
+/* ============================
+   FORMATION
    ============================ */
 
 export interface FormationContinue {
-  id: number;
-  titre: string;
-  slug: string;
-  description: string;
-  coverUrl?: string;
-  pdfUrl?: string;
-  enabled: boolean;
+
+    coverUrl?: string
+
+  id: number
+
+  reference: number
+
+  libelle: string
+  description: string
+
+  objectifs?: string
+  competences?: string
+
+  prix?: number
+
+  duree?: number
+  uniteDuree?: UniteDuree
+
+  lieu?: string
+  titreDelivre?: string
+
+  logo?: string
+
+  enabled: boolean
+
+  sousCategorie?: SousCategorieLight
 }
 
 /* ============================
-   PAGE SPRING DATA
+   PAGE SPRING
    ============================ */
 
 export interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
 
-/* ============================
-   CREATE / UPDATE REQUEST
-   ============================ */
+  content: T[]
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
 
-export interface FormationContinueFormData {
-  titre: string;
-  description: string;
-  cover?: File | null;
-  pdf?: File | null;
 }

@@ -22,7 +22,6 @@ import { LayoutProvider } from "./context/LayoutProvider";
 
 /* ================= PAGES ================= */
 
-
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import FormationsPage from "./pages/formations/FormationsPage";
 import AgendaPage from "./pages/agenda/AgendaPage";
@@ -42,14 +41,25 @@ import ContactDetailsPage from "./pages/contact/ContactDetailsPage";
 import KeyFiguresPage from "./pages/key-figures/KeyFiguresPage";
 
 /* ================= BANNIÈRES ================= */
-import BannerList from "./components/banners/BannerList"; // ✅ BANNIÈRES (images)
-import BannerMessagePage from "./pages/bannerMessage/BannerMessagePage"; // ✅ MESSAGES DE BANNIÈRE
+import BannerList from "./components/banners/BannerList";
+import BannerMessagePage from "./pages/bannerMessage/BannerMessagePage";
+
+/* ================= FORMATIONS CONTINUES ================= */
+import FormationsContinuesPage from "./pages/Formationscontinues/FormationsContinuesPage";
+
+/* ================= DEMANDES DE DEVIS ================= */
+import DemandesDevisContinuesPage from "./pages/DemandesDevis/DemandesDevisContinuesPage";
+
+/* ================= CATALOGUE 🔥 ================= */
+
 
 /* ================= UTILS ================= */
 import { UserRole } from "./types/user";
-import FormationsContinuesPage from "./pages/Formationscontinues/FormationsContinuesPage";
+import CategoriesPage from "./pages/categorie/CategoriesPage";
+import SousCategoriesPage from "./pages/categorie/SousCategoriesPage";
 
 /* ================= APP ROUTES ================= */
+
 const AppRoutes = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -82,34 +92,85 @@ const AppRoutes = () => {
         <Route path="dashboard" element={<DashboardPage />} />
 
         {/* ================= ACADÉMIQUE ================= */}
-<Route path="formations" element={<FormationsPage />} />
-<Route path="agenda" element={<AgendaPage />} />
-<Route
-  path="formations-continues"
-  element={
-    <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
-      <FormationsContinuesPage />
-    </RoleProtectedRoute>
-  }
-/>
+
+        <Route path="formations" element={<FormationsPage />} />
+
+        <Route path="agenda" element={<AgendaPage />} />
+
+        <Route
+          path="formations-continues"
+          element={
+            <RoleProtectedRoute
+              allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}
+            >
+              <FormationsContinuesPage />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* 🔥 CATALOGUE */}
+
+        <Route
+          path="categories"
+          element={
+            <RoleProtectedRoute
+              allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}
+            >
+              <CategoriesPage />
+            </RoleProtectedRoute>
+          }
+        />
+
+        <Route
+          path="sous-categories"
+          element={
+            <RoleProtectedRoute
+              allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}
+            >
+              <SousCategoriesPage />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* ===== DEMANDES DE DEVIS FORMATIONS CONTINUES ===== */}
+
+        <Route
+          path="demandes-devis"
+          element={
+            <RoleProtectedRoute
+              allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}
+            >
+              <DemandesDevisContinuesPage />
+            </RoleProtectedRoute>
+          }
+        />
 
         {/* ================= CONTENU ================= */}
+
         <Route path="actualites" element={<ActualitesPage />} />
+
         <Route path="activites" element={<ActivitesPage />} />
-        <Route path="banners" element={<BannerList />} /> {/* Images */}
+
+        <Route path="banners" element={<BannerList />} />
+
         <Route
           path="banner-messages"
           element={<BannerMessagePage />}
-        /> {/* Texte */}
+        />
+
         <Route path="commentaires" element={<CommentairesPage />} />
+
         <Route path="partenaires" element={<PartenairesPage />} />
 
         {/* ================= CONTACT ================= */}
+
         <Route path="contact" element={<ContactListPage />} />
+
         <Route
           path="contact/unreplied"
           element={<ContactUnrepliedPage />}
         />
+
         <Route path="contact/:id" element={<ContactDetailsPage />} />
 
         <Route
@@ -118,16 +179,20 @@ const AppRoutes = () => {
         />
 
         {/* ================= STATS ================= */}
+
         <Route
           path="statistiques"
           element={<KeyFiguresPage />}
         />
 
         {/* ================= SUPERADMIN ================= */}
+
         <Route
           path="utilisateurs"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
+            <RoleProtectedRoute
+              allowedRoles={[UserRole.SUPERADMIN]}
+            >
               <UsersPage />
             </RoleProtectedRoute>
           }
@@ -136,7 +201,9 @@ const AppRoutes = () => {
         <Route
           path="configuration"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
+            <RoleProtectedRoute
+              allowedRoles={[UserRole.SUPERADMIN]}
+            >
               <ConfigurationPage />
             </RoleProtectedRoute>
           }
@@ -144,12 +211,14 @@ const AppRoutes = () => {
       </Route>
 
       {/* ================= FALLBACK ================= */}
+
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
 
 /* ================= APP ================= */
+
 const App = () => {
   return (
     <LayoutProvider>
