@@ -325,6 +325,7 @@ const FormationContinueCreateModal = ({ open, onClose, onSuccess }: Props) => {
                   className={selectCls}
                 >
                   <option value="JOURS">Jours</option>
+                  <option value="SEMAINES">Semaines</option>
                   <option value="MOIS">Mois</option>
                   <option value="ANNEES">Années</option>
                 </select>

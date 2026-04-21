@@ -13,6 +13,8 @@ import {
   Layers,
   Banknote,
   Clock,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 
 import { FormationContinue } from "@/types/formation-continue"
@@ -30,8 +32,6 @@ interface Props {
   onSuccess: () => void
 }
 
-/* ================= TYPES ================= */
-
 interface Categorie {
   id: number
   libelle: string
@@ -43,14 +43,14 @@ interface SousCategorie {
   categorieId?: number
 }
 
-/* ================= STYLES ================= */
-
 const inputCls =
-  "w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 transition-all bg-white text-sm"
+  "w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] transition-all bg-white text-sm"
 
 const labelCls = "text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5"
 
-/* ================= COMPONENT ================= */
+const selectCls =
+  "w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 appearance-none bg-white text-sm text-gray-700 " +
+  "focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] transition-all"
 
 export default function FormationContinueEditModal({
   formationId,
@@ -67,6 +67,7 @@ export default function FormationContinueEditModal({
     objectifs: "",
     competences: "",
     prix: "",
+    afficherPrix: true,
     duree: "",
     uniteDuree: "JOURS",
     logo: null as File | null,
@@ -83,19 +84,15 @@ export default function FormationContinueEditModal({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  /* ================= LOAD DATA ADMIN ================= */
+  /* ================= LOAD ADMIN ================= */
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const [cats, sousCats] = await Promise.all([
-          CatalogueAdminService.getCategories(),
-          SousCategorieAdminService.getAll(),
-        ])
-        setCategories(cats)
-        setSousCategories(sousCats)
-      } catch (e) {
-        console.error("Erreur chargement admin", e)
-      }
+      const [cats, sousCats] = await Promise.all([
+        CatalogueAdminService.getCategories(),
+        SousCategorieAdminService.getAll(),
+      ])
+      setCategories(cats)
+      setSousCategories(sousCats)
     }
     loadData()
   }, [])
@@ -105,29 +102,25 @@ export default function FormationContinueEditModal({
     if (!open || !formationId) return
 
     const load = async () => {
-      try {
-        const data = await FormationContinueService.getById(formationId)
+      const data = await FormationContinueService.getById(formationId)
 
-        setFormation(data)
+      setFormation(data)
 
-        setForm({
-          libelle: data.libelle || "",
-          description: data.description || "",
-          objectifs: data.objectifs || "",
-          competences: data.competences || "",
-          prix: data.prix?.toString() || "",
-          duree: data.duree?.toString() || "",
-          uniteDuree: data.uniteDuree || "JOURS",
-          logo: null,
-        })
+      setForm({
+        libelle: data.libelle || "",
+        description: data.description || "",
+        objectifs: data.objectifs || "",
+        competences: data.competences || "",
+        prix: data.prix?.toString() || "",
+        afficherPrix: data.afficherPrix ?? true,
+        duree: data.duree?.toString() || "",
+        uniteDuree: data.uniteDuree || "JOURS",
+        logo: null,
+      })
 
-        setSelectedSousCategorie(data.sousCategorie?.id || null)
-        setSelectedCategorie(data.sousCategorie?.categorieId || null)
-
-      } catch (err) {
-        console.error(err)
-        onClose()
-      }
+      setSelectedSousCategorie(data.sousCategorie?.id || null)
+      setSelectedCategorie(data.sousCategorie?.categorieId || null)
+      setCoverPreview(null)
     }
 
     load()
@@ -135,34 +128,10 @@ export default function FormationContinueEditModal({
 
   if (!open || !formation) return null
 
-  /* ================= IMAGE ================= */
-  const handleImageChange = (file: File | null) => {
-    setForm({ ...form, logo: file })
-
-    if (!file) {
-      setCoverPreview(null)
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onloadend = () => setCoverPreview(reader.result as string)
-    reader.readAsDataURL(file)
-  }
-
-  /* ================= VALIDATION ================= */
-  const validate = () => {
-    if (!form.libelle.trim()) return "Libellé obligatoire"
-    if (!form.description.trim()) return "Description obligatoire"
-    if (!selectedSousCategorie) return "Choisir une sous-catégorie"
-    return null
-  }
-
   /* ================= SUBMIT ================= */
   const handleSubmit = async () => {
-
-    const err = validate()
-    if (err) {
-      setError(err)
+    if (!selectedSousCategorie) {
+      setError("Veuillez sélectionner une sous-catégorie.")
       return
     }
 
@@ -178,24 +147,23 @@ export default function FormationContinueEditModal({
       formData.append("competences", form.competences)
 
       if (form.prix) formData.append("prix", form.prix)
+      formData.append("afficherPrix", form.afficherPrix.toString())
       if (form.duree) formData.append("duree", form.duree)
-
       formData.append("uniteDuree", form.uniteDuree)
 
       if (form.logo) {
         formData.append("cover", form.logo)
       }
 
-      formData.append("sousCategorieId", selectedSousCategorie!.toString())
+      formData.append("sousCategorieId", selectedSousCategorie.toString())
 
       await FormationContinueService.update(formation.id, formData)
 
       onSuccess()
       onClose()
-
-    } catch (e) {
-      console.error(e)
-      setError("Erreur lors de la mise à jour")
+    } catch (err) {
+      setError("Une erreur est survenue lors de la modification.")
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -205,136 +173,210 @@ export default function FormationContinueEditModal({
     sc => sc.categorieId === selectedCategorie
   )
 
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setForm({ ...form, logo: file })
+    setCoverPreview(URL.createObjectURL(file))
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div
-        className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[92vh]
-                   animate-in fade-in slide-in-from-bottom-4 duration-300"
+        className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-gray-100 overflow-hidden
+                   animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col max-h-[90vh]"
       >
 
         {/* ===== HEADER ===== */}
         <div className="relative overflow-hidden flex-shrink-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
           <div
             className="absolute inset-0 opacity-10"
             style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
           />
-          <div className="relative px-6 py-6 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-white/30 rounded-2xl blur-md" />
-                <div className="relative w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center ring-1 ring-white/30">
-                  <Pencil size={20} className="text-white" />
-                </div>
+          <div className="relative px-6 py-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30">
+                <Pencil size={18} className="text-white" />
               </div>
               <div>
                 <h2 className="font-bold text-white text-lg">Modifier la formation</h2>
-                <p className="text-white/60 text-xs mt-0.5 flex items-center gap-1.5">
-                  <Sparkles size={11} />
-                  {formation.libelle}
-                </p>
+                <p className="text-white/60 text-xs mt-0.5 line-clamp-1">{formation.libelle}</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center
-                         text-white transition-all duration-200 hover:scale-110 active:scale-95"
+              className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all"
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           </div>
         </div>
 
         {/* ===== BODY ===== */}
-        <div className="p-6 space-y-5 overflow-y-auto flex-1">
+        <div className="overflow-y-auto flex-1 p-6 space-y-6">
 
+          {/* ERROR */}
           {error && (
-            <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-              <AlertCircle size={15} className="text-red-500 flex-shrink-0" />
-              <p className="text-red-600 text-sm">{error}</p>
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
+              <AlertCircle size={16} className="flex-shrink-0" />
+              {error}
             </div>
           )}
 
-          {/* LIBELLE */}
+          {/* ===== COVER ===== */}
+          <div>
+            <label className={labelCls}>Photo de couverture</label>
+            <label className="relative group cursor-pointer block">
+              <div className={`w-full h-36 rounded-2xl border-2 border-dashed overflow-hidden transition-all duration-200
+                ${coverPreview || formation.coverUrl
+                  ? "border-[#00A4E0]/40 hover:border-[#00A4E0]"
+                  : "border-gray-200 hover:border-[#00A4E0] hover:bg-blue-50/30"
+                }`}>
+                {coverPreview || formation.coverUrl ? (
+                  <>
+                    <img
+                      src={coverPreview || resolveImageUrl(formation.coverUrl)}
+                      alt="cover"
+                      className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-2xl">
+                      <div className="flex items-center gap-2 text-white text-sm font-semibold">
+                        <ImagePlus size={16} />
+                        Changer l'image
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center gap-2 text-gray-400">
+                    <ImagePlus size={24} />
+                    <span className="text-sm">Cliquer pour ajouter une image</span>
+                  </div>
+                )}
+              </div>
+              <input type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
+            </label>
+          </div>
+
+          {/* ===== LIBELLE ===== */}
           <div>
             <label className={labelCls}>Libellé</label>
             <input
               value={form.libelle}
               onChange={(e) => setForm({ ...form, libelle: e.target.value })}
-              className={inputCls}
               placeholder="Titre de la formation"
+              className={inputCls}
             />
           </div>
 
-          {/* DESCRIPTION */}
-          <div>
-            <label className={labelCls}>Description</label>
-            <RichTextEditor
-              value={form.description}
-              onChange={(val) => setForm({ ...form, description: val })}
-            />
+          {/* ===== CATEGORIE + SOUS-CATEGORIE ===== */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Catégorie</label>
+              <div className="relative group">
+                <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#00A4E0] transition-colors pointer-events-none" size={14} />
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={13} />
+                <select
+                  value={selectedCategorie || ""}
+                  onChange={(e) => {
+                    setSelectedCategorie(Number(e.target.value) || null)
+                    setSelectedSousCategorie(null)
+                  }}
+                  className={selectCls}
+                >
+                  <option value="">Sélectionner</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.libelle}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className={labelCls}>Sous-catégorie</label>
+              <div className="relative group">
+                <Layers className={`absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${
+                  !selectedCategorie ? "text-gray-300" : "text-gray-400 group-focus-within:text-[#00A4E0]"
+                }`} size={14} />
+                <ChevronDown className={`absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none ${
+                  !selectedCategorie ? "text-gray-300" : "text-gray-400"
+                }`} size={13} />
+                <select
+                  value={selectedSousCategorie || ""}
+                  onChange={(e) => setSelectedSousCategorie(Number(e.target.value) || null)}
+                  disabled={!selectedCategorie}
+                  className={`${selectCls} ${!selectedCategorie ? "opacity-50 cursor-not-allowed bg-gray-50" : ""}`}
+                >
+                  <option value="">Sélectionner</option>
+                  {filteredSousCategories.map(sc => (
+                    <option key={sc.id} value={sc.id}>{sc.libelle}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
-          {/* OBJECTIFS */}
-          <div>
-            <label className={labelCls}>Objectifs</label>
-            <RichTextEditor
-              value={form.objectifs}
-              onChange={(val) => setForm({ ...form, objectifs: val })}
-            />
-          </div>
-
-          {/* COMPETENCES */}
-          <div>
-            <label className={labelCls}>Compétences</label>
-            <RichTextEditor
-              value={form.competences}
-              onChange={(val) => setForm({ ...form, competences: val })}
-            />
-          </div>
-
-          {/* PRIX + DURÉE */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* ===== PRIX + DUREE ===== */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Prix (FCFA)</label>
               <div className="relative group">
-                <Banknote className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" size={15} />
+                <Banknote className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#00A4E0] transition-colors pointer-events-none" size={14} />
                 <input
                   type="number"
-                  placeholder="0"
                   value={form.prix}
                   onChange={(e) => setForm({ ...form, prix: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200
-                             focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500
-                             transition-all bg-white text-sm"
+                  placeholder="Ex : 150000"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] transition-all bg-white text-sm"
                 />
               </div>
+              {/* AFFICHER PRIX */}
+              <label className="flex items-center gap-2.5 mt-2.5 cursor-pointer group w-fit">
+                <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${
+                  form.afficherPrix ? "bg-[#00A4E0]" : "bg-gray-200"
+                }`}>
+                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                    form.afficherPrix ? "translate-x-4" : "translate-x-0.5"
+                  }`} />
+                  <input
+                    type="checkbox"
+                    checked={form.afficherPrix}
+                    onChange={(e) => setForm({ ...form, afficherPrix: e.target.checked })}
+                    className="sr-only"
+                  />
+                </div>
+                <span className="text-xs font-medium text-gray-600 flex items-center gap-1.5">
+                  {form.afficherPrix
+                    ? <><Eye size={12} className="text-[#00A4E0]" /> Prix visible</>
+                    : <><EyeOff size={12} className="text-gray-400" /> Prix masqué</>
+                  }
+                </span>
+              </label>
             </div>
+
             <div>
               <label className={labelCls}>Durée</label>
               <div className="flex gap-2">
                 <div className="relative group flex-1">
-                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" size={15} />
+                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#00A4E0] transition-colors pointer-events-none" size={14} />
                   <input
                     type="number"
-                    placeholder="0"
                     value={form.duree}
                     onChange={(e) => setForm({ ...form, duree: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200
-                               focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500
-                               transition-all bg-white text-sm"
+                    placeholder="Ex : 5"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] transition-all bg-white text-sm"
                   />
                 </div>
                 <div className="relative">
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={13} />
                   <select
                     value={form.uniteDuree}
                     onChange={(e) => setForm({ ...form, uniteDuree: e.target.value })}
-                    className="pl-3 pr-9 py-3 rounded-xl border border-gray-200 appearance-none
-                               focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500
-                               bg-white text-sm h-full"
+                    className="pl-4 pr-8 py-3 rounded-xl border border-gray-200 appearance-none bg-white text-sm text-gray-700
+                               focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] transition-all"
                   >
                     <option value="JOURS">Jours</option>
+                    <option value="SEMAINES">Semaines</option>
                     <option value="MOIS">Mois</option>
                     <option value="ANNEES">Années</option>
                   </select>
@@ -343,118 +385,58 @@ export default function FormationContinueEditModal({
             </div>
           </div>
 
-          {/* CATEGORIE */}
+          {/* ===== DESCRIPTION ===== */}
           <div>
-            <label className={labelCls}>Catégorie</label>
-            <div className="relative">
-              <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={15} />
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
-              <select
-                value={selectedCategorie || ""}
-                onChange={(e) => {
-                  const id = Number(e.target.value)
-                  setSelectedCategorie(id)
-                  setSelectedSousCategorie(null)
-                }}
-                className="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 appearance-none
-                           focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500
-                           transition-all bg-white text-sm"
-              >
-                <option value="">Choisir une catégorie</option>
-                {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.libelle}</option>
-                ))}
-              </select>
-            </div>
+            <label className={labelCls}>Description</label>
+            <RichTextEditor
+              value={form.description}
+              onChange={(val) => setForm({ ...form, description: val })}
+            />
           </div>
 
-          {/* SOUS-CATEGORIE */}
+          {/* ===== OBJECTIFS ===== */}
           <div>
-            <label className={labelCls}>Sous-catégorie</label>
-            <div className="relative">
-              <Layers className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={15} />
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
-              <select
-                value={selectedSousCategorie || ""}
-                onChange={(e) => setSelectedSousCategorie(Number(e.target.value))}
-                className="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 appearance-none
-                           focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500
-                           transition-all bg-white text-sm"
-              >
-                <option value="">Choisir une sous-catégorie</option>
-                {filteredSousCategories.map(sc => (
-                  <option key={sc.id} value={sc.id}>{sc.libelle}</option>
-                ))}
-              </select>
-            </div>
+            <label className={labelCls}>Objectifs</label>
+            <RichTextEditor
+              value={form.objectifs}
+              onChange={(val) => setForm({ ...form, objectifs: val })}
+            />
           </div>
 
-          {/* IMAGE */}
+          {/* ===== COMPETENCES ===== */}
           <div>
-            <label className={labelCls}>Image de couverture</label>
-            <label
-              className="flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-dashed border-gray-200
-                         hover:border-green-400 hover:bg-green-50/30 transition-all duration-200 cursor-pointer group"
-            >
-              <ImagePlus size={18} className="text-gray-400 group-hover:text-green-500 transition-colors flex-shrink-0" />
-              <span className="text-sm text-gray-500 group-hover:text-green-600 transition-colors">
-                {form.logo ? form.logo.name : "Choisir une nouvelle image"}
-              </span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
-              />
-            </label>
-
-            {(coverPreview || formation.coverUrl) && (
-              <div className="mt-3 relative rounded-2xl overflow-hidden h-44 border border-gray-100 shadow-sm">
-                <img
-                  src={coverPreview || resolveImageUrl(formation.coverUrl)}
-                  alt="Aperçu"
-                  className="w-full h-full object-cover"
-                />
-                {coverPreview && (
-                  <div className="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-green-500/90 backdrop-blur text-white text-[11px] font-semibold">
-                    Nouvelle image
-                  </div>
-                )}
-              </div>
-            )}
+            <label className={labelCls}>Compétences acquises</label>
+            <RichTextEditor
+              value={form.competences}
+              onChange={(val) => setForm({ ...form, competences: val })}
+            />
           </div>
 
         </div>
 
         {/* ===== FOOTER ===== */}
-        <div className="px-6 pb-6 pt-3 border-t border-gray-50 flex-shrink-0 flex gap-3">
+        <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium text-sm
-                       hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+            className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm
+                       hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="group relative flex-1 py-3 rounded-xl font-semibold text-white text-sm overflow-hidden
-                       hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-green-200
+            className="flex-1 group relative py-3 rounded-xl font-semibold text-sm text-white overflow-hidden
+                       hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-blue-200
                        disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600" />
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0077A8] to-[#00A4E0] opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative flex items-center justify-center gap-2">
               {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Enregistrement...
-                </>
+                <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Enregistrement...</>
               ) : (
-                <>
-                  <Save size={16} />
-                  Enregistrer
-                </>
+                <><Save size={15} /> Enregistrer</>
               )}
             </span>
           </button>

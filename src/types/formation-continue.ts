@@ -21,8 +21,6 @@ export interface SousCategorieLight {
 
 export interface FormationContinue {
 
-    coverUrl?: string
-
   id: number
 
   reference: number
@@ -35,12 +33,16 @@ export interface FormationContinue {
 
   prix?: number
 
+  // ✅ NOUVEAU
+  afficherPrix?: boolean
+
   duree?: number
   uniteDuree?: UniteDuree
 
   lieu?: string
   titreDelivre?: string
 
+  coverUrl?: string
   logo?: string
 
   enabled: boolean
@@ -53,11 +55,9 @@ export interface FormationContinue {
    ============================ */
 
 export interface PageResponse<T> {
-
   content: T[]
   totalElements: number
   totalPages: number
   number: number
   size: number
-
 }

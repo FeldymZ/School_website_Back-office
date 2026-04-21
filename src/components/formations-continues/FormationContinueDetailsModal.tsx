@@ -5,13 +5,14 @@ import {
   CheckCircle,
   XCircle,
   Sparkles,
-  Tag,
   Layers,
   Banknote,
   Clock,
   FileText,
   Target,
   Zap,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 
 import { FormationContinue } from "@/types/formation-continue"
@@ -61,11 +62,11 @@ const InfoBadge = ({
 const SectionBlock = ({
   icon: Icon,
   label,
-  children,
+  html,
 }: {
   icon: React.ElementType
   label: string
-  children: React.ReactNode
+  html: string
 }) => (
   <div>
     <div className="flex items-center gap-2 mb-2.5">
@@ -74,7 +75,15 @@ const SectionBlock = ({
       </div>
       <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</p>
     </div>
-    {children}
+    <div
+      className="prose prose-sm max-w-none text-gray-700 leading-relaxed
+                 bg-gradient-to-br from-gray-50 to-white rounded-2xl px-5 py-4
+                 border border-gray-100 shadow-sm
+                 prose-headings:text-gray-900 prose-headings:font-bold
+                 prose-p:text-gray-600 prose-li:text-gray-600
+                 prose-a:text-[#00A4E0] prose-blockquote:border-[#00A4E0]"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   </div>
 )
 
@@ -164,10 +173,10 @@ const FormationContinueDetailsModal = ({ formationId, open, onClose }: Props) =>
           {formation && !loading && (
             <>
               {/* COVER IMAGE */}
-              {formation.logo && (
+              {formation.coverUrl && (
                 <div className="relative">
                   <img
-                    src={resolveImageUrl(formation.logo)}
+                    src={resolveImageUrl(formation.coverUrl)}
                     alt={formation.libelle}
                     className="w-full h-52 object-cover"
                   />
@@ -188,10 +197,10 @@ const FormationContinueDetailsModal = ({ formationId, open, onClose }: Props) =>
 
               <div className="p-6 space-y-6">
 
-                {/* TITLE + STATUS (no image case) */}
+                {/* TITLE + STATUS */}
                 <div className="flex items-start justify-between gap-4">
                   <h3 className="text-2xl font-bold text-gray-900 leading-tight">{formation.libelle}</h3>
-                  {!formation.logo && (
+                  {!formation.coverUrl && (
                     formation.enabled ? (
                       <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100 flex-shrink-0">
                         <CheckCircle size={12} /> Active
@@ -230,38 +239,31 @@ const FormationContinueDetailsModal = ({ formationId, open, onClose }: Props) =>
                   />
                 </div>
 
+                {/* AFFICHER PRIX */}
+                <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border ${
+                  formation.afficherPrix
+                    ? "bg-blue-50 text-blue-700 border-blue-100"
+                    : "bg-gray-50 text-gray-500 border-gray-200"
+                }`}>
+                  {formation.afficherPrix
+                    ? <><Eye size={12} /> Prix affiché publiquement</>
+                    : <><EyeOff size={12} /> Prix masqué publiquement</>
+                  }
+                </div>
+
                 {/* DESCRIPTION */}
                 {formation.description && (
-                  <SectionBlock icon={FileText} label="Description">
-                    <div
-                      className="prose prose-sm max-w-none text-gray-700 leading-relaxed
-                                 bg-gradient-to-br from-gray-50 to-white rounded-2xl px-5 py-4
-                                 border border-gray-100 shadow-sm"
-                      dangerouslySetInnerHTML={{ __html: formation.description }}
-                    />
-                  </SectionBlock>
+                  <SectionBlock icon={FileText} label="Description" html={formation.description} />
                 )}
 
                 {/* OBJECTIFS */}
                 {formation.objectifs && (
-                  <SectionBlock icon={Target} label="Objectifs">
-                    <p className="text-sm text-gray-700 leading-relaxed
-                                  bg-gradient-to-br from-gray-50 to-white rounded-2xl px-5 py-4
-                                  border border-gray-100 shadow-sm">
-                      {formation.objectifs}
-                    </p>
-                  </SectionBlock>
+                  <SectionBlock icon={Target} label="Objectifs" html={formation.objectifs} />
                 )}
 
                 {/* COMPETENCES */}
                 {formation.competences && (
-                  <SectionBlock icon={Zap} label="Compétences">
-                    <p className="text-sm text-gray-700 leading-relaxed
-                                  bg-gradient-to-br from-gray-50 to-white rounded-2xl px-5 py-4
-                                  border border-gray-100 shadow-sm">
-                      {formation.competences}
-                    </p>
-                  </SectionBlock>
+                  <SectionBlock icon={Zap} label="Compétences acquises" html={formation.competences} />
                 )}
 
               </div>
