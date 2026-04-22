@@ -39,27 +39,29 @@ const inputCls =
 
 const selectCls = `${inputCls} appearance-none pr-10`
 
+// ✅ Tri alphabétique A→Z insensible aux accents et à la casse
+const sortAlpha = (arr: SousCategorie[]) =>
+  [...arr].sort((a, b) =>
+    a.libelle.localeCompare(b.libelle, "fr", { sensitivity: "base" })
+  )
+
 /* ================= COMPONENT ================= */
 
 export default function SousCategoriesPage() {
 
-  const [categories, setCategories]       = useState<Categorie[]>([])
+  const [categories, setCategories]         = useState<Categorie[]>([])
   const [sousCategories, setSousCategories] = useState<SousCategorie[]>([])
-  const [loading, setLoading]             = useState(true)
+  const [loading, setLoading]               = useState(true)
 
-  /* CREATE */
   const [libelle, setLibelle]         = useState("")
   const [categorieId, setCategorieId] = useState<number | "">("")
 
-  /* EDIT */
-  const [editingId, setEditingId]           = useState<number | null>(null)
-  const [editLibelle, setEditLibelle]       = useState("")
+  const [editingId, setEditingId]             = useState<number | null>(null)
+  const [editLibelle, setEditLibelle]         = useState("")
   const [editCategorieId, setEditCategorieId] = useState<number | "">("")
 
-  /* DELETE */
   const [deleteId, setDeleteId] = useState<number | null>(null)
 
-  /* TOAST */
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null)
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
@@ -77,8 +79,8 @@ export default function SousCategoriesPage() {
         SousCategorieAdminService.getAll(),
       ])
       setCategories(cats)
-      setSousCategories(subs)
-    } catch (e) {
+      setSousCategories(sortAlpha(subs)) // ✅ tri A→Z
+    } catch {
       showToast("Erreur chargement", "error")
     } finally {
       setLoading(false)
@@ -135,9 +137,7 @@ export default function SousCategoriesPage() {
       setDeleteId(null)
       load()
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        "Impossible de supprimer"
+      const msg = err?.response?.data?.message || "Impossible de supprimer"
       showToast(msg, "error")
     }
   }
@@ -210,6 +210,10 @@ export default function SousCategoriesPage() {
                 <p className="text-gray-600 mt-1 flex items-center gap-2">
                   <Sparkles size={14} className="text-[#00A4E0]" />
                   {sousCategories.length} sous-catégorie{sousCategories.length > 1 ? "s" : ""} au total
+                  {/* ✅ Indicateur de tri */}
+                  <span className="text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/40 px-2 py-0.5 rounded-full border border-[#00A4E0]/20">
+                    A → Z
+                  </span>
                 </p>
               </div>
             </div>
@@ -223,7 +227,6 @@ export default function SousCategoriesPage() {
           </p>
           <div className="grid md:grid-cols-3 gap-3">
 
-            {/* LIBELLE */}
             <div className="relative group">
               <Layers className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#00A4E0] transition-colors pointer-events-none" />
               <input
@@ -235,7 +238,6 @@ export default function SousCategoriesPage() {
               />
             </div>
 
-            {/* SELECT CATEGORIE */}
             <div className="relative">
               <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -251,7 +253,6 @@ export default function SousCategoriesPage() {
               </select>
             </div>
 
-            {/* BUTTON */}
             <button
               onClick={handleCreate}
               className="group relative px-5 py-3 rounded-xl font-medium text-white overflow-hidden
@@ -264,7 +265,6 @@ export default function SousCategoriesPage() {
                 Ajouter
               </span>
             </button>
-
           </div>
         </div>
 
@@ -281,9 +281,7 @@ export default function SousCategoriesPage() {
             </div>
             <div className="space-y-2">
               <h3 className="text-2xl font-bold text-gray-900">Aucune sous-catégorie</h3>
-              <p className="text-gray-600 max-w-sm mx-auto">
-                Commencez par en créer une ci-dessus.
-              </p>
+              <p className="text-gray-600 max-w-sm mx-auto">Commencez par en créer une ci-dessus.</p>
             </div>
           </div>
         )}
@@ -292,9 +290,14 @@ export default function SousCategoriesPage() {
         {sousCategories.length > 0 && (
           <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
 
-            {/* Table header */}
             <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-6 py-4 grid grid-cols-[1fr_1fr_auto] gap-4">
-              <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Libellé</span>
+              {/* ✅ Badge A→Z dans l'entête */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Libellé</span>
+                <span className="text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/50 px-1.5 py-0.5 rounded-md border border-[#00A4E0]/20">
+                  A→Z
+                </span>
+              </div>
               <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Catégorie parente</span>
               <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</span>
             </div>
@@ -306,12 +309,8 @@ export default function SousCategoriesPage() {
                   className="group px-6 py-4 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent transition-all duration-200"
                   style={{ animation: `fadeIn 0.3s ease-out ${index * 0.05}s both` }}
                 >
-
-                  {/* ===== EDIT MODE ===== */}
                   {editingId === sc.id ? (
                     <div className="grid grid-cols-[1fr_1fr_auto] gap-3 items-center">
-
-                      {/* Edit libelle */}
                       <div className="relative">
                         <Layers className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00A4E0] pointer-events-none" />
                         <input
@@ -322,8 +321,6 @@ export default function SousCategoriesPage() {
                           className={`${inputCls} pl-10 border-[#00A4E0] bg-blue-50/50`}
                         />
                       </div>
-
-                      {/* Edit categorie */}
                       <div className="relative">
                         <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00A4E0] pointer-events-none" />
                         <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -337,34 +334,21 @@ export default function SousCategoriesPage() {
                           ))}
                         </select>
                       </div>
-
-                      {/* Edit actions */}
                       <div className="flex gap-2">
-                        <button
-                          onClick={handleUpdate}
-                          className="p-2.5 rounded-xl text-gray-600 hover:text-green-600
-                                     hover:bg-green-50 transition-all duration-200 hover:scale-110 active:scale-95"
-                          title="Confirmer"
-                        >
+                        <button onClick={handleUpdate}
+                          className="p-2.5 rounded-xl text-gray-600 hover:text-green-600 hover:bg-green-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                          title="Confirmer">
                           <Check size={16} />
                         </button>
-                        <button
-                          onClick={() => setEditingId(null)}
-                          className="p-2.5 rounded-xl text-gray-600 hover:text-gray-800
-                                     hover:bg-gray-100 transition-all duration-200 hover:scale-110 active:scale-95"
-                          title="Annuler"
-                        >
+                        <button onClick={() => setEditingId(null)}
+                          className="p-2.5 rounded-xl text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-all duration-200 hover:scale-110 active:scale-95"
+                          title="Annuler">
                           <X size={16} />
                         </button>
                       </div>
-
                     </div>
                   ) : (
-
-                    /* ===== VIEW MODE ===== */
                     <div className="grid grid-cols-[1fr_1fr_auto] gap-4 items-center">
-
-                      {/* Libelle */}
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-sm flex-shrink-0">
                           <Layers size={13} className="text-white" />
@@ -373,16 +357,12 @@ export default function SousCategoriesPage() {
                           {sc.libelle}
                         </span>
                       </div>
-
-                      {/* Categorie parente */}
                       <div>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
                           <Tag size={11} />
                           {getCategorieName(sc.categorieId)}
                         </span>
                       </div>
-
-                      {/* Actions */}
                       <div className="flex gap-2">
                         <button
                           onClick={() => {
@@ -390,22 +370,16 @@ export default function SousCategoriesPage() {
                             setEditLibelle(sc.libelle)
                             setEditCategorieId(sc.categorieId)
                           }}
-                          className="p-2.5 rounded-xl text-gray-600 hover:text-[#00A4E0]
-                                     hover:bg-blue-50 transition-all duration-200 hover:scale-110 active:scale-95"
-                          title="Modifier"
-                        >
+                          className="p-2.5 rounded-xl text-gray-600 hover:text-[#00A4E0] hover:bg-blue-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                          title="Modifier">
                           <Pencil size={16} />
                         </button>
-                        <button
-                          onClick={() => setDeleteId(sc.id)}
-                          className="p-2.5 rounded-xl text-gray-600 hover:text-red-600
-                                     hover:bg-red-50 transition-all duration-200 hover:scale-110 active:scale-95"
-                          title="Supprimer"
-                        >
+                        <button onClick={() => setDeleteId(sc.id)}
+                          className="p-2.5 rounded-xl text-gray-600 hover:text-red-600 hover:bg-red-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                          title="Supprimer">
                           <Trash2 size={16} />
                         </button>
                       </div>
-
                     </div>
                   )}
                 </div>
@@ -418,17 +392,12 @@ export default function SousCategoriesPage() {
       {/* ===== MODAL DELETE ===== */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden
-                       animate-in fade-in slide-in-from-bottom-4 duration-300"
-          >
-            {/* Header */}
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden
+                         animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-600" />
-              <div
-                className="absolute inset-0 opacity-10"
-                style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
-              />
+              <div className="absolute inset-0 opacity-10"
+                style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
               <div className="relative px-6 py-5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30">
@@ -439,34 +408,26 @@ export default function SousCategoriesPage() {
                     <p className="text-white/60 text-xs mt-0.5">Cette action est irréversible</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setDeleteId(null)}
-                  className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all"
-                >
+                <button onClick={() => setDeleteId(null)}
+                  className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all">
                   <X size={15} />
                 </button>
               </div>
             </div>
-
-            {/* Body */}
             <div className="p-6 space-y-4">
               <p className="text-sm text-gray-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                 Voulez-vous vraiment supprimer cette sous-catégorie ?
               </p>
               <div className="flex gap-3">
-                <button
-                  onClick={() => setDeleteId(null)}
+                <button onClick={() => setDeleteId(null)}
                   className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium text-sm
-                             hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
-                >
+                             hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
                   Annuler
                 </button>
-                <button
-                  onClick={handleDelete}
+                <button onClick={handleDelete}
                   className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-600
                              text-white font-semibold text-sm hover:shadow-lg hover:scale-[1.02]
-                             active:scale-[0.98] transition-all duration-200"
-                >
+                             active:scale-[0.98] transition-all duration-200">
                   Supprimer
                 </button>
               </div>
@@ -477,14 +438,12 @@ export default function SousCategoriesPage() {
 
       {/* ===== TOAST ===== */}
       {toast && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border
-                      animate-in fade-in slide-in-from-bottom-4 duration-300 ${
-            toast.type === "error"
-              ? "bg-red-50 border-red-100 text-red-700"
-              : "bg-white border-gray-100 text-gray-800"
-          }`}
-        >
+        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border
+                        animate-in fade-in slide-in-from-bottom-4 duration-300 ${
+          toast.type === "error"
+            ? "bg-red-50 border-red-100 text-red-700"
+            : "bg-white border-gray-100 text-gray-800"
+        }`}>
           {toast.type === "error"
             ? <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
             : <CheckCircle size={16} className="text-green-500 flex-shrink-0" />

@@ -265,8 +265,8 @@ export default function DemandesDevisContinuesPage() {
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-4 text-left   text-xs font-black text-gray-600 uppercase tracking-wider">ID</th>
-                    <th className="px-6 py-4 text-left   text-xs font-black text-gray-600 uppercase tracking-wider">Date</th>
+                    <th className="px-2 py-4 text-left   text-xs font-black text-gray-600 uppercase tracking-wider text-center">Référence</th>
+                    <th className="px-6 py-4 text-left   text-xs font-black text-gray-600 uppercase tracking-wider ">Date</th>
                     <th className="px-6 py-4 text-left   text-xs font-black text-gray-600 uppercase tracking-wider">Client</th>
                     <th className="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Montant</th>
                     <th className="px-6 py-4 text-center text-xs font-black text-gray-600 uppercase tracking-wider">Statut</th>
@@ -288,9 +288,9 @@ export default function DemandesDevisContinuesPage() {
                         style={{ animation: `fadeIn 0.3s ease-out ${index * 0.04}s both` }}
                       >
                         {/* ID */}
-                        <td className="px-6 py-4">
-                          <span className="px-2.5 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-xs font-mono font-bold">
-                            #{d.id}
+                        <td className="px-6 py-4 text-center">
+                          <span className="px-2.5 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-xs font-mono font-bold ">
+                            {d.id}
                           </span>
                         </td>
 

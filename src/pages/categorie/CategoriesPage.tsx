@@ -19,6 +19,12 @@ type Categorie = {
   libelle: string
 }
 
+// ✅ Tri alphabétique A→Z insensible aux accents et à la casse
+const sortAlpha = (arr: Categorie[]) =>
+  [...arr].sort((a, b) =>
+    a.libelle.localeCompare(b.libelle, "fr", { sensitivity: "base" })
+  )
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Categorie[]>([])
   const [loading, setLoading] = useState(true)
@@ -27,10 +33,8 @@ export default function CategoriesPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingValue, setEditingValue] = useState("")
 
-  /* DELETE */
   const [deleteId, setDeleteId] = useState<number | null>(null)
 
-  /* TOAST */
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null)
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
@@ -43,7 +47,7 @@ export default function CategoriesPage() {
     try {
       setLoading(true)
       const data = await CatalogueAdminService.getCategories()
-      setCategories(data)
+      setCategories(sortAlpha(data)) // ✅ tri A→Z
     } finally {
       setLoading(false)
     }
@@ -140,6 +144,10 @@ export default function CategoriesPage() {
                 <p className="text-gray-600 mt-1 flex items-center gap-2">
                   <Sparkles size={14} className="text-[#00A4E0]" />
                   {categories.length} catégorie{categories.length > 1 ? "s" : ""} au total
+                  {/* ✅ Indicateur de tri */}
+                  <span className="text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/40 px-2 py-0.5 rounded-full border border-[#00A4E0]/20">
+                    A → Z
+                  </span>
                 </p>
               </div>
             </div>
@@ -203,7 +211,13 @@ export default function CategoriesPage() {
         {categories.length > 0 && (
           <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
             <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Libellé</span>
+              {/* ✅ Badge A→Z dans l'entête */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Libellé</span>
+                <span className="text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/50 px-1.5 py-0.5 rounded-md border border-[#00A4E0]/20">
+                  A→Z
+                </span>
+              </div>
               <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</span>
             </div>
 
@@ -216,7 +230,6 @@ export default function CategoriesPage() {
                              transition-all duration-200"
                   style={{ animation: `fadeIn 0.3s ease-out ${index * 0.05}s both` }}
                 >
-                  {/* LIBELLE */}
                   <div className="flex items-center gap-3 flex-1 mr-4">
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-sm flex-shrink-0">
                       <Tag size={13} className="text-white" />
@@ -239,7 +252,6 @@ export default function CategoriesPage() {
                     )}
                   </div>
 
-                  {/* ACTIONS */}
                   <div className="flex items-center gap-2">
                     {editingId === c.id ? (
                       <>
@@ -288,20 +300,15 @@ export default function CategoriesPage() {
         )}
       </div>
 
-      {/* ===== MODAL DELETE ===== */}
+      {/* MODAL DELETE */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden
-                       animate-in fade-in slide-in-from-bottom-4 duration-300"
-          >
-            {/* Header */}
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden
+                         animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-600" />
-              <div
-                className="absolute inset-0 opacity-10"
-                style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
-              />
+              <div className="absolute inset-0 opacity-10"
+                style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
               <div className="relative px-6 py-5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30">
@@ -312,34 +319,26 @@ export default function CategoriesPage() {
                     <p className="text-white/60 text-xs mt-0.5">Cette action est irréversible</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setDeleteId(null)}
-                  className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all"
-                >
+                <button onClick={() => setDeleteId(null)}
+                  className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all">
                   <X size={15} />
                 </button>
               </div>
             </div>
-
-            {/* Body */}
             <div className="p-6 space-y-4">
               <p className="text-sm text-gray-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                 Voulez-vous vraiment supprimer cette catégorie ?
               </p>
               <div className="flex gap-3">
-                <button
-                  onClick={() => setDeleteId(null)}
+                <button onClick={() => setDeleteId(null)}
                   className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium text-sm
-                             hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
-                >
+                             hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
                   Annuler
                 </button>
-                <button
-                  onClick={handleDelete}
+                <button onClick={handleDelete}
                   className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-600
                              text-white font-semibold text-sm hover:shadow-lg hover:scale-[1.02]
-                             active:scale-[0.98] transition-all duration-200"
-                >
+                             active:scale-[0.98] transition-all duration-200">
                   Supprimer
                 </button>
               </div>
@@ -348,16 +347,14 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* ===== TOAST ===== */}
+      {/* TOAST */}
       {toast && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border
-                      animate-in fade-in slide-in-from-bottom-4 duration-300 ${
-            toast.type === "error"
-              ? "bg-red-50 border-red-100 text-red-700"
-              : "bg-white border-gray-100 text-gray-800"
-          }`}
-        >
+        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border
+                        animate-in fade-in slide-in-from-bottom-4 duration-300 ${
+          toast.type === "error"
+            ? "bg-red-50 border-red-100 text-red-700"
+            : "bg-white border-gray-100 text-gray-800"
+        }`}>
           {toast.type === "error"
             ? <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
             : <CheckCircle size={16} className="text-green-500 flex-shrink-0" />

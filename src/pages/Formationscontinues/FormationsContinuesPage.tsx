@@ -40,6 +40,12 @@ type ModalState =
   | { type: "details"; id: number }
   | null
 
+// ✅ Tri alphabétique A→Z insensible aux accents et à la casse
+const sortAlpha = (arr: FormationContinue[]) =>
+  [...arr].sort((a, b) =>
+    a.libelle.localeCompare(b.libelle, "fr", { sensitivity: "base" })
+  )
+
 const FormationsContinuesPage = () => {
 
   const [formations, setFormations]     = useState<FormationContinue[]>([])
@@ -59,7 +65,7 @@ const FormationsContinuesPage = () => {
       setLoading(true)
       const data: PageResponse<FormationContinue> =
         await FormationContinueService.getAll(page, 10)
-      setFormations(data.content)
+      setFormations(sortAlpha(data.content)) // ✅ tri A→Z
       setTotalPages(data.totalPages)
     } catch {
       setFormations([])
@@ -102,7 +108,9 @@ const FormationsContinuesPage = () => {
       setToggling(true)
       const updated = await FormationContinueService.toggle(toggleTarget.id)
       setFormations(prev =>
-        prev.map(f => f.id === toggleTarget.id ? { ...f, enabled: updated.enabled } : f)
+        sortAlpha( // ✅ tri maintenu après toggle
+          prev.map(f => f.id === toggleTarget.id ? { ...f, enabled: updated.enabled } : f)
+        )
       )
       setToggleTarget(null)
     } catch {
@@ -164,6 +172,10 @@ const FormationsContinuesPage = () => {
                   <p className="text-gray-500 text-sm mt-0.5 flex items-center gap-1.5">
                     <Sparkles size={13} className="text-[#00A4E0]" />
                     {formations.length} formation{formations.length > 1 ? "s" : ""} — page {page + 1} / {totalPages}
+                    {/* ✅ Indicateur de tri */}
+                    <span className="ml-1 text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/40 px-2 py-0.5 rounded-full border border-[#00A4E0]/20">
+                      A → Z
+                    </span>
                   </p>
                 </div>
               </div>
@@ -201,7 +213,15 @@ const FormationsContinuesPage = () => {
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Formation</th>
+                    {/* ✅ Badge A→Z dans l'entête */}
+                    <th className="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">
+                      <div className="flex items-center gap-1.5">
+                        Formation
+                        <span className="text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/50 px-1.5 py-0.5 rounded-md border border-[#00A4E0]/20">
+                          A→Z
+                        </span>
+                      </div>
+                    </th>
                     <th className="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Catégorie</th>
                     <th className="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Sous-catégorie</th>
                     <th className="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Prix</th>
