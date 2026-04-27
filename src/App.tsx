@@ -21,7 +21,6 @@ import RoleProtectedRoute from "./app/RoleProtectedRoute";
 import { LayoutProvider } from "./context/LayoutProvider";
 
 /* ================= PAGES ================= */
-
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import FormationsPage from "./pages/formations/FormationsPage";
 import AgendaPage from "./pages/agenda/AgendaPage";
@@ -50,16 +49,18 @@ import FormationsContinuesPage from "./pages/Formationscontinues/FormationsConti
 /* ================= DEMANDES DE DEVIS ================= */
 import DemandesDevisContinuesPage from "./pages/DemandesDevis/DemandesDevisContinuesPage";
 
-/* ================= CATALOGUE 🔥 ================= */
-
-
-/* ================= UTILS ================= */
-import { UserRole } from "./types/user";
+/* ================= CATALOGUE ================= */
 import CategoriesPage from "./pages/categorie/CategoriesPage";
 import SousCategoriesPage from "./pages/categorie/SousCategoriesPage";
 
-/* ================= APP ROUTES ================= */
+/* ================= PRÉINSCRIPTIONS ================= */
 
+/* ================= UTILS ================= */
+import { UserRole } from "./types/user";
+import PreinscriptionsAdminPage from "./pages/admin/PreinscriptionsAdminPage";
+import PreinscriptionConfigPage from "./pages/admin/PreinscriptionConfigPage";
+
+/* ================= APP ROUTES ================= */
 const AppRoutes = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -91,31 +92,25 @@ const AppRoutes = () => {
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
 
-        {/* ================= ACADÉMIQUE ================= */}
-
+        {/* ================= FORMATIONS INITIALES ================= */}
         <Route path="formations" element={<FormationsPage />} />
 
         <Route path="agenda" element={<AgendaPage />} />
 
+        {/* ================= FORMATIONS CONTINUES ================= */}
         <Route
           path="formations-continues"
           element={
-            <RoleProtectedRoute
-              allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}
-            >
+            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
               <FormationsContinuesPage />
             </RoleProtectedRoute>
           }
         />
 
-        {/* 🔥 CATALOGUE */}
-
         <Route
           path="categories"
           element={
-            <RoleProtectedRoute
-              allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}
-            >
+            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
               <CategoriesPage />
             </RoleProtectedRoute>
           }
@@ -124,75 +119,62 @@ const AppRoutes = () => {
         <Route
           path="sous-categories"
           element={
-            <RoleProtectedRoute
-              allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}
-            >
+            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
               <SousCategoriesPage />
             </RoleProtectedRoute>
           }
         />
 
-        {/* ===== DEMANDES DE DEVIS FORMATIONS CONTINUES ===== */}
-
         <Route
           path="demandes-devis"
           element={
-            <RoleProtectedRoute
-              allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}
-            >
+            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
               <DemandesDevisContinuesPage />
             </RoleProtectedRoute>
           }
         />
 
-        {/* ================= CONTENU ================= */}
-
-        <Route path="actualites" element={<ActualitesPage />} />
-
-        <Route path="activites" element={<ActivitesPage />} />
-
-        <Route path="banners" element={<BannerList />} />
-
+        {/* ================= PRÉINSCRIPTIONS ================= */}
         <Route
-          path="banner-messages"
-          element={<BannerMessagePage />}
+          path="preinscriptions"
+          element={
+            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+              <PreinscriptionsAdminPage />
+            </RoleProtectedRoute>
+          }
         />
 
-        <Route path="commentaires" element={<CommentairesPage />} />
+        <Route
+          path="preinscriptions/configuration"
+          element={
+            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+              <PreinscriptionConfigPage />
+            </RoleProtectedRoute>
+          }
+        />
 
+        {/* ================= CONTENU ================= */}
+        <Route path="actualites" element={<ActualitesPage />} />
+        <Route path="activites" element={<ActivitesPage />} />
+        <Route path="banners" element={<BannerList />} />
+        <Route path="banner-messages" element={<BannerMessagePage />} />
+        <Route path="commentaires" element={<CommentairesPage />} />
         <Route path="partenaires" element={<PartenairesPage />} />
 
         {/* ================= CONTACT ================= */}
-
         <Route path="contact" element={<ContactListPage />} />
-
-        <Route
-          path="contact/unreplied"
-          element={<ContactUnrepliedPage />}
-        />
-
+        <Route path="contact/unreplied" element={<ContactUnrepliedPage />} />
         <Route path="contact/:id" element={<ContactDetailsPage />} />
-
-        <Route
-          path="messages"
-          element={<Navigate to="/contact" replace />}
-        />
+        <Route path="messages" element={<Navigate to="/contact" replace />} />
 
         {/* ================= STATS ================= */}
-
-        <Route
-          path="statistiques"
-          element={<KeyFiguresPage />}
-        />
+        <Route path="statistiques" element={<KeyFiguresPage />} />
 
         {/* ================= SUPERADMIN ================= */}
-
         <Route
           path="utilisateurs"
           element={
-            <RoleProtectedRoute
-              allowedRoles={[UserRole.SUPERADMIN]}
-            >
+            <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
               <UsersPage />
             </RoleProtectedRoute>
           }
@@ -201,9 +183,7 @@ const AppRoutes = () => {
         <Route
           path="configuration"
           element={
-            <RoleProtectedRoute
-              allowedRoles={[UserRole.SUPERADMIN]}
-            >
+            <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
               <ConfigurationPage />
             </RoleProtectedRoute>
           }
@@ -211,14 +191,12 @@ const AppRoutes = () => {
       </Route>
 
       {/* ================= FALLBACK ================= */}
-
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
 
 /* ================= APP ================= */
-
 const App = () => {
   return (
     <LayoutProvider>

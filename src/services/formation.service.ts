@@ -20,7 +20,7 @@ export const FormationService = {
   /* =========================
      DÉTAILS
      ========================= */
-  async getDetails(id: number): Promise<FormationDetails> {
+  async getDetails(id: number): Promise<FormationDetails> {8
     const res = await api.get<FormationDetails>(
       `/api/admin/formations/initiale/${id}`
     );
