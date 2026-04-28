@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import {
   Calendar,
@@ -50,23 +48,23 @@ function SectionHeader({ icon: Icon, title, color, count }: { icon: any; title: 
 /* ================= COMPONENT ================= */
 const PreinscriptionConfigPage = () => {
 
-  const [sessions, setSessions] = useState<SessionUniversitaire[]>([]);
-  const [periodes, setPeriodes] = useState<PreinscriptionPeriode[]>([]);
+  const [sessions, setSessions]   = useState<SessionUniversitaire[]>([]);
+  const [periodes, setPeriodes]   = useState<PreinscriptionPeriode[]>([]);
   const [emetteurs, setEmetteurs] = useState<PreinscriptionEmetteur[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]     = useState(true);
   const [activeTab, setActiveTab] = useState<"sessions" | "periodes" | "emetteurs">("sessions");
 
-  /* ================= EDIT / DELETE STATES ================= */
-  const [editSession, setEditSession] = useState<any | null>(null);
+  /* ── Edit / Delete ── */
+  const [editSession, setEditSession]     = useState<any | null>(null);
   const [deleteSession, setDeleteSession] = useState<number | null>(null);
 
-  const [editPeriode, setEditPeriode] = useState<any | null>(null);
+  const [editPeriode, setEditPeriode]     = useState<any | null>(null);
   const [deletePeriode, setDeletePeriode] = useState<number | null>(null);
 
-  const [editEmetteur, setEditEmetteur] = useState<any | null>(null);
+  const [editEmetteur, setEditEmetteur]     = useState<any | null>(null);
   const [deleteEmetteur, setDeleteEmetteur] = useState<number | null>(null);
 
-  /* ================= CREATE STATES ================= */
+  /* ── Create ── */
   const [createSessionForm, setCreateSessionForm] = useState({ annee: "" });
   const [openCreateSession, setOpenCreateSession] = useState(false);
 
@@ -80,7 +78,7 @@ const PreinscriptionConfigPage = () => {
   });
   const [openCreateEmetteur, setOpenCreateEmetteur] = useState(false);
 
-  /* ================= LOAD ================= */
+  /* ── Load ── */
   const load = async () => {
     setLoading(true);
     const [s, p, e] = await Promise.all([
@@ -131,7 +129,7 @@ const PreinscriptionConfigPage = () => {
                 </h1>
                 <p className="text-gray-500 text-sm mt-1 flex items-center gap-1.5">
                   <Sparkles size={13} className="text-[#00A4E0]" />
-                  {sessions.length} session{sessions.length > 1 ? "s" : ""} · {periodes.length} période{periodes.length > 1 ? "s" : ""} · {emetteurs.length} émetteur{emetteurs.length > 1 ? "s" : ""}
+                  {sessions.length} année{sessions.length > 1 ? "s" : ""} universitaire{sessions.length > 1 ? "s" : ""} · {periodes.length} période{periodes.length > 1 ? "s" : ""} de demandes · {emetteurs.length} émetteur{emetteurs.length > 1 ? "s" : ""}
                 </p>
               </div>
             </div>
@@ -148,12 +146,12 @@ const PreinscriptionConfigPage = () => {
         </div>
       </div>
 
-      {/* ===== TABS BAR ===== */}
+      {/* ===== TABS ===== */}
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-white shadow-lg p-2 flex gap-2">
         {([
-          { key: "sessions",  label: "Sessions",  icon: Calendar,  color: "from-[#00A4E0] to-[#0077A8]"   },
-          { key: "periodes",  label: "Périodes",  icon: Clock,     color: "from-purple-500 to-indigo-600" },
-          { key: "emetteurs", label: "Émetteurs", icon: UserCheck,  color: "from-orange-400 to-amber-500"  },
+          { key: "sessions",  label: "Années universitaires", icon: Calendar,  color: "from-[#00A4E0] to-[#0077A8]"   },
+          { key: "periodes",  label: "Périodes de demandes",  icon: Clock,     color: "from-purple-500 to-indigo-600" },
+          { key: "emetteurs", label: "Émetteurs",             icon: UserCheck, color: "from-orange-400 to-amber-500"  },
         ] as const).map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -172,159 +170,149 @@ const PreinscriptionConfigPage = () => {
       {/* ===== TAB CONTENT ===== */}
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white shadow-lg p-6 animate-in fade-in duration-300">
 
+        {/* ── ANNÉES UNIVERSITAIRES ── */}
         {activeTab === "sessions" && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-200 space-y-4">
-   <div className="flex items-center justify-between mb-4">
-          <SectionHeader icon={Calendar} title="Sessions" color="from-[#00A4E0] to-[#0077A8]" count={sessions.length} />
-          <button onClick={() => setOpenCreateSession(true)}
-            className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-blue-200">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0077A8] to-[#00A4E0] opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
-          </button>
-        </div>
-        <div className="space-y-2">
-          {sessions.length === 0 && (
-            <p className="text-gray-400 text-sm text-center py-6 bg-gray-50 rounded-xl">Aucune session</p>
-          )}
-          {sessions.map((s, i) => (
-            <div
-              key={s.id}
-              className="flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-white
-                         border border-blue-100 hover:shadow-md transition-all duration-200 group"
-              style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#00A4E0]" />
-                <span className="font-semibold text-gray-800 text-sm">{s.annee}</span>
-              </div>
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => setEditSession(s)}
-                  className="p-2 rounded-lg text-gray-400 hover:text-[#00A4E0] hover:bg-blue-50 transition-all hover:scale-110" title="Modifier">
-                  <Pencil size={14} />
-                </button>
-                <button onClick={() => setDeleteSession(s.id)}
-                  className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110" title="Supprimer">
-                  <Trash2 size={14} />
-                </button>
-              </div>
+            <div className="flex items-center justify-between mb-4">
+              <SectionHeader icon={Calendar} title="Années universitaires" color="from-[#00A4E0] to-[#0077A8]" count={sessions.length} />
+              <button onClick={() => setOpenCreateSession(true)}
+                className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-blue-200">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0077A8] to-[#00A4E0] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
+              </button>
             </div>
-          ))}
-        </div>
+            <div className="space-y-2">
+              {sessions.length === 0 && (
+                <p className="text-gray-400 text-sm text-center py-6 bg-gray-50 rounded-xl">Aucune année universitaire</p>
+              )}
+              {sessions.map((s, i) => (
+                <div key={s.id}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-white
+                             border border-blue-100 hover:shadow-md transition-all duration-200 group"
+                  style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-[#00A4E0]" />
+                    <span className="font-semibold text-gray-800 text-sm">{s.annee}</span>
+                  </div>
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setEditSession(s)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-[#00A4E0] hover:bg-blue-50 transition-all hover:scale-110" title="Modifier">
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={() => setDeleteSession(s.id)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110" title="Supprimer">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
+        {/* ── PÉRIODES DE DEMANDES ── */}
         {activeTab === "periodes" && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-200 space-y-4">
-   <div className="flex items-center justify-between mb-4">
-          <SectionHeader icon={Clock} title="Périodes" color="from-purple-500 to-indigo-600" count={periodes.length} />
-          <button onClick={() => setOpenCreatePeriode(true)}
-            className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-purple-200">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600" />
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
-          </button>
-        </div>
-        <div className="space-y-2">
-          {periodes.length === 0 && (
-            <p className="text-gray-400 text-sm text-center py-6 bg-gray-50 rounded-xl">Aucune période</p>
-          )}
-          {periodes.map((p, i) => (
-            <div
-              key={p.id}
-              className="flex items-center justify-between px-4 py-3.5 rounded-xl bg-gradient-to-r from-purple-50/50 to-white
-                         border border-purple-100 hover:shadow-md transition-all duration-200 group"
-              style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}
-            >
-              {/* ✅ STATUT + DATES */}
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-purple-400" />
-                <div className="flex flex-col">
-                  <span className="text-sm text-gray-700 font-medium">
-                    {new Date(p.dateDebut).toLocaleString("fr-FR")} → {new Date(p.dateFin).toLocaleString("fr-FR")}
-                  </span>
-                  <span className={`text-xs font-semibold mt-0.5 flex items-center gap-1 ${
-                    p.active ? "text-green-500" : "text-gray-400"
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${p.active ? "bg-green-400 animate-pulse" : "bg-gray-300"}`} />
-                    {p.active ? "Active" : "Inactive"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {/* ✅ DÉSACTIVER — seulement si active */}
-                {p.active && (
-                  <button
-                    onClick={async () => {
-                      await PreinscriptionService.deactivatePeriode(p.id);
-                      load();
-                    }}
-                    className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all hover:scale-110"
-                    title="Désactiver"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-                <button onClick={() => setEditPeriode(p)}
-                  className="p-2 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all hover:scale-110" title="Modifier">
-                  <Pencil size={14} />
-                </button>
-                <button onClick={() => setDeletePeriode(p.id)}
-                  className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110" title="Supprimer">
-                  <Trash2 size={14} />
-                </button>
-              </div>
+            <div className="flex items-center justify-between mb-4">
+              <SectionHeader icon={Clock} title="Périodes de demandes" color="from-purple-500 to-indigo-600" count={periodes.length} />
+              <button onClick={() => setOpenCreatePeriode(true)}
+                className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-purple-200">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600" />
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
+              </button>
             </div>
-          ))}
-        </div>
+            <div className="space-y-2">
+              {periodes.length === 0 && (
+                <p className="text-gray-400 text-sm text-center py-6 bg-gray-50 rounded-xl">Aucune période de demandes</p>
+              )}
+              {periodes.map((p, i) => (
+                <div key={p.id}
+                  className="flex items-center justify-between px-4 py-3.5 rounded-xl bg-gradient-to-r from-purple-50/50 to-white
+                             border border-purple-100 hover:shadow-md transition-all duration-200 group"
+                  style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-purple-400" />
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-700 font-medium">
+                        {new Date(p.dateDebut).toLocaleString("fr-FR")} → {new Date(p.dateFin).toLocaleString("fr-FR")}
+                      </span>
+                      <span className={`text-xs font-semibold mt-0.5 flex items-center gap-1 ${
+                        p.active ? "text-green-500" : "text-gray-400"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${p.active ? "bg-green-400 animate-pulse" : "bg-gray-300"}`} />
+                        {p.active ? "Active" : "Inactive"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {p.active && (
+                      <button
+                        onClick={async () => { await PreinscriptionService.deactivatePeriode(p.id); load(); }}
+                        className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all hover:scale-110"
+                        title="Désactiver">
+                        <X size={14} />
+                      </button>
+                    )}
+                    <button onClick={() => setEditPeriode(p)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all hover:scale-110" title="Modifier">
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={() => setDeletePeriode(p.id)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110" title="Supprimer">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
+        {/* ── ÉMETTEURS ── */}
         {activeTab === "emetteurs" && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-200 space-y-4">
-   <div className="flex items-center justify-between mb-4">
-          <SectionHeader icon={UserCheck} title="Émetteurs" color="from-orange-400 to-amber-500" count={emetteurs.length} />
-          <button onClick={() => setOpenCreateEmetteur(true)}
-            className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-orange-200">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-500" />
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
-          </button>
-        </div>
-        <div className="space-y-2">
-          {emetteurs.length === 0 && (
-            <p className="text-gray-400 text-sm text-center py-6 bg-gray-50 rounded-xl">Aucun émetteur</p>
-          )}
-          {emetteurs.map((e, i) => (
-            <div
-              key={e.id}
-              className="flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-orange-50/50 to-white
-                         border border-orange-100 hover:shadow-md transition-all duration-200 group"
-              style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs font-bold">{e.nom.charAt(0).toUpperCase()}</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-800 text-sm">{e.nom}</p>
-                  <p className="text-xs text-gray-500">{e.fonction}</p>
-                </div>
-              </div>
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => setEditEmetteur(e)}
-                  className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all hover:scale-110" title="Modifier">
-                  <Pencil size={14} />
-                </button>
-                <button onClick={() => setDeleteEmetteur(e.id)}
-                  className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110" title="Supprimer">
-                  <Trash2 size={14} />
-                </button>
-              </div>
+            <div className="flex items-center justify-between mb-4">
+              <SectionHeader icon={UserCheck} title="Émetteurs" color="from-orange-400 to-amber-500" count={emetteurs.length} />
+              <button onClick={() => setOpenCreateEmetteur(true)}
+                className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-orange-200">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
+              </button>
             </div>
-          ))}
-        </div>
+            <div className="space-y-2">
+              {emetteurs.length === 0 && (
+                <p className="text-gray-400 text-sm text-center py-6 bg-gray-50 rounded-xl">Aucun émetteur</p>
+              )}
+              {emetteurs.map((e, i) => (
+                <div key={e.id}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-orange-50/50 to-white
+                             border border-orange-100 hover:shadow-md transition-all duration-200 group"
+                  style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-xs font-bold">{e.nom.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800 text-sm">{e.nom}</p>
+                      <p className="text-xs text-gray-500">{e.fonction}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setEditEmetteur(e)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all hover:scale-110" title="Modifier">
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={() => setDeleteEmetteur(e.id)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110" title="Supprimer">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -332,11 +320,11 @@ const PreinscriptionConfigPage = () => {
 
       {/* ===== CREATE MODALS ===== */}
       {openCreateSession && (
-        <Modal title="Nouvelle session" color="from-[#00A4E0] to-[#0077A8]" icon={<Calendar size={17} className="text-white" />} onClose={() => setOpenCreateSession(false)}>
+        <Modal title="Nouvelle année universitaire" color="from-[#00A4E0] to-[#0077A8]" icon={<Calendar size={17} className="text-white" />} onClose={() => setOpenCreateSession(false)}>
           <input
             value={createSessionForm.annee}
             onChange={(e) => setCreateSessionForm({ annee: e.target.value })}
-            placeholder="2025-2026"
+            placeholder="ex: 2025-2026"
             className={inputCls}
           />
           <button onClick={async () => {
@@ -347,19 +335,19 @@ const PreinscriptionConfigPage = () => {
           }} className="group relative w-full py-3 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-blue-200">
             <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#0077A8] to-[#00A4E0] opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="relative flex items-center justify-center gap-2"><Plus size={15} /> Créer la session</span>
+            <span className="relative flex items-center justify-center gap-2"><Plus size={15} /> Créer l'année universitaire</span>
           </button>
         </Modal>
       )}
 
       {openCreatePeriode && (
-        <Modal title="Nouvelle période" color="from-purple-500 to-indigo-600" icon={<Clock size={17} className="text-white" />} onClose={() => setOpenCreatePeriode(false)}>
+        <Modal title="Nouvelle période de demandes" color="from-purple-500 to-indigo-600" icon={<Clock size={17} className="text-white" />} onClose={() => setOpenCreatePeriode(false)}>
           <div className="space-y-3">
             <div className="relative">
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
               <select onChange={(e) => setCreatePeriodeForm({ ...createPeriodeForm, sessionId: e.target.value })}
                 className="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] text-sm bg-white appearance-none">
-                <option value="">Session</option>
+                <option value="">Année universitaire</option>
                 {sessions.map((s) => <option key={s.id} value={s.id}>{s.annee}</option>)}
               </select>
             </div>
@@ -376,10 +364,10 @@ const PreinscriptionConfigPage = () => {
           </div>
           <button onClick={async () => {
             await PreinscriptionService.createPeriode({
-              sessionId: Number(createPeriodeForm.sessionId),
+              sessionId:  Number(createPeriodeForm.sessionId),
               emetteurId: Number(createPeriodeForm.emetteurId),
-              dateDebut: createPeriodeForm.dateDebut,
-              dateFin: createPeriodeForm.dateFin,
+              dateDebut:  createPeriodeForm.dateDebut,
+              dateFin:    createPeriodeForm.dateFin,
             });
             setCreatePeriodeForm({ dateDebut: "", dateFin: "", sessionId: "", emetteurId: "" });
             setOpenCreatePeriode(false);
@@ -387,7 +375,7 @@ const PreinscriptionConfigPage = () => {
           }} className="group relative w-full py-3 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-purple-200">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600" />
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="relative flex items-center justify-center gap-2"><Plus size={15} /> Créer la période</span>
+            <span className="relative flex items-center justify-center gap-2"><Plus size={15} /> Créer la période de demandes</span>
           </button>
         </Modal>
       )}
@@ -421,7 +409,7 @@ const PreinscriptionConfigPage = () => {
 
       {/* ===== EDIT MODALS ===== */}
       {editSession && (
-        <Modal title="Modifier la session" color="from-[#00A4E0] to-[#0077A8]" icon={<Calendar size={17} className="text-white" />} onClose={() => setEditSession(null)}>
+        <Modal title="Modifier l'année universitaire" color="from-[#00A4E0] to-[#0077A8]" icon={<Calendar size={17} className="text-white" />} onClose={() => setEditSession(null)}>
           <input value={editSession.annee} onChange={(e) => setEditSession({ ...editSession, annee: e.target.value })} className={inputCls} placeholder="Année universitaire" />
           <SaveButton onClick={async () => {
             await PreinscriptionService.updateSession(editSession.id, editSession);
@@ -432,9 +420,9 @@ const PreinscriptionConfigPage = () => {
       )}
 
       {editPeriode && (
-        <Modal title="Modifier la période" color="from-purple-500 to-indigo-600" icon={<Clock size={17} className="text-white" />} onClose={() => setEditPeriode(null)}>
+        <Modal title="Modifier la période de demandes" color="from-purple-500 to-indigo-600" icon={<Clock size={17} className="text-white" />} onClose={() => setEditPeriode(null)}>
           <input type="datetime-local" value={editPeriode.dateDebut} onChange={(e) => setEditPeriode({ ...editPeriode, dateDebut: e.target.value })} className={inputCls} />
-          <input type="datetime-local" value={editPeriode.dateFin} onChange={(e) => setEditPeriode({ ...editPeriode, dateFin: e.target.value })} className={inputCls} />
+          <input type="datetime-local" value={editPeriode.dateFin}   onChange={(e) => setEditPeriode({ ...editPeriode, dateFin:   e.target.value })} className={inputCls} />
           <SaveButton onClick={async () => {
             await PreinscriptionService.updatePeriode(editPeriode.id, editPeriode);
             setEditPeriode(null);
@@ -446,18 +434,8 @@ const PreinscriptionConfigPage = () => {
       {editEmetteur && (
         <Modal title="Modifier l'émetteur" color="from-orange-400 to-amber-500" icon={<UserCheck size={17} className="text-white" />} onClose={() => setEditEmetteur(null)}>
           <div className="space-y-3">
-            <input
-              value={editEmetteur.nom}
-              onChange={(e) => setEditEmetteur({ ...editEmetteur, nom: e.target.value })}
-              className={inputCls}
-              placeholder="Nom de l'émetteur"
-            />
-            <input
-              value={editEmetteur.fonction}
-              onChange={(e) => setEditEmetteur({ ...editEmetteur, fonction: e.target.value })}
-              className={inputCls}
-              placeholder="Fonction (ex: Directeur)"
-            />
+            <input value={editEmetteur.nom}     onChange={(e) => setEditEmetteur({ ...editEmetteur, nom:     e.target.value })} className={inputCls} placeholder="Nom de l'émetteur" />
+            <input value={editEmetteur.fonction} onChange={(e) => setEditEmetteur({ ...editEmetteur, fonction: e.target.value })} className={inputCls} placeholder="Fonction (ex: Directeur)" />
             <label className="flex items-center gap-2.5 px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 hover:border-orange-400 hover:bg-orange-50/30 transition-all cursor-pointer group">
               <ImagePlus size={16} className="text-gray-400 group-hover:text-orange-500 transition-colors flex-shrink-0" />
               <span className="text-sm text-gray-500 group-hover:text-orange-600 truncate">
@@ -476,12 +454,12 @@ const PreinscriptionConfigPage = () => {
 
       {/* ===== DELETE MODALS ===== */}
       {deleteSession !== null && (
-        <ConfirmModal title="Supprimer cette session ?"
+        <ConfirmModal title="Supprimer cette année universitaire ?"
           onConfirm={async () => { await PreinscriptionService.deleteSession(deleteSession); setDeleteSession(null); load(); }}
           onClose={() => setDeleteSession(null)} />
       )}
       {deletePeriode !== null && (
-        <ConfirmModal title="Supprimer cette période ?"
+        <ConfirmModal title="Supprimer cette période de demandes ?"
           onConfirm={async () => { await PreinscriptionService.deletePeriode(deletePeriode); setDeletePeriode(null); load(); }}
           onClose={() => setDeletePeriode(null)} />
       )}
