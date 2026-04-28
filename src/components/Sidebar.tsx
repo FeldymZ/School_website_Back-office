@@ -287,7 +287,7 @@ export default function Sidebar() {
         )}
 
         {/* ===== PRÉINSCRIPTIONS ===== */}
-        {canAccessAdmin && (
+        {canAccessSuperAdmin && (
           <Section title="Préinscriptions">
             <MenuItemComp
               item={{
