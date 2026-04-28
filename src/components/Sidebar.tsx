@@ -300,7 +300,7 @@ export default function Sidebar() {
                     badge: preinscriptionCount,
                   },
                   {
-                    label: "Émetteurs & Sessions",
+                    label: "Paramètres",
                     path: "/preinscriptions/configuration",
                   },
                 ],
