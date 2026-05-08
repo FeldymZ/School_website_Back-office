@@ -23,38 +23,38 @@ import { UserRole } from "@/types/user";
 import PreinscriptionDetailsModal from "@/components/preinscriptions/PreinscriptionDetailsModal";
 import ConfirmActionModal from "@/components/common/ConfirmActionModal";
 
-/* ============================ */
+/* ================= STATUT CONFIG ================= */
 const STATUT_CONFIG = {
   EN_ATTENTE: {
     label: "En attente",
-    bg: "bg-amber-50",
-    text: "text-amber-700",
-    border: "border-amber-200",
-    dot: "bg-amber-400",
+    bg:    "bg-amber-50",
+    text:  "text-amber-700",
+    border:"border-amber-200",
+    dot:   "bg-amber-400",
     pulse: true,
-    icon: Clock,
+    icon:  Clock,
   },
   VALIDEE: {
     label: "Validée",
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
-    dot: "bg-green-400",
+    bg:    "bg-green-50",
+    text:  "text-green-700",
+    border:"border-green-200",
+    dot:   "bg-green-400",
     pulse: false,
-    icon: CheckCircle,
+    icon:  CheckCircle,
   },
   REJETEE: {
     label: "Rejetée",
-    bg: "bg-red-50",
-    text: "text-red-700",
-    border: "border-red-200",
-    dot: "bg-red-400",
+    bg:    "bg-red-50",
+    text:  "text-red-700",
+    border:"border-red-200",
+    dot:   "bg-red-400",
     pulse: false,
-    icon: XCircle,
+    icon:  XCircle,
   },
 };
 
-/* ============================ */
+/* ================= STATUT BADGE ================= */
 const StatutBadge = ({ statut }: { statut: StatutDemande }) => {
   const cfg = STATUT_CONFIG[statut];
   return (
@@ -69,7 +69,7 @@ const StatutBadge = ({ statut }: { statut: StatutDemande }) => {
   );
 };
 
-/* ============================ */
+/* ================= STAT CARD ================= */
 const StatCard = ({ label, value, color }: { label: string; value: number; color: string }) => (
   <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-white shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
     <div className={`absolute -right-4 -top-4 w-20 h-20 ${color} rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity`} />
@@ -80,23 +80,41 @@ const StatCard = ({ label, value, color }: { label: string; value: number; color
   </div>
 );
 
-/* ============================ */
+/* ================= PAGE ================= */
 const PreinscriptionsAdminPage = () => {
-  const [demandes, setDemandes] = useState<PreinscriptionDemande[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatut, setFilterStatut] = useState<StatutDemande | "TOUS">("TOUS");
-
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [openDetails, setOpenDetails] = useState(false);
-  const [openValidate, setOpenValidate] = useState(false);
-  const [openReject, setOpenReject] = useState(false);
+  const [demandes,      setDemandes]      = useState<PreinscriptionDemande[]>([]);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState<string | null>(null);
+  const [searchQuery,   setSearchQuery]   = useState("");
+  const [filterStatut,  setFilterStatut]  = useState<StatutDemande | "TOUS">("TOUS");
+  const [selectedId,    setSelectedId]    = useState<number | null>(null);
+  const [openDetails,   setOpenDetails]   = useState(false);
+  const [openValidate,  setOpenValidate]  = useState(false);
+  const [openReject,    setOpenReject]    = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const user = getUserFromToken();
+  const user         = getUserFromToken();
   const isSuperAdmin = user?.role === UserRole.SUPERADMIN;
+
+  /* ================= DOWNLOAD PDF SECURISE ================= */
+  const downloadPdfSecure = async (url: string, nom: string, prenom: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res   = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error("Erreur téléchargement");
+      const blob    = await res.blob();
+      const fileURL = URL.createObjectURL(blob);
+      const link    = document.createElement("a");
+      link.href     = fileURL;
+      link.download = `preinscription_${nom}_${prenom}.pdf`;
+      link.click();
+      URL.revokeObjectURL(fileURL);
+    } catch (err) {
+      console.error(err);
+      alert("Impossible de télécharger le PDF");
+    }
+  };
 
   /* ================= FETCH ================= */
   const loadDemandes = async () => {
@@ -177,13 +195,17 @@ const PreinscriptionsAdminPage = () => {
     );
   }
 
+  /* ================= ERROR ================= */
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center p-6">
         <div className="bg-white rounded-3xl p-10 shadow-xl border border-red-100 text-center max-w-md w-full space-y-4">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
           <p className="text-red-600 font-semibold">{error}</p>
-          <button onClick={loadDemandes} className="px-5 py-2.5 rounded-xl bg-red-50 text-red-600 font-medium text-sm hover:bg-red-100 transition-all">
+          <button
+            onClick={loadDemandes}
+            className="px-5 py-2.5 rounded-xl bg-red-50 text-red-600 font-medium text-sm hover:bg-red-100 transition-all"
+          >
             Réessayer
           </button>
         </div>
@@ -191,10 +213,11 @@ const PreinscriptionsAdminPage = () => {
     );
   }
 
+  /* ================= RENDER ================= */
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6 space-y-8 animate-in fade-in duration-500">
 
-      {/* ===== HEADER ===== */}
+      {/* HEADER */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-3xl opacity-5 blur-3xl" />
         <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-xl">
@@ -229,15 +252,15 @@ const PreinscriptionsAdminPage = () => {
         </div>
       </div>
 
-      {/* ===== STATS ===== */}
+      {/* STATS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard label="Total"       value={demandes.length}  color="bg-blue-400"   />
-        <StatCard label="En attente"  value={countEnAttente}   color="bg-amber-400"  />
-        <StatCard label="Validées"    value={countValidees}    color="bg-green-400"  />
-        <StatCard label="Rejetées"    value={countRejetees}    color="bg-red-400"    />
+        <StatCard label="Total"      value={demandes.length} color="bg-blue-400"  />
+        <StatCard label="En attente" value={countEnAttente}  color="bg-amber-400" />
+        <StatCard label="Validées"   value={countValidees}   color="bg-green-400" />
+        <StatCard label="Rejetées"   value={countRejetees}   color="bg-red-400"   />
       </div>
 
-      {/* ===== SEARCH + FILTER ===== */}
+      {/* SEARCH + FILTER */}
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-white shadow-lg">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 group">
@@ -273,7 +296,7 @@ const PreinscriptionsAdminPage = () => {
         </div>
       </div>
 
-      {/* ===== EMPTY STATE ===== */}
+      {/* EMPTY STATE */}
       {filtered.length === 0 && (
         <div className="bg-white rounded-3xl p-16 text-center space-y-4 border border-gray-100 shadow-lg">
           <div className="flex justify-center">
@@ -293,7 +316,7 @@ const PreinscriptionsAdminPage = () => {
         </div>
       )}
 
-      {/* ===== TABLE ===== */}
+      {/* TABLE */}
       {filtered.length > 0 && (
         <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
           <div className="overflow-x-auto">
@@ -372,18 +395,18 @@ const PreinscriptionsAdminPage = () => {
                           </>
                         )}
 
+                        {/* PDF SÉCURISÉ */}
                         {d.statut === "VALIDEE" && d.pdfUrl && (
-                          <a
-                            href={d.pdfUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={() => downloadPdfSecure(d.pdfUrl!, d.nom, d.prenom)}
                             className="p-2 rounded-xl text-gray-500 hover:text-purple-600 hover:bg-purple-50
                                        transition-all duration-200 hover:scale-110 active:scale-95"
-                            title="Voir le PDF"
+                            title="Télécharger PDF"
                           >
                             <FileText size={16} />
-                          </a>
+                          </button>
                         )}
+
                       </div>
                     </td>
                   </tr>
@@ -394,7 +417,7 @@ const PreinscriptionsAdminPage = () => {
         </div>
       )}
 
-      {/* ===== MODALS ===== */}
+      {/* MODALS */}
       <PreinscriptionDetailsModal
         open={openDetails}
         demandeId={selectedId}

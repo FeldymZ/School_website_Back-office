@@ -1,55 +1,174 @@
-export type StatutDemande = "EN_ATTENTE" | "VALIDEE" | "REJETEE";
+/* =========================
+   ENUMS
+========================= */
 
-/* ================= DEMANDE ================= */
-export interface PreinscriptionDemande {
-  id: number;
-  civilite: string;
+export type Civilite =
+  | "M"
+  | "MME"
+  | "MLLE";
+
+export type NiveauSouhaite =
+  | "PREMIERE_ANNEE"
+  | "DEUXIEME_ANNEE"
+  | "TROISIEME_ANNEE";
+
+export type StatutDiplome =
+  | "OBTENU"
+  | "EN_COURS";
+
+export type StatutDemande =
+  | "EN_ATTENTE"
+  | "VALIDEE"
+  | "REJETEE";
+
+/* =========================
+   REQUEST
+========================= */
+
+export type PreinscriptionRequest = {
+
+  civilite: Civilite;
+
   nom: string;
+
   prenom: string;
-  email: string;
-  telephone: string;
-  whatsapp?: string;
-  niveau: string;
-  formation: string;
+
+  dateNaissance: string;
+
+  lieuNaissance: string;
+
   nationalite: string;
+
+  email: string;
+
+  telephone: string;
+
+  whatsapp?: string;
+
+  niveauSouhaite: NiveauSouhaite;
+
+  formationId: number;
+
+  /* ================= DIPLOME ================= */
+
+  diplomePresente: string;
+
+  statutDiplome: StatutDiplome;
+
+  anneeObtention?: number;
+
+  etablissementProvenance: string;
+};
+
+/* =========================
+   DEMANDE
+========================= */
+
+export interface PreinscriptionDemande {
+
+  id: number;
+
+  civilite: string;
+
+  nom: string;
+
+  prenom: string;
+
+  /* ================= IDENTITE ================= */
+
+  dateNaissance?: string;
+
+  lieuNaissance?: string;
+
+  nationalite: string;
+
+  /* ================= CONTACT ================= */
+
+  email: string;
+
+  telephone: string;
+
+  whatsapp?: string;
+
+  /* ================= FORMATION ================= */
+
+  niveau: string;
+
+  formation: string;
+
   anneeUniversitaire: string;
+
+  /* ================= STATUT ================= */
+
   statut: StatutDemande;
+
   createdAt: string;
+
   validatedAt?: string;
+
   pdfUrl?: string;
+
+  /* ================= DIPLOME ================= */
+
+  diplomePresente?: string;
+
+  statutDiplome?: string;
+
+  anneeObtention?: number;
+
+  etablissementProvenance?: string;
 }
 
-/* ================= EMETTEUR ================= */
+/* =========================
+   AUTRES
+========================= */
+
 export interface PreinscriptionEmetteur {
+
   id: number;
+
   nom: string;
+
   fonction: string;
+
   signatureUrl: string;
+
   actif: boolean;
 }
 
-/* ================= SESSION ================= */
 export interface SessionUniversitaire {
+
   id: number;
+
   annee: string;
 }
 
-/* ================= PERIODE ================= */
-/* 🔥 CORRECTION ICI */
 export interface PreinscriptionPeriode {
+
   id: number;
 
   dateDebut: string;
+
   dateFin: string;
-     active: boolean;
+
+  active: boolean;
+
   session: SessionUniversitaire;
+
   emetteur: PreinscriptionEmetteur;
 }
 
-/* ================= PUBLIC ================= */
+/* =========================
+   SESSION PUBLIQUE
+========================= */
+
 export interface SessionPublique {
+
   anneeUniversitaire: string | null;
+
   ouverte: boolean;
+
   dateDebut?: string;
+
   dateFin?: string;
 }
