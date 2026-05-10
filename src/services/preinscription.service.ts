@@ -58,6 +58,21 @@ export const PreinscriptionService = {
     }
   },
 
+  /* ================= RENVOYER ================= */
+
+  async resend(id: number): Promise<void> {
+
+    try {
+
+      await api.post(
+        `/api/admin/preinscriptions/${id}/renvoyer`
+      );
+
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
   /* =====================================================
      📌 EMETTEURS
   ===================================================== */
@@ -77,28 +92,42 @@ export const PreinscriptionService = {
     fonction: string,
     signature: File
   ): Promise<void> {
-    if (!signature) throw new Error("Signature obligatoire");
+
+    if (!signature) {
+      throw new Error("Signature obligatoire");
+    }
 
     try {
+
       const formData = new FormData();
+
       formData.append("nom", nom);
       formData.append("fonction", fonction);
       formData.append("signature", signature);
 
-      await api.post("/api/admin/preinscriptions/emetteurs", formData);
+      await api.post(
+        "/api/admin/preinscriptions/emetteurs",
+        formData
+      );
+
     } catch (e) {
       handleError(e);
     }
   },
 
-  /* 🔥 FIX UPDATE AVEC SIGNATURE OPTIONNELLE */
   async updateEmetteur(
     id: number,
-    data: { nom: string; fonction: string },
+    data: {
+      nom: string;
+      fonction: string;
+    },
     signature?: File
   ): Promise<void> {
+
     try {
+
       const formData = new FormData();
+
       formData.append("nom", data.nom);
       formData.append("fonction", data.fonction);
 
@@ -106,15 +135,24 @@ export const PreinscriptionService = {
         formData.append("signature", signature);
       }
 
-      await api.put(`/api/admin/preinscriptions/emetteurs/${id}`, formData);
+      await api.put(
+        `/api/admin/preinscriptions/emetteurs/${id}`,
+        formData
+      );
+
     } catch (e) {
       handleError(e);
     }
   },
 
   async deleteEmetteur(id: number): Promise<void> {
+
     try {
-      await api.delete(`/api/admin/preinscriptions/emetteurs/${id}`);
+
+      await api.delete(
+        `/api/admin/preinscriptions/emetteurs/${id}`
+      );
+
     } catch (e) {
       handleError(e);
     }
@@ -125,34 +163,66 @@ export const PreinscriptionService = {
   ===================================================== */
 
   async getSessions(): Promise<SessionUniversitaire[]> {
+
     try {
-      const res = await api.get("/api/admin/preinscriptions/sessions");
+
+      const res = await api.get(
+        "/api/admin/preinscriptions/sessions"
+      );
+
       return res.data;
+
     } catch (e) {
       handleError(e);
       return [];
     }
   },
 
-  async createSession(data: { annee: string }): Promise<void> {
+  async createSession(
+    data: {
+      annee: string;
+    }
+  ): Promise<void> {
+
     try {
-      await api.post("/api/admin/preinscriptions/sessions", data);
+
+      await api.post(
+        "/api/admin/preinscriptions/sessions",
+        data
+      );
+
     } catch (e) {
       handleError(e);
     }
   },
 
-  async updateSession(id: number, data: { annee: string }): Promise<void> {
+  async updateSession(
+    id: number,
+    data: {
+      annee: string;
+    }
+  ): Promise<void> {
+
     try {
-      await api.put(`/api/admin/preinscriptions/sessions/${id}`, data);
+
+      await api.put(
+        `/api/admin/preinscriptions/sessions/${id}`,
+        data
+      );
+
     } catch (e) {
       handleError(e);
     }
   },
 
   async deleteSession(id: number): Promise<void> {
+
     try {
-      await api.delete(`/api/admin/preinscriptions/sessions/${id}`);
+
+      await api.delete(
+        `/api/admin/preinscriptions/sessions/${id}`
+      );
+
     } catch (e) {
       handleError(e);
     }
@@ -163,9 +233,15 @@ export const PreinscriptionService = {
   ===================================================== */
 
   async getPeriodes(): Promise<PreinscriptionPeriode[]> {
+
     try {
-      const res = await api.get("/api/admin/preinscriptions/periodes");
+
+      const res = await api.get(
+        "/api/admin/preinscriptions/periodes"
+      );
+
       return res.data;
+
     } catch (e) {
       handleError(e);
       return [];
@@ -178,8 +254,14 @@ export const PreinscriptionService = {
     dateDebut: string;
     dateFin: string;
   }): Promise<void> {
+
     try {
-      await api.post("/api/admin/preinscriptions/periodes", data);
+
+      await api.post(
+        "/api/admin/preinscriptions/periodes",
+        data
+      );
+
     } catch (e) {
       handleError(e);
     }
@@ -194,29 +276,61 @@ export const PreinscriptionService = {
       emetteurId?: number;
     }
   ): Promise<void> {
+
     try {
-      await api.put(`/api/admin/preinscriptions/periodes/${id}`, data);
+
+      await api.put(
+        `/api/admin/preinscriptions/periodes/${id}`,
+        data
+      );
+
     } catch (e) {
       handleError(e);
     }
   },
 
+  /* ================= DESACTIVER ================= */
+
   async deactivatePeriode(id: number): Promise<void> {
+
     try {
+
       await api.put(
         `/api/admin/preinscriptions/periodes/${id}/desactiver`
       );
+
     } catch (e) {
       handleError(e);
     }
   },
+
+  /* ================= ACTIVER ================= */
+
+  async activatePeriode(id: number): Promise<void> {
+
+    try {
+
+      await api.put(
+        `/api/admin/preinscriptions/periodes/${id}/activer`
+      );
+
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /* ================= SUPPRIMER ================= */
 
   async deletePeriode(id: number): Promise<void> {
+
     try {
-      await api.delete(`/api/admin/preinscriptions/periodes/${id}`);
+
+      await api.delete(
+        `/api/admin/preinscriptions/periodes/${id}`
+      );
+
     } catch (e) {
       handleError(e);
     }
   },
-
 };
