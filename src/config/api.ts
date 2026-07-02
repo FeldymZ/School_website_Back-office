@@ -5,6 +5,15 @@ export const API_CONFIG = {
     LOGIN: "/api/auth/login",
   },
 
+  ME: "/api/me", // 🆕
+
+  MENU_PERMISSIONS: "/api/menu-permissions", // 🆕
+
+  ADMIN: {
+    CREATE: "/api/admin/user/create", // 🆕 (déjà utilisé par ton AdminController, à vérifier dans ton userService actuel)
+    USERS: "/api/admin/users", // 🆕 base pour /:id/menu-access, /:id/password, etc.
+  },
+
   FORMATIONS: {
     ALL:      "/api/public/formations/initiale",
     BY_LEVEL: (level: string) =>

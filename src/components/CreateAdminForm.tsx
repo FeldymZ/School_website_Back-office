@@ -16,12 +16,10 @@ const CreateAdminForm = ({ onCreated }: Props) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!email || !password) {
       setError("Tous les champs sont obligatoires");
       return;
     }
-
     try {
       setLoading(true);
       setError(null);
@@ -43,7 +41,6 @@ const CreateAdminForm = ({ onCreated }: Props) => {
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#cfe3ff] to-transparent rounded-full blur-3xl opacity-40" />
 
       <div className="relative z-10 p-8 space-y-6">
-        {/* Header */}
         <div className="flex items-center gap-4">
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
@@ -61,7 +58,6 @@ const CreateAdminForm = ({ onCreated }: Props) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
               <Mail size={16} className="text-[#00A4E0]" />
@@ -79,7 +75,6 @@ const CreateAdminForm = ({ onCreated }: Props) => {
             />
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
               <Lock size={16} className="text-[#00A4E0]" />
@@ -97,7 +92,6 @@ const CreateAdminForm = ({ onCreated }: Props) => {
             />
           </div>
 
-          {/* Menu Access */}
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
               <LayoutGrid size={16} className="text-[#00A4E0]" />
@@ -106,14 +100,12 @@ const CreateAdminForm = ({ onCreated }: Props) => {
             <MenuAccessSelector selected={menuAccess} onChange={setMenuAccess} />
           </div>
 
-          {/* Error */}
           {error && (
             <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl">
               <p className="text-sm text-red-700 font-medium">{error}</p>
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}

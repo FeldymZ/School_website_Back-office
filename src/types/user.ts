@@ -4,8 +4,9 @@ export enum UserRole {
 }
 
 export interface User {
-  id: number;
-  email: string;
-  role: UserRole;
-  enabled: boolean;
+  id: number
+  email: string
+  role: UserRole
+  enabled: boolean
+  menuAccess: string[]
 }

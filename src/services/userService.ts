@@ -13,11 +13,13 @@ export const UserService = {
 
   async createAdmin(
     email: string,
-    password: string
+    password: string,
+    menuAccess: string[] = []
   ): Promise<void> {
     await api.post("/api/admin/user/create", {
       email,
       password,
+      menuAccess,
     });
   },
 
@@ -41,6 +43,17 @@ export const UserService = {
   ): Promise<void> {
     await api.patch(`/api/admin/users/${userId}/password`, {
       password,
+    });
+  },
+
+  /* ================= GERER LES MENUS (🆕) ================= */
+
+  async updateMenuAccess(
+    userId: number,
+    menuAccess: string[]
+  ): Promise<void> {
+    await api.patch(`/api/admin/users/${userId}/menu-access`, {
+      menuAccess,
     });
   },
 

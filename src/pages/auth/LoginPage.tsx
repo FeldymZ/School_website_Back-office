@@ -4,9 +4,11 @@ import axios from "axios";
 import { ShieldCheck } from "lucide-react";
 
 import { login } from "../../services/auth.service";
+import { useUser } from "../../context/UserContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { refresh } = useUser();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +22,7 @@ const LoginPage = () => {
 
     try {
       await login({ email, password });
+      await refresh();
       navigate("/dashboard");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

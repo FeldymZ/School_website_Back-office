@@ -8,19 +8,16 @@ import {
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-/* ================= COMMON ================= */
 import LoadingPage from "./components/common/LoadingPage";
 import AdminLayout from "./layout/AdminLayout";
 
-/* ================= AUTH ================= */
 import LoginPage from "./pages/auth/LoginPage";
 import ProtectedRoute from "./app/ProtectedRoute";
-import RoleProtectedRoute from "./app/RoleProtectedRoute";
+import MenuAccessProtectedRoute from "./app/MenuAccessProtectedRoute"; // 🆕
 
-/* ================= CONTEXT ================= */
+import { UserProvider } from "./context/UserContext"; // 🆕
 import { LayoutProvider } from "./context/LayoutProvider";
 
-/* ================= PAGES ================= */
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import FormationsPage from "./pages/formations/FormationsPage";
 import AgendaPage from "./pages/agenda/AgendaPage";
@@ -31,36 +28,24 @@ import PartenairesPage from "./pages/partenaires/PartenairesPage";
 import UsersPage from "./pages/utilisateurs/UsersPage";
 import ConfigurationPage from "./pages/configuration/ConfigurationPage";
 
-/* ================= CONTACT ================= */
 import ContactListPage from "./pages/contact/ContactListPage";
 import ContactUnrepliedPage from "./pages/contact/ContactUnrepliedPage";
 import ContactDetailsPage from "./pages/contact/ContactDetailsPage";
 
-/* ================= STATISTIQUES ================= */
 import KeyFiguresPage from "./pages/key-figures/KeyFiguresPage";
 
-/* ================= BANNIÈRES ================= */
 import BannerList from "./components/banners/BannerList";
 import BannerMessagePage from "./pages/bannerMessage/BannerMessagePage";
 
-/* ================= FORMATIONS CONTINUES ================= */
 import FormationsContinuesPage from "./pages/Formationscontinues/FormationsContinuesPage";
-
-/* ================= DEMANDES DE DEVIS ================= */
 import DemandesDevisContinuesPage from "./pages/DemandesDevis/DemandesDevisContinuesPage";
 
-/* ================= CATALOGUE ================= */
 import CategoriesPage from "./pages/categorie/CategoriesPage";
 import SousCategoriesPage from "./pages/categorie/SousCategoriesPage";
 
-/* ================= PRÉINSCRIPTIONS ================= */
-
-/* ================= UTILS ================= */
-import { UserRole } from "./types/user";
 import PreinscriptionsAdminPage from "./pages/admin/PreinscriptionsAdminPage";
 import PreinscriptionConfigPage from "./pages/admin/PreinscriptionConfigPage";
 
-/* ================= APP ROUTES ================= */
 const AppRoutes = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -78,10 +63,8 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* ================= LOGIN ================= */}
       <Route path="/login" element={<LoginPage />} />
 
-      {/* ============== ZONE AUTHENTIFIÉE ============== */}
       <Route
         element={
           <ProtectedRoute>
@@ -89,48 +72,64 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
+        {/* ================= DASHBOARD — jamais restreint ================= */}
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
 
         {/* ================= FORMATIONS INITIALES ================= */}
-        <Route path="formations" element={<FormationsPage />} />
+        <Route
+          path="formations"
+          element={
+            <MenuAccessProtectedRoute permissionKey="FORMATIONS_FORMATIONS_INITIALES">
+              <FormationsPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
 
-        <Route path="agenda" element={<AgendaPage />} />
+        {/* ================= AGENDA ================= */}
+        <Route
+          path="agenda"
+          element={
+            <MenuAccessProtectedRoute permissionKey="COMMUNICATION_AGENDA">
+              <AgendaPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
 
         {/* ================= FORMATIONS CONTINUES ================= */}
         <Route
           path="formations-continues"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+            <MenuAccessProtectedRoute permissionKey="FORMATIONS_CONTINUES_FORMATIONS">
               <FormationsContinuesPage />
-            </RoleProtectedRoute>
+            </MenuAccessProtectedRoute>
           }
         />
 
         <Route
           path="categories"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+            <MenuAccessProtectedRoute permissionKey="FORMATIONS_CONTINUES_CATEGORIES">
               <CategoriesPage />
-            </RoleProtectedRoute>
+            </MenuAccessProtectedRoute>
           }
         />
 
         <Route
           path="sous-categories"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+            <MenuAccessProtectedRoute permissionKey="FORMATIONS_CONTINUES_SOUS_CATEGORIES">
               <SousCategoriesPage />
-            </RoleProtectedRoute>
+            </MenuAccessProtectedRoute>
           }
         />
 
         <Route
           path="demandes-devis"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+            <MenuAccessProtectedRoute permissionKey="FORMATIONS_CONTINUES_DEVIS">
               <DemandesDevisContinuesPage />
-            </RoleProtectedRoute>
+            </MenuAccessProtectedRoute>
           }
         />
 
@@ -138,73 +137,148 @@ const AppRoutes = () => {
         <Route
           path="preinscriptions"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+            <MenuAccessProtectedRoute permissionKey="PREINSCRIPTIONS_DEMANDES">
               <PreinscriptionsAdminPage />
-            </RoleProtectedRoute>
+            </MenuAccessProtectedRoute>
           }
         />
 
         <Route
           path="preinscriptions/configuration"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.SUPERADMIN]}>
+            <MenuAccessProtectedRoute permissionKey="PREINSCRIPTIONS_PARAMETRES">
               <PreinscriptionConfigPage />
-            </RoleProtectedRoute>
+            </MenuAccessProtectedRoute>
           }
         />
 
         {/* ================= CONTENU ================= */}
-        <Route path="actualites" element={<ActualitesPage />} />
-        <Route path="activites" element={<ActivitesPage />} />
-        <Route path="banners" element={<BannerList />} />
-        <Route path="banner-messages" element={<BannerMessagePage />} />
-        <Route path="commentaires" element={<CommentairesPage />} />
-        <Route path="partenaires" element={<PartenairesPage />} />
+        <Route
+          path="actualites"
+          element={
+            <MenuAccessProtectedRoute permissionKey="COMMUNICATION_ACTUALITES">
+              <ActualitesPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
 
-        {/* ================= CONTACT ================= */}
-        <Route path="contact" element={<ContactListPage />} />
-        <Route path="contact/unreplied" element={<ContactUnrepliedPage />} />
-        <Route path="contact/:id" element={<ContactDetailsPage />} />
+        <Route
+          path="activites"
+          element={
+            <MenuAccessProtectedRoute permissionKey="EDITORIAL_ACTIVITES">
+              <ActivitesPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        <Route
+          path="banners"
+          element={
+            <MenuAccessProtectedRoute permissionKey="EDITORIAL_BANNERS">
+              <BannerList />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        <Route
+          path="banner-messages"
+          element={
+            <MenuAccessProtectedRoute permissionKey="COMMUNICATION_BANNER_MESSAGES">
+              <BannerMessagePage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        <Route
+          path="commentaires"
+          element={
+            <MenuAccessProtectedRoute permissionKey="EDITORIAL_COMMENTAIRES">
+              <CommentairesPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        <Route
+          path="partenaires"
+          element={
+            <MenuAccessProtectedRoute permissionKey="EDITORIAL_PARTENAIRES">
+              <PartenairesPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        {/* ================= CONTACT (= Messages) ================= */}
+        <Route
+          path="contact"
+          element={
+            <MenuAccessProtectedRoute permissionKey="COMMUNICATION_MESSAGES">
+              <ContactListPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+        <Route
+          path="contact/unreplied"
+          element={
+            <MenuAccessProtectedRoute permissionKey="COMMUNICATION_MESSAGES">
+              <ContactUnrepliedPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+        <Route
+          path="contact/:id"
+          element={
+            <MenuAccessProtectedRoute permissionKey="COMMUNICATION_MESSAGES">
+              <ContactDetailsPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
         <Route path="messages" element={<Navigate to="/contact" replace />} />
 
         {/* ================= STATS ================= */}
-        <Route path="statistiques" element={<KeyFiguresPage />} />
+        <Route
+          path="statistiques"
+          element={
+            <MenuAccessProtectedRoute permissionKey="EDITORIAL_STATISTIQUES">
+              <KeyFiguresPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
 
-        {/* ================= SUPERADMIN ================= */}
+        {/* ================= ADMINISTRATION ================= */}
         <Route
           path="utilisateurs"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
+            <MenuAccessProtectedRoute permissionKey="ADMINISTRATION_UTILISATEURS">
               <UsersPage />
-            </RoleProtectedRoute>
+            </MenuAccessProtectedRoute>
           }
         />
 
         <Route
           path="configuration"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.SUPERADMIN]}>
+            <MenuAccessProtectedRoute permissionKey="ADMINISTRATION_AUDITS">
               <ConfigurationPage />
-            </RoleProtectedRoute>
+            </MenuAccessProtectedRoute>
           }
         />
       </Route>
 
-      {/* ================= FALLBACK ================= */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
 
-/* ================= APP ================= */
 const App = () => {
   return (
-    <LayoutProvider>
-      <BrowserRouter>
-        <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-        <AppRoutes />
-      </BrowserRouter>
-    </LayoutProvider>
+    <UserProvider>
+      <LayoutProvider>
+        <BrowserRouter>
+          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+          <AppRoutes />
+        </BrowserRouter>
+      </LayoutProvider>
+    </UserProvider>
   );
 };
 
