@@ -1,10 +1,10 @@
 import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
-} from "axios"
+} from "axios";
 
-import { API_CONFIG } from "../config/api"
-import { getToken } from "../utils/auth"
+import { API_CONFIG } from "../config/api";
+import { getToken, logout } from "../utils/auth";
 
 /* ================= AXIOS INSTANCE ================= */
 
@@ -12,36 +12,23 @@ const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   withCredentials: false,
   timeout: 900000,
-})
+});
 
 /* ================= REQUEST INTERCEPTOR ================= */
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
 
-    const token = getToken()
+    const token = getToken();
 
     if (token) {
-
-      console.log("TOKEN BRUT :", token)
-
-      const cleanToken = token
-        .replace(/^"|"$/g, "")
-        .replace("Bearer ", "")
-
-      console.log("TOKEN NETTOYÉ :", cleanToken)
-
-      // ✅ CORRECTION ICI (important)
-      config.headers.Authorization = `Bearer ${cleanToken}`
-
-    } else {
-      console.warn("⚠️ Aucun token trouvé")
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
-    return config
+    return config;
   },
   (error) => Promise.reject(error)
-)
+);
 
 /* ================= RESPONSE INTERCEPTOR ================= */
 
@@ -52,24 +39,29 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
 
     if (!error.response) {
-      return Promise.reject(error)
+      return Promise.reject(error);
     }
 
-    const status = error.response.status
+    switch (error.response.status) {
 
-    if (status === 401) {
-      console.error("❌ 401 Unauthorized")
-      console.error("Endpoint :", error.config?.url)
-      console.error("Data :", error.response?.data)
+      case 401:
+        logout();
+        break;
+
+      case 403:
+        // L'utilisateur est authentifié mais n'a pas les droits.
+        break;
+
+      case 500:
+        // Erreur serveur.
+        break;
+
+      default:
+        break;
     }
 
-    if (status === 403) {
-      console.warn("⛔ Accès refusé (403)")
-    }
-
-    return Promise.reject(error)
-
+    return Promise.reject(error);
   }
-)
+);
 
-export default api
+export default api;
