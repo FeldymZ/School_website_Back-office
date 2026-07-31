@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldAlert, Mail, Lock, Loader, Sparkles, AlertTriangle } from "lucide-react";
+import { ShieldAlert, Mail, Lock, Loader, Sparkles, AlertTriangle, User as UserIcon } from "lucide-react";
 import { UserService } from "@/services/userService";
 import { User, UserRole } from "@/types/user";
 
@@ -9,6 +9,8 @@ interface Props {
 }
 
 const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
+  const [nom, setNom] = useState("");
+  const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,15 +26,20 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!nom || !prenom || !email || !password) {
       setError("Tous les champs sont obligatoires");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères");
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      await UserService.createSecondSuperAdmin(email, password);
+      await UserService.createSecondSuperAdmin({ nom, prenom, email, password });
       setSuccess(true);
       onCreated();
     } catch (error) {
@@ -78,6 +85,44 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+
+            {/* Nom + Prénom */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+                  <UserIcon size={16} className="text-amber-600" />
+                  Nom
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Nguema"
+                  value={nom}
+                  onChange={(e) => setNom(e.target.value)}
+                  className="w-full border-2 border-amber-200 rounded-xl px-4 py-3
+                             focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
+                             transition-all hover:border-amber-300 bg-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+                  <UserIcon size={16} className="text-amber-600" />
+                  Prénom
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Jean"
+                  value={prenom}
+                  onChange={(e) => setPrenom(e.target.value)}
+                  className="w-full border-2 border-amber-200 rounded-xl px-4 py-3
+                             focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
+                             transition-all hover:border-amber-300 bg-white"
+                />
+              </div>
+            </div>
+
             {/* Email */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-semibold text-amber-900">

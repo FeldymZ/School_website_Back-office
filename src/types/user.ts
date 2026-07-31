@@ -4,9 +4,35 @@ export enum UserRole {
 }
 
 export interface User {
-  id: number
-  email: string
-  role: UserRole
-  enabled: boolean
-  menuAccess: string[]
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  hasPhoto: boolean;
+  role: UserRole;
+  enabled: boolean;
+  menuAccess: string[];
+}
+
+export interface CreateAdminPayload {
+  nom: string;
+  prenom: string;
+  email: string;
+  password: string;
+  menuAccess: string[];
+}
+
+export interface UpdateUserInfoPayload {
+  nom: string;
+  prenom: string;
+  email: string;
+  removePhoto: boolean;
+}
+
+// 🆕 Payload pour créer le second SUPERADMIN
+export interface CreateSuperAdminPayload {
+  nom: string;
+  prenom: string;
+  email: string;
+  password: string;
 }

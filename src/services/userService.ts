@@ -1,5 +1,12 @@
 import api from "@/services/api";
-import { User } from "@/types/user";
+import { User, CreateAdminPayload, UpdateUserInfoPayload, CreateSuperAdminPayload } from "@/types/user";
+
+const buildMultipart = (data: unknown, photo?: File | null) => {
+  const formData = new FormData();
+  formData.append("data", new Blob([JSON.stringify(data)], { type: "application/json" }));
+  if (photo) formData.append("photo", photo);
+  return formData;
+};
 
 export const UserService = {
   /* ================= LISTE ================= */
@@ -9,18 +16,57 @@ export const UserService = {
     return res.data;
   },
 
-  /* ================= CREER ADMIN ================= */
+  /* ================= MOI-MEME ================= */
 
-  async createAdmin(
-    email: string,
-    password: string,
-    menuAccess: string[] = []
-  ): Promise<void> {
-    await api.post("/api/admin/user/create", {
-      email,
-      password,
-      menuAccess,
+  async getMe(): Promise<User> {
+    const res = await api.get<User>("/api/me");
+    return res.data;
+  },
+
+  async getMyPhotoUrl(): Promise<string | null> {
+    try {
+      const res = await api.get("/api/me/photo", { responseType: "blob" });
+      return URL.createObjectURL(res.data as Blob);
+    } catch {
+      return null;
+    }
+  },
+
+  async updateMyInfo(payload: UpdateUserInfoPayload, photo?: File | null): Promise<User> {
+    const res = await api.patch<User>("/api/me", buildMultipart(payload, photo), {
+      headers: { "Content-Type": undefined },
     });
+    return res.data;
+  },
+
+  /* ================= CREER ADMIN (multipart avec photo) ================= */
+
+  async createAdmin(payload: CreateAdminPayload, photo?: File | null): Promise<void> {
+    await api.post("/api/admin/user/create", buildMultipart(payload, photo), {
+      headers: { "Content-Type": undefined },
+    });
+  },
+
+  /* ================= MODIFIER UN AUTRE UTILISATEUR ================= */
+
+  async updateAdminInfo(id: number, payload: UpdateUserInfoPayload, photo?: File | null): Promise<User> {
+    const res = await api.patch<User>(`/api/admin/users/${id}/info`, buildMultipart(payload, photo), {
+      headers: { "Content-Type": undefined },
+    });
+    return res.data;
+  },
+
+  /* ================= PHOTO (autre utilisateur, gestion admin) ================= */
+
+  async getPhotoUrl(userId: number): Promise<string | null> {
+    try {
+      const res = await api.get(`/api/admin/users/${userId}/photo`, {
+        responseType: "blob",
+      });
+      return URL.createObjectURL(res.data as Blob);
+    } catch {
+      return null;
+    }
   },
 
   /* ================= ACTIVER ================= */
@@ -46,7 +92,7 @@ export const UserService = {
     });
   },
 
-  /* ================= GERER LES MENUS (🆕) ================= */
+  /* ================= GERER LES MENUS ================= */
 
   async updateMenuAccess(
     userId: number,
@@ -59,13 +105,7 @@ export const UserService = {
 
   /* ================= CREER SUPERADMIN (ONE-SHOT) ================= */
 
-  async createSecondSuperAdmin(
-    email: string,
-    password: string
-  ): Promise<void> {
-    await api.post("/api/system/superadmin/create", {
-      email,
-      password,
-    });
+  async createSecondSuperAdmin(payload: CreateSuperAdminPayload): Promise<void> {
+    await api.post("/api/system/superadmin/create", payload);
   },
 };

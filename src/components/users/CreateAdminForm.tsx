@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { UserPlus, Mail, Lock, Loader, Sparkles, LayoutGrid } from "lucide-react";
+import { useState, useRef } from "react";
+import { UserPlus, Mail, Lock, Loader, Sparkles, LayoutGrid, User, Image, Upload } from "lucide-react";
 import { UserService } from "@/services/userService";
 import MenuAccessSelector from "@/components/MenuAccessSelector";
 
@@ -7,28 +7,80 @@ interface Props {
   onCreated: () => void;
 }
 
+const MAX_PHOTO_SIZE = 3 * 1024 * 1024; // 3 Mo — cohérent avec la limite back
+
 const CreateAdminForm = ({ onCreated }: Props) => {
+  const [nom, setNom] = useState("");
+  const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [menuAccess, setMenuAccess] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("Le fichier doit être une image");
+      return;
+    }
+
+    if (file.size > MAX_PHOTO_SIZE) {
+      setError("La photo ne doit pas dépasser 3 Mo");
+      return;
+    }
+
+    setError(null);
+    setPhoto(file);
+
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const removePhoto = () => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhoto(null);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const resetForm = () => {
+    setNom("");
+    setPrenom("");
+    setEmail("");
+    setPassword("");
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhoto(null);
+    setPhotoPreview(null);
+    setMenuAccess([]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      setError("Tous les champs sont obligatoires");
+    if (!nom || !prenom || !email || !password) {
+      setError("Tous les champs marqués * sont obligatoires");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères");
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      await UserService.createAdmin(email, password, menuAccess);
-      setEmail("");
-      setPassword("");
-      setMenuAccess([]);
+      await UserService.createAdmin(
+        { nom, prenom, email, password, menuAccess },
+        photo
+      );
+      resetForm();
       onCreated();
     } catch (error) {
       console.error("❌ Erreur création ADMIN:", error);
@@ -61,6 +113,97 @@ const CreateAdminForm = ({ onCreated }: Props) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* Photo de profil (fichier) */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <Image size={16} className="text-[#00A4E0]" />
+              Photo de profil
+              <span className="text-gray-400 font-normal text-xs">— optionnel, max 3 Mo</span>
+            </label>
+
+            <div className="flex items-center gap-4">
+              <div className="relative w-20 h-20 flex-shrink-0">
+                {photoPreview ? (
+                  <img
+                    src={photoPreview}
+                    alt="Aperçu"
+                    className="w-20 h-20 rounded-2xl object-cover border-2 border-[#00A4E0]/30 shadow-md"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-2xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                    <User size={24} className="text-gray-300" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                  id="admin-photo-input-form"
+                />
+                <label
+                  htmlFor="admin-photo-input-form"
+                  className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200
+                             hover:bg-gray-50 hover:border-gray-300 transition-all text-sm font-semibold text-gray-700"
+                >
+                  <Upload size={15} />
+                  {photo ? "Changer" : "Choisir une image"}
+                </label>
+                {photo && (
+                  <button
+                    type="button"
+                    onClick={removePhoto}
+                    className="text-xs text-red-500 hover:text-red-600 font-medium text-left"
+                  >
+                    Retirer la photo
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Nom + Prénom */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <User size={16} className="text-[#00A4E0]" />
+                Nom
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+                placeholder="Nguema"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3
+                           focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
+                           transition-all hover:border-gray-300"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <User size={16} className="text-[#00A4E0]" />
+                Prénom
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={prenom}
+                onChange={(e) => setPrenom(e.target.value)}
+                placeholder="Jean"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3
+                           focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
+                           transition-all hover:border-gray-300"
+              />
+            </div>
+          </div>
+
           {/* Email */}
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">

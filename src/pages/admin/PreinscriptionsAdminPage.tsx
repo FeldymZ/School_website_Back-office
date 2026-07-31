@@ -19,9 +19,11 @@ import { PreinscriptionDemande, StatutDemande } from "@/types/preinscription";
 import { getUserFromToken } from "@/utils/auth";
 import { UserRole } from "@/types/user";
 
+
 import PreinscriptionDetailsModal from "@/components/preinscriptions/PreinscriptionDetailsModal";
 import ConfirmActionModal from "@/components/common/ConfirmActionModal";
 import { API_CONFIG } from "@/config/api";
+import { formatDate } from "@/utils/date";
 
 /* ── Statut config ── */
 const STATUT_CONFIG = {
@@ -296,6 +298,7 @@ const PreinscriptionsAdminPage = () => {
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Candidat</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Formation</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date de demande</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Statut</th>
                   <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -322,6 +325,10 @@ const PreinscriptionsAdminPage = () => {
 
                     <td className="px-6 py-4">
                       <span className="text-sm text-gray-700 font-medium">{d.formation}</span>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-500 whitespace-nowrap">{formatDate(d.createdAt)}</span>
                     </td>
 
                     <td className="px-6 py-4">

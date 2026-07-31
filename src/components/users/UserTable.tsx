@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Shield, ShieldCheck, User as UserIcon, Lock, LayoutGrid,
-  ChevronDown, Search, Check, Minus,
+  ChevronDown, Search, Check, Minus, Pencil,
 } from "lucide-react";
 import { User, UserRole } from "@/types/user";
+import { UserService } from "@/services/userService";
 import ManageMenuAccessModal from "@/components/ManageMenuAccessModal";
+import EditAdminModal from "@/components/users/EditAdminModal";
 import { useUser } from "@/context/UserContext";
 import { getSectionsStatus, getTotalCoverage } from "@/utils/menuAccessLabels";
 
@@ -17,10 +19,47 @@ interface Props {
 
 type RoleFilter = "ALL" | UserRole.ADMIN | UserRole.SUPERADMIN;
 
-/* ================= INITIALS AVATAR ================= */
-const Avatar = ({ email, role }: { email: string; role: UserRole }) => {
-  const initials = email.slice(0, 2).toUpperCase();
-  const isSuper = role === UserRole.SUPERADMIN;
+/* ================= AVATAR (charge la vraie photo si disponible) ================= */
+const Avatar = ({ user }: { user: User }) => {
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const initials = user.email.slice(0, 2).toUpperCase();
+  const isSuper = user.role === UserRole.SUPERADMIN;
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    let cancelled = false;
+
+    if (user.hasPhoto) {
+      UserService.getPhotoUrl(user.id).then((url) => {
+        if (cancelled) {
+          if (url) URL.revokeObjectURL(url);
+          return;
+        }
+        if (url) {
+          objectUrl = url;
+          setPhotoUrl(url);
+        }
+      });
+    } else {
+      setPhotoUrl(null);
+    }
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [user.id, user.hasPhoto]);
+
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={user.email}
+        className="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-100"
+      />
+    );
+  }
+
   return (
     <div
       className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
@@ -116,6 +155,7 @@ const PermissionsMatrix = ({ menuAccess }: { menuAccess: string[] }) => {
 /* ================= MAIN TABLE ================= */
 const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, onMenuAccessUpdated }) => {
   const [menuTarget, setMenuTarget] = useState<User | null>(null);
+  const [editTarget, setEditTarget] = useState<User | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
@@ -213,15 +253,20 @@ const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, o
                   >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <Avatar email={user.email} role={user.role} />
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="font-medium text-gray-900 truncate">{user.email}</span>
-                          {isAdmin && (
-                            <ChevronDown
-                              size={14}
-                              className={`text-gray-400 flex-shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                            />
-                          )}
+                        <Avatar user={user} />
+                        <div className="flex flex-col min-w-0">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-medium text-gray-900 truncate">
+                              {user.prenom} {user.nom}
+                            </span>
+                            {isAdmin && (
+                              <ChevronDown
+                                size={14}
+                                className={`text-gray-400 flex-shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                              />
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-400 truncate">{user.email}</span>
                         </div>
                       </div>
                     </td>
@@ -256,6 +301,16 @@ const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, o
 
                     <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
+                        {isAdmin && isSuperAdmin && (
+                          <button
+                            onClick={() => setEditTarget(user)}
+                            title="Modifier l'utilisateur"
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#00A4E0] hover:bg-[#00A4E0]/8 transition-colors"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                        )}
+
                         <button
                           onClick={() => onChangePassword(user)}
                           title="Changer le mot de passe"
@@ -308,6 +363,17 @@ const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, o
           onClose={() => setMenuTarget(null)}
           onSaved={() => {
             setMenuTarget(null);
+            onMenuAccessUpdated?.();
+          }}
+        />
+      )}
+
+      {editTarget && (
+        <EditAdminModal
+          user={editTarget}
+          onClose={() => setEditTarget(null)}
+          onSaved={() => {
+            setEditTarget(null);
             onMenuAccessUpdated?.();
           }}
         />

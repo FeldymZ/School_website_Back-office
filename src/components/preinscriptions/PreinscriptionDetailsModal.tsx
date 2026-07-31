@@ -25,7 +25,9 @@ import {
 import { PreinscriptionService } from "@/services/preinscription.service";
 import { PreinscriptionDemande } from "@/types/preinscription";
 import { API_CONFIG } from "@/config/api";
+
 import ConfirmActionModal from "@/components/common/ConfirmActionModal";
+import { formatDate } from "@/utils/date";
 
 export default function PreinscriptionDetailsModal({
   open,
@@ -259,7 +261,9 @@ export default function PreinscriptionDetailsModal({
                       <h3 className="text-2xl font-black text-gray-900">
                         {demande.civilite} {demande.nom} {demande.prenom}
                       </h3>
-                      <p className="text-sm text-gray-400 mt-1">Demande #{demande.id}</p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Demande #{demande.id} · Envoyée le {formatDate(demande.createdAt)}
+                      </p>
                     </div>
                     <div className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border ${statutConfig.cls}`}>
                       {statutConfig.icon}
@@ -278,6 +282,7 @@ export default function PreinscriptionDetailsModal({
                     <Info icon={<Phone size={13} />}         label="Téléphone"         value={demande.telephone} />
                     <Info icon={<MessageSquare size={13} />} label="WhatsApp"          value={demande.whatsapp || "—"} />
                     <Info icon={<Mail size={13} />}          label="Email"             value={demande.email} full />
+                    <Info icon={<Calendar size={13} />}      label="Date de la demande" value={formatDate(demande.createdAt)} full />
                   </div>
                 </Section>
 

@@ -1,26 +1,50 @@
-import { useState, useRef } from "react";
-import { X, UserPlus, Mail, Lock, Loader, Sparkles, LayoutGrid, User, Image, Upload } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { X, Save, Mail, Loader, Sparkles, User as UserIcon, Image, Upload, Trash2 } from "lucide-react";
 import { UserService } from "@/services/userService";
-import MenuAccessDropdownSelector from "@/components/MenuAccessDropdownSelector";
+import { User } from "@/types/user";
 
 interface Props {
+  user: User;
   onClose: () => void;
-  onCreated: () => void;
+  onSaved: () => void;
 }
 
-const MAX_PHOTO_SIZE = 3 * 1024 * 1024; // 3 Mo — cohérent avec la limite back
+const MAX_PHOTO_SIZE = 3 * 1024 * 1024; // 3 Mo
 
-const CreateAdminModal = ({ onClose, onCreated }: Props) => {
-  const [nom, setNom] = useState("");
-  const [prenom, setPrenom] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const EditAdminModal = ({ user, onClose, onSaved }: Props) => {
+  const [nom, setNom] = useState(user.nom ?? "");
+  const [prenom, setPrenom] = useState(user.prenom ?? "");
+  const [email, setEmail] = useState(user.email);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [menuAccess, setMenuAccess] = useState<string[]>([]);
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | null>(null);
+  const [removePhoto, setRemovePhoto] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    let cancelled = false;
+
+    if (user.hasPhoto) {
+      UserService.getPhotoUrl(user.id).then((url) => {
+        if (cancelled) {
+          if (url) URL.revokeObjectURL(url);
+          return;
+        }
+        if (url) {
+          objectUrl = url;
+          setExistingPhotoUrl(url);
+        }
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [user.id, user.hasPhoto]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,47 +54,51 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
       setError("Le fichier doit être une image");
       return;
     }
-
     if (file.size > MAX_PHOTO_SIZE) {
       setError("La photo ne doit pas dépasser 3 Mo");
       return;
     }
 
     setError(null);
+    setRemovePhoto(false);
     setPhoto(file);
 
     if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhotoPreview(URL.createObjectURL(file));
   };
 
-  const removePhoto = () => {
+  const handleRemovePhoto = () => {
     if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhoto(null);
     setPhotoPreview(null);
+    setRemovePhoto(true);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const displayedPhoto = photoPreview ?? (!removePhoto ? existingPhotoUrl : null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!nom || !prenom || !email || !password) {
-      setError("Tous les champs marqués * sont obligatoires");
+    if (!nom || !prenom || !email) {
+      setError("Tous les champs sont obligatoires");
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      await UserService.createAdmin(
-        { nom, prenom, email, password, menuAccess },
+      await UserService.updateAdminInfo(
+        user.id,
+        { nom, prenom, email, removePhoto },
         photo
       );
       if (photoPreview) URL.revokeObjectURL(photoPreview);
-      onCreated();
+      onSaved();
       onClose();
-    } catch (error) {
-      console.error("❌ Erreur création ADMIN:", error);
-      setError("Création impossible (email déjà utilisé ?)");
+    } catch (err) {
+      console.error("❌ Erreur modification utilisateur:", err);
+      setError("Modification impossible (email déjà utilisé par un autre compte ?)");
     } finally {
       setLoading(false);
     }
@@ -89,15 +117,15 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
                 <div className="relative w-14 h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl flex items-center justify-center shadow-lg">
-                  <UserPlus className="text-white" size={26} />
+                  <UserIcon className="text-white" size={26} />
                 </div>
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  Créer un compte ADMIN
+                  Modifier l'utilisateur
                   <Sparkles size={18} className="text-[#00A4E0] animate-pulse" />
                 </h2>
-                <p className="text-sm text-gray-500 mt-1">Ajouter un nouvel administrateur</p>
+                <p className="text-sm text-gray-500 mt-1">{user.email}</p>
               </div>
             </div>
 
@@ -110,7 +138,7 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
         {/* Content */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
 
-          {/* Photo de profil (fichier) */}
+          {/* Photo */}
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
               <Image size={16} className="text-[#00A4E0]" />
@@ -120,15 +148,15 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
 
             <div className="flex items-center gap-4">
               <div className="relative w-20 h-20 flex-shrink-0">
-                {photoPreview ? (
+                {displayedPhoto ? (
                   <img
-                    src={photoPreview}
+                    src={displayedPhoto}
                     alt="Aperçu"
                     className="w-20 h-20 rounded-2xl object-cover border-2 border-[#00A4E0]/30 shadow-md"
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-2xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
-                    <User size={24} className="text-gray-300" />
+                    <UserIcon size={24} className="text-gray-300" />
                   </div>
                 )}
               </div>
@@ -140,22 +168,23 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
                   accept="image/*"
                   onChange={handlePhotoChange}
                   className="hidden"
-                  id="admin-photo-input"
+                  id="edit-admin-photo-input"
                 />
                 <label
-                  htmlFor="admin-photo-input"
+                  htmlFor="edit-admin-photo-input"
                   className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200
                              hover:bg-gray-50 hover:border-gray-300 transition-all text-sm font-semibold text-gray-700"
                 >
                   <Upload size={15} />
-                  {photo ? "Changer" : "Choisir une image"}
+                  Changer
                 </label>
-                {photo && (
+                {displayedPhoto && (
                   <button
                     type="button"
-                    onClick={removePhoto}
-                    className="text-xs text-red-500 hover:text-red-600 font-medium text-left"
+                    onClick={handleRemovePhoto}
+                    className="inline-flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 font-medium text-left"
                   >
+                    <Trash2 size={13} />
                     Retirer la photo
                   </button>
                 )}
@@ -167,7 +196,7 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <User size={16} className="text-[#00A4E0]" />
+                <UserIcon size={16} className="text-[#00A4E0]" />
                 Nom
                 <span className="text-red-500">*</span>
               </label>
@@ -175,7 +204,6 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
                 type="text"
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
-                placeholder="Nguema"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3
                            focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
                            transition-all hover:border-gray-300"
@@ -184,7 +212,7 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
 
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <User size={16} className="text-[#00A4E0]" />
+                <UserIcon size={16} className="text-[#00A4E0]" />
                 Prénom
                 <span className="text-red-500">*</span>
               </label>
@@ -192,7 +220,6 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
                 type="text"
                 value={prenom}
                 onChange={(e) => setPrenom(e.target.value)}
-                placeholder="Jean"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3
                            focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
                            transition-all hover:border-gray-300"
@@ -211,38 +238,10 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@school.com"
               className="w-full border border-gray-200 rounded-xl px-4 py-3
                          focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
                          transition-all hover:border-gray-300"
             />
-          </div>
-
-          {/* Password */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-              <Lock size={16} className="text-[#00A4E0]" />
-              Mot de passe
-              <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimum 8 caractères"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3
-                         focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
-                         transition-all hover:border-gray-300"
-            />
-          </div>
-
-          {/* Menu Access */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-              <LayoutGrid size={16} className="text-[#00A4E0]" />
-              Menus accessibles
-            </label>
-            <MenuAccessDropdownSelector selected={menuAccess} onChange={setMenuAccess} />
           </div>
 
           {/* Error */}
@@ -277,12 +276,12 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
               {loading ? (
                 <>
                   <Loader size={18} className="animate-spin" />
-                  Création...
+                  Enregistrement...
                 </>
               ) : (
                 <>
-                  <UserPlus size={18} />
-                  Créer l'ADMIN
+                  <Save size={18} />
+                  Enregistrer
                 </>
               )}
             </button>
@@ -293,4 +292,4 @@ const CreateAdminModal = ({ onClose, onCreated }: Props) => {
   );
 };
 
-export default CreateAdminModal;
+export default EditAdminModal;

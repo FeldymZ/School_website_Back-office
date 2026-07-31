@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, LogOut, UserCircle, Sparkles, AlertTriangle, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLayout } from "../context/useLayout";
 import { useUser } from "../context/UserContext";
 import { logout } from "../utils/auth";
+import { UserService } from "@/services/userService";
+import { User } from "@/types/user";
+import EditProfileModal from "@/components/users/EditProfileModal";
 
 const titles: Record<string, string> = {
   "/": "Tableau de bord",
@@ -72,14 +75,93 @@ const LogoutConfirmModal = ({
   </div>
 );
 
+/* ================= USER AVATAR (charge la vraie photo si disponible) ================= */
+const UserAvatar = ({
+  hasPhoto,
+  onPhotoLoaded,
+}: {
+  hasPhoto?: boolean;
+  onPhotoLoaded?: (url: string | null) => void;
+}) => {
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    let cancelled = false;
+
+    if (hasPhoto) {
+      UserService.getMyPhotoUrl().then((url) => {
+        if (cancelled) {
+          if (url) URL.revokeObjectURL(url);
+          return;
+        }
+        if (url) {
+          objectUrl = url;
+          setPhotoUrl(url);
+          onPhotoLoaded?.(url);
+        }
+      });
+    } else {
+      setPhotoUrl(null);
+      onPhotoLoaded?.(null);
+    }
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPhoto]);
+
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt="Photo de profil"
+        className="w-9 h-9 rounded-full object-cover shadow-lg group-hover:shadow-xl transition-shadow"
+      />
+    );
+  }
+
+  return (
+    <div className="w-9 h-9 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+      <UserCircle size={20} className="text-white" />
+    </div>
+  );
+};
+
 const Topbar = () => {
   const { toggleSidebar } = useLayout();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user } = useUser(); // fournit au minimum email/role depuis le JWT
+  const [me, setMe] = useState<User | null>(null);
+  const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    UserService.getMe()
+      .then((data) => {
+        if (!cancelled) setMe(data);
+      })
+      .catch(() => {
+        if (!cancelled) setMe(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const title = titles[pathname] ?? "Administration";
+
+  const displayName =
+    me?.nom || me?.prenom
+      ? `${me?.prenom ?? ""} ${me?.nom ?? ""}`.trim()
+      : user?.email ?? "Administrateur";
+
+  const displayRole = me?.role ?? user?.role ?? "En ligne";
 
   const handleLogout = () => {
     logout();
@@ -113,20 +195,22 @@ const Topbar = () => {
 
       {/* RIGHT */}
       <div className="relative z-10 flex items-center gap-3">
-        {/* User Profile */}
-        <div className="group relative flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-[#cfe3ff]/30 to-transparent border border-[#cfe3ff] hover:border-[#00A4E0] transition-all duration-200 cursor-pointer">
+        {/* User Profile (cliquable → ouvre "Mon profil") */}
+        <button
+          type="button"
+          onClick={() => setShowEditProfile(true)}
+          className="group relative flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-[#cfe3ff]/30 to-transparent border border-[#cfe3ff] hover:border-[#00A4E0] transition-all duration-200 cursor-pointer"
+        >
           <div className="relative">
-            <div className="w-9 h-9 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-              <UserCircle size={20} className="text-white" />
-            </div>
+            <UserAvatar hasPhoto={me?.hasPhoto} onPhotoLoaded={setMyPhotoUrl} />
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden md:block text-left">
             <p className="text-sm font-semibold text-gray-900 truncate max-w-[160px]">
-              {user?.email ?? "Administrateur"}
+              {displayName}
             </p>
-            <p className="text-xs text-[#A6A6A6]">{user?.role ?? "En ligne"}</p>
+            <p className="text-xs text-[#A6A6A6]">{displayRole}</p>
           </div>
 
           {/* Dropdown indicator */}
@@ -135,7 +219,7 @@ const Topbar = () => {
               <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-        </div>
+        </button>
 
         {/* Logout Button */}
         <button
@@ -163,6 +247,20 @@ const Topbar = () => {
         <LogoutConfirmModal
           onConfirm={handleLogout}
           onCancel={() => setShowLogoutConfirm(false)}
+        />
+      )}
+
+      {/* Edit Profile Modal */}
+      {showEditProfile && me && (
+        <EditProfileModal
+          me={me}
+          currentPhotoUrl={myPhotoUrl}
+          onClose={() => setShowEditProfile(false)}
+          onSaved={(updated) => {
+            setMe(updated);
+            // Si la photo a été retirée côté serveur, on nettoie l'URL locale
+            if (!updated.hasPhoto) setMyPhotoUrl(null);
+          }}
         />
       )}
     </header>
