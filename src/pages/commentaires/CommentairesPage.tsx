@@ -8,7 +8,6 @@ import {
   XCircle,
   MessageSquare,
   Sparkles,
-  UserCircle,
 } from "lucide-react";
 
 import { Commentaire } from "@/types/commentaire";
@@ -138,117 +137,121 @@ export default function CommentairesPage() {
 
   /* ================= UI ================= */
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
-            <MessageSquare className="text-white" size={24} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              Commentaires
-              <Sparkles size={18} className="text-[#00A4E0] animate-pulse" />
-            </h1>
-            <p className="text-sm text-gray-500">
-              {items.length} commentaire{items.length > 1 ? 's' : ''} au total
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-cyan-50/30 p-6 space-y-8">
+      {/* Header avec effet de glassmorphism */}
+      <div className="relative overflow-hidden bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0]/5 via-[#0088CC]/5 to-[#0077A8]/5" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBBNEUwIiBzdHJva2Utb3BhY2l0eT0iMC4wMyIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
 
-        <button
-          onClick={() => setShowCreate(true)}
-          className="group relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0077A8] to-[#00A4E0] opacity-0 group-hover:opacity-100 transition-opacity" />
-          <span className="relative flex items-center gap-2">
-            <Plus size={20} />
-            Nouveau Commentaire
-          </span>
-        </button>
-      </div>
-
-      {/* Empty State */}
-      {items.length === 0 ? (
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#cfe3ff] via-white to-[#cfe3ff]/30 rounded-2xl p-20 text-center border-2 border-[#00A4E0]/20 shadow-xl">
-          <div className="absolute top-10 right-10 w-40 h-40 bg-[#00A4E0]/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-10 left-10 w-40 h-40 bg-[#0077A8]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-
-          <div className="relative z-10">
-            <div className="relative inline-block mb-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl blur-2xl opacity-30 animate-pulse" />
-              <div className="relative w-24 h-24 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl flex items-center justify-center shadow-2xl">
-                <MessageSquare className="w-12 h-12 text-white" />
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            {/* Icône avec effet de glow */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity animate-pulse" />
+              <div className="relative w-20 h-20 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                <MessageSquare className="w-10 h-10 text-white" />
               </div>
             </div>
 
-            <h3 className="text-2xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
-              Aucun commentaire
-              <Sparkles size={20} className="text-[#00A4E0] animate-pulse" />
-            </h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Commencez par créer votre premier témoignage client
-            </p>
+            {/* Titre et description */}
+            <div>
+              <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3">
+                Commentaires
+                <Sparkles className="w-7 h-7 text-[#00A4E0] animate-pulse" />
+              </h1>
+              <p className="mt-2 text-gray-600 font-medium">
+                {items.length} commentaire{items.length > 1 ? "s" : ""} au total — Gérez les témoignages clients
+              </p>
+            </div>
           </div>
+
+          {/* Bouton de création avec effet premium */}
+          <button
+            onClick={() => setShowCreate(true)}
+            className="group relative px-8 py-4 rounded-2xl font-bold text-white text-lg
+                       bg-gradient-to-r from-[#00A4E0] via-[#0088CC] to-[#0077A8]
+                       hover:from-[#0088CC] hover:via-[#0077A8] hover:to-[#006699]
+                       shadow-2xl shadow-[#00A4E0]/40 hover:shadow-[#00A4E0]/60
+                       hover:scale-105 active:scale-95
+                       transition-all duration-500
+                       overflow-hidden
+                       flex items-center gap-3"
+          >
+            {/* Effet shine animé */}
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+
+            {/* Glow pulsant */}
+            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300 rounded-2xl" />
+
+            {/* Icône avec animation */}
+            <div className="relative w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 group-hover:rotate-90 transition-all duration-300">
+              <Plus className="w-4 h-4" />
+            </div>
+
+            <span className="relative">Nouveau Commentaire</span>
+          </button>
         </div>
-      ) : (
-        /* Table */
-        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#cfe3ff] to-transparent rounded-full blur-3xl opacity-40" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-[#00A4E0]/10 to-transparent rounded-full blur-3xl opacity-30" />
+      </div>
 
-          <div className="relative z-10 overflow-x-auto">
-            <table className="w-full">
-              <thead className="sticky top-0 bg-gradient-to-r from-gray-50/90 via-[#cfe3ff]/10 to-gray-50/90 backdrop-blur-sm border-b-2 border-[#00A4E0]/20">
-                <tr>
-                  <th className="px-6 py-5 text-left">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                        <UserCircle size={14} className="text-purple-600" />
-                      </div>
-                      <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                        Auteur
-                      </span>
-                    </div>
-                  </th>
-                  <th className="px-6 py-5 text-left">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
-                        <MessageSquare size={14} className="text-white" />
-                      </div>
-                      <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                        Contenu
-                      </span>
-                    </div>
-                  </th>
-                  <th className="px-6 py-5 text-center">
-                    <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+      {/* Liste des commentaires */}
+      <div className="animate-in slide-up duration-700">
+        {items.length === 0 ? (
+          <div className="relative overflow-hidden bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-20">
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-blue-50/30 opacity-50" />
+            <div className="relative text-center space-y-6">
+              <div className="inline-flex w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl items-center justify-center shadow-lg">
+                <MessageSquare className="w-12 h-12 text-gray-400" />
+              </div>
+              <div>
+                <h3 className="text-3xl font-black text-gray-900 mb-3">
+                  Aucun commentaire
+                </h3>
+                <p className="text-gray-600 text-lg">
+                  Commencez par créer votre premier témoignage client
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCreate(true)}
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl
+                           bg-gradient-to-r from-[#00A4E0] to-[#0077A8] text-white font-bold text-lg
+                           hover:shadow-2xl hover:shadow-blue-500/50
+                           hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                <Plus size={20} />
+                Créer un commentaire
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="relative overflow-hidden bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gradient-to-r from-gray-50 to-blue-50/30 border-b-2 border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left font-black text-gray-900 text-lg">
+                      Auteur
+                    </th>
+                    <th className="px-6 py-4 text-left font-black text-gray-900 text-lg">
+                      Contenu
+                    </th>
+                    <th className="px-6 py-4 text-center font-black text-gray-900 text-lg">
                       Statut
-                    </span>
-                  </th>
-                  <th className="px-6 py-5 text-right">
-                    <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </th>
+                    <th className="px-6 py-4 text-right font-black text-gray-900 text-lg">
                       Actions
-                    </span>
-                  </th>
-                </tr>
-              </thead>
+                    </th>
+                  </tr>
+                </thead>
 
-              <tbody className="divide-y divide-gray-100">
-                {items.map((c, index) => (
-                  <tr
-                    key={c.id}
-                    className="bg-white transition-all hover:bg-gray-50"
-                  >
-                    {/* Auteur */}
-                    <td className="px-6 py-5">
-                      <div
-                        style={{
-                          animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
-                        }}
-                      >
-                        <div className="flex items-center gap-3">
+                <tbody className="divide-y divide-gray-100">
+                  {items.map((c) => (
+                    <tr
+                      key={c.id}
+                      className="hover:bg-blue-50/50 transition-all duration-300"
+                    >
+                      {/* AUTEUR */}
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-4">
                           <div className="relative group w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 hover:border-[#00A4E0] transition-all shadow-md hover:shadow-xl hover:scale-110 duration-300">
                             <img
                               src={resolveImageUrl(c.authorImageUrl)}
@@ -259,36 +262,24 @@ export default function CommentairesPage() {
                               }}
                             />
                           </div>
-                          <span className="font-bold text-gray-900 hover:text-[#00A4E0] transition-colors">
+                          <span className="font-bold text-gray-900 text-lg">
                             {c.authorName}
                           </span>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Contenu */}
-                    <td className="px-6 py-5">
-                      <div
-                        style={{
-                          animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.1}s both`
-                        }}
-                      >
-                        <p className="text-sm text-gray-600 line-clamp-2">
+                      {/* CONTENU */}
+                      <td className="px-6 py-5">
+                        <p className="text-sm text-gray-600 line-clamp-2 max-w-md">
                           {c.content}
                         </p>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Statut */}
-                    <td className="px-6 py-5 text-center">
-                      <div
-                        style={{
-                          animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.2}s both`
-                        }}
-                      >
+                      {/* STATUT */}
+                      <td className="px-6 py-5 text-center">
                         <button
                           onClick={() => toggleEnabled(c)}
-                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm shadow-sm transition-all hover:scale-105 active:scale-95 ${
+                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm shadow-sm transition-all hover:scale-105 active:scale-95 ${
                             c.enabled
                               ? "bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 text-green-700 hover:shadow-lg"
                               : "bg-gray-50 border-2 border-gray-200 text-[#A6A6A6] hover:shadow-md"
@@ -304,81 +295,69 @@ export default function CommentairesPage() {
                             </>
                           )}
                         </button>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Actions */}
-                    <td className="px-6 py-5 text-right">
-                      <div
-                        className="inline-flex items-center gap-2"
-                        style={{
-                          animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.3}s both`
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelected(c);
-                            setShowView(true);
-                          }}
-                          className="group relative p-2.5 rounded-xl border-2 border-[#cfe3ff] bg-[#cfe3ff]/30 text-[#00A4E0] hover:bg-[#cfe3ff]/60 hover:scale-110 active:scale-95 transition-all shadow-sm hover:shadow-lg"
-                          title="Voir"
-                        >
-                          <Eye size={16} />
-                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            Voir
-                          </span>
-                        </button>
+                      {/* ACTIONS */}
+                      <td className="px-6 py-5">
+                        <div className="flex justify-end gap-2">
+                          {/* VOIR */}
+                          <button
+                            title="Voir"
+                            onClick={() => {
+                              setSelected(c);
+                              setShowView(true);
+                            }}
+                            className="p-3 rounded-xl bg-blue-50 text-blue-600
+                                       hover:bg-blue-100 hover:scale-110 transition-all duration-200
+                                       border border-blue-200 shadow-sm"
+                          >
+                            <Eye size={18} />
+                          </button>
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelected(c);
-                            setShowEdit(true);
-                          }}
-                          className="group relative p-2.5 rounded-xl border-2 border-purple-200 bg-purple-50 text-purple-600 hover:bg-purple-100 hover:scale-110 active:scale-95 transition-all shadow-sm hover:shadow-lg"
-                          title="Modifier"
-                        >
-                          <Pencil size={16} />
-                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            Modifier
-                          </span>
-                        </button>
+                          {/* MODIFIER */}
+                          <button
+                            title="Modifier"
+                            onClick={() => {
+                              setSelected(c);
+                              setShowEdit(true);
+                            }}
+                            className="p-3 rounded-xl bg-green-50 text-green-600
+                                       hover:bg-green-100 hover:scale-110 transition-all duration-200
+                                       border border-green-200 shadow-sm"
+                          >
+                            <Pencil size={18} />
+                          </button>
 
-                        <button
-                          type="button"
-                          onClick={() => confirmDelete(c.id)}
-                          className="group relative p-2.5 rounded-xl border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:scale-110 active:scale-95 transition-all shadow-sm hover:shadow-lg"
-                          title="Supprimer"
-                        >
-                          <Trash2 size={16} />
-                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            Supprimer
-                          </span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                          {/* SUPPRIMER */}
+                          <button
+                            title="Supprimer"
+                            onClick={() => confirmDelete(c.id)}
+                            className="p-3 rounded-xl bg-red-50 text-red-600
+                                       hover:bg-red-100 hover:scale-110 transition-all duration-200
+                                       border border-red-200 shadow-sm"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          {/* Footer Info */}
-          <div className="relative z-10 bg-gradient-to-r from-gray-50/80 to-[#cfe3ff]/20 border-t border-gray-200 px-8 py-4">
-            <div className="flex items-center justify-between text-sm text-[#A6A6A6]">
+            {/* Footer avec compteur */}
+            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-blue-50/30 border-t-2 border-gray-200">
               <div className="flex items-center gap-2">
-                <Sparkles size={14} className="text-[#00A4E0]" />
-                <span>Témoignages clients - Gestion des avis</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span>Synchronisé</span>
+                <div className="w-2 h-2 bg-[#00A4E0] rounded-full animate-pulse" />
+                <p className="text-sm text-gray-700 font-bold">
+                  Total : <span className="text-[#00A4E0] text-lg">{items.length}</span> commentaire{items.length > 1 ? "s" : ""}
+                </p>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* MODALS */}
       {showCreate && (
@@ -421,15 +400,23 @@ export default function CommentairesPage() {
       {toast && <Toast message={toast} />}
 
       <style>{`
-        @keyframes slideIn {
+        @keyframes slide-up {
           from {
             opacity: 0;
-            transform: translateX(-20px);
+            transform: translateY(30px);
           }
           to {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateY(0);
           }
+        }
+
+        .animate-in {
+          animation-fill-mode: both;
+        }
+
+        .slide-up {
+          animation: slide-up 0.7s ease-out;
         }
       `}</style>
     </div>

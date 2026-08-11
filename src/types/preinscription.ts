@@ -105,7 +105,7 @@ export interface PreinscriptionDemande {
   createdAt: string;
 
   validatedAt?: string;
-
+  rejectedAt?: string;
   pdfUrl?: string;
 
   /* ================= DIPLOME ================= */

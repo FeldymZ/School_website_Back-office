@@ -11,14 +11,15 @@ import {
   Sparkles,
   ClipboardList,
   AlertCircle,
+  CalendarCheck,
+  CalendarX,
+  Users,
 } from "lucide-react";
-
 
 import { PreinscriptionService } from "@/services/preinscription.service";
 import { PreinscriptionDemande, StatutDemande } from "@/types/preinscription";
 import { getUserFromToken } from "@/utils/auth";
 import { UserRole } from "@/types/user";
-
 
 import PreinscriptionDetailsModal from "@/components/preinscriptions/PreinscriptionDetailsModal";
 import ConfirmActionModal from "@/components/common/ConfirmActionModal";
@@ -43,19 +44,33 @@ const StatutBadge = ({ statut }: { statut: StatutDemande }) => {
   );
 };
 
-const StatCard = ({ label, value, color }: { label: string; value: number; color: string }) => (
-  <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-white shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
+const StatCard = ({
+  label,
+  value,
+  color,
+  icon: Icon,
+}: {
+  label: string;
+  value: number;
+  color: string;
+  icon: React.ElementType;
+}) => (
+  <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-white shadow-lg overflow-hidden group hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
     <div className={`absolute -right-4 -top-4 w-20 h-20 ${color} rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity`} />
-    <div className="relative">
-      <p className="text-2xl font-black text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+    <div className="relative flex items-center justify-between">
+      <div>
+        <p className="text-2xl font-black text-gray-900">{value}</p>
+        <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+      </div>
+      <div className={`w-10 h-10 rounded-xl ${color} bg-opacity-10 flex items-center justify-center`}>
+        <Icon size={18} className="text-gray-700" />
+      </div>
     </div>
   </div>
 );
 
 /* ── Page ── */
 const PreinscriptionsAdminPage = () => {
-
   const [demandes,      setDemandes]      = useState<PreinscriptionDemande[]>([]);
   const [loading,       setLoading]       = useState(true);
   const [error,         setError]         = useState<string | null>(null);
@@ -167,13 +182,22 @@ const PreinscriptionsAdminPage = () => {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-2xl opacity-30 animate-pulse" />
-            <Clock className="relative w-12 h-12 text-[#00A4E0] animate-spin" />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-20 text-center">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
+          <div className="relative z-10">
+            <div className="w-20 h-20 mx-auto mb-6 relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <ClipboardList className="w-10 h-10 text-white animate-bounce" />
+              </div>
+            </div>
+            <div className="inline-flex items-center gap-3 text-[#00A4E0]">
+              <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
+              <span className="text-lg font-semibold">Chargement des préinscriptions...</span>
+            </div>
+            <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
           </div>
-          <p className="text-gray-600 font-medium">Chargement...</p>
         </div>
       </div>
     );
@@ -182,36 +206,45 @@ const PreinscriptionsAdminPage = () => {
   /* ── Error ── */
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-3xl p-10 shadow-xl border border-red-100 text-center max-w-md w-full space-y-4">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
-          <p className="text-red-600 font-semibold">{error}</p>
-          <button onClick={loadDemandes}
-            className="px-5 py-2.5 rounded-xl bg-red-50 text-red-600 font-medium text-sm hover:bg-red-100 transition-all">
-            Réessayer
-          </button>
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-red-100 p-10 text-center max-w-md mx-auto space-y-4">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-red-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="relative z-10 space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-red-50 border-2 border-red-100 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+            </div>
+            <p className="text-red-600 font-semibold">{error}</p>
+            <button
+              onClick={loadDemandes}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-50 text-red-600 font-medium text-sm hover:bg-red-100 hover:scale-105 active:scale-95 transition-all"
+            >
+              <RefreshCw size={15} />
+              Réessayer
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
+  /* ── UI ── */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6 space-y-8 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6 lg:p-8 space-y-8 animate-in fade-in duration-500">
 
       {/* Header */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-3xl opacity-5 blur-3xl" />
-        <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-xl">
+        <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="relative group">
+              <div className="relative group flex-shrink-0">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                <div className="relative w-14 h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="relative w-14 h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
                   <ClipboardList className="w-7 h-7 text-white" />
                 </div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                   Préinscriptions
                 </h1>
                 <p className="text-gray-500 text-sm mt-1 flex items-center gap-1.5">
@@ -221,7 +254,7 @@ const PreinscriptionsAdminPage = () => {
               </div>
             </div>
             <button onClick={loadDemandes}
-              className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm
+              className="group inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm
                          border border-gray-200 bg-white hover:border-[#00A4E0] hover:text-[#00A4E0]
                          hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm">
               <RefreshCw size={15} className="group-hover:rotate-180 transition-transform duration-500" />
@@ -233,10 +266,10 @@ const PreinscriptionsAdminPage = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard label="Total"      value={demandes.length} color="bg-blue-400"  />
-        <StatCard label="En attente" value={countEnAttente}  color="bg-amber-400" />
-        <StatCard label="Validées"   value={countValidees}   color="bg-green-400" />
-        <StatCard label="Rejetées"   value={countRejetees}   color="bg-red-400"   />
+        <StatCard label="Total"      value={demandes.length} color="bg-blue-400"  icon={Users} />
+        <StatCard label="En attente" value={countEnAttente}  color="bg-amber-400" icon={Clock} />
+        <StatCard label="Validées"   value={countValidees}   color="bg-green-400" icon={CheckCircle} />
+        <StatCard label="Rejetées"   value={countRejetees}   color="bg-red-400"   icon={XCircle} />
       </div>
 
       {/* Search + Filter */}
@@ -254,12 +287,12 @@ const PreinscriptionsAdminPage = () => {
                          transition-all bg-white/50 text-sm"
             />
           </div>
-          <div className="flex bg-gray-100 rounded-xl p-1 flex-shrink-0">
+          <div className="flex bg-gray-100 rounded-xl p-1 flex-shrink-0 overflow-x-auto">
             {(["TOUS", "EN_ATTENTE", "VALIDEE", "REJETEE"] as const).map(s => {
               const labels = { TOUS: "Tous", EN_ATTENTE: "En attente", VALIDEE: "Validées", REJETEE: "Rejetées" };
               return (
                 <button key={s} onClick={() => setFilterStatut(s)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                  className={`px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                     filterStatut === s
                       ? "bg-white shadow-sm text-[#00A4E0]"
                       : "text-gray-600 hover:text-gray-900"
@@ -299,6 +332,7 @@ const PreinscriptionsAdminPage = () => {
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Candidat</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Formation</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date de demande</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date d'action</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Statut</th>
                   <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -329,6 +363,22 @@ const PreinscriptionsAdminPage = () => {
 
                     <td className="px-6 py-4">
                       <span className="text-sm text-gray-500 whitespace-nowrap">{formatDate(d.createdAt)}</span>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      {d.statut === "VALIDEE" && d.validatedAt ? (
+                        <span className="inline-flex items-center gap-1.5 text-sm text-green-700 font-medium whitespace-nowrap">
+                          <CalendarCheck size={14} className="text-green-500" />
+                          {formatDate(d.validatedAt)}
+                        </span>
+                      ) : d.statut === "REJETEE" && d.rejectedAt ? (
+                        <span className="inline-flex items-center gap-1.5 text-sm text-red-700 font-medium whitespace-nowrap">
+                          <CalendarX size={14} className="text-red-500" />
+                          {formatDate(d.rejectedAt)}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-300">—</span>
+                      )}
                     </td>
 
                     <td className="px-6 py-4">

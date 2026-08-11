@@ -1,17 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Mail, AlertCircle, Sparkles } from "lucide-react";
 import { ContactService } from "@/services/contactService";
 import type { ContactMessage } from "@/types/contact";
 import ContactTable from "@/components/contact/ContactTable";
+import ContactDetailsModal from "@/components/contact/ContactDetailsModal";
 
 export default function ContactUnrepliedPage() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  const fetchUnreplied = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await ContactService.getUnreplied();
+      setMessages(data);
+    } catch (error) {
+      console.error("❌ Erreur chargement messages non répondus:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
 
-    const fetchUnreplied = async () => {
+    const run = async () => {
       try {
         setLoading(true);
         const data = await ContactService.getUnreplied();
@@ -27,7 +41,7 @@ export default function ContactUnrepliedPage() {
       }
     };
 
-    fetchUnreplied();
+    run();
 
     return () => {
       cancelled = true;
@@ -102,7 +116,15 @@ export default function ContactUnrepliedPage() {
       )}
 
       {/* Table */}
-      <ContactTable messages={messages} />
+      <ContactTable messages={messages} onViewMessage={setSelectedId} />
+
+      {selectedId && (
+        <ContactDetailsModal
+          messageId={selectedId}
+          onClose={() => setSelectedId(null)}
+          onUpdated={fetchUnreplied}
+        />
+      )}
 
       <style>{`
         @keyframes slideIn {

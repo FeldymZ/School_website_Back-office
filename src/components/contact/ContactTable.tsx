@@ -4,9 +4,10 @@ import ContactRow from "./ContactRow";
 
 interface Props {
   messages: ContactMessage[];
+  onViewMessage: (id: number) => void;
 }
 
-export default function ContactTable({ messages }: Props) {
+export default function ContactTable({ messages, onViewMessage }: Props) {
   if (messages.length === 0) {
     return (
       <div className="relative overflow-hidden bg-gradient-to-br from-[#cfe3ff] via-white to-[#cfe3ff]/30 rounded-2xl p-20 text-center border-2 border-[#00A4E0]/20 shadow-xl">
@@ -97,7 +98,7 @@ export default function ContactTable({ messages }: Props) {
 
           <tbody className="divide-y divide-gray-100">
             {messages.map((m, index) => (
-              <ContactRow key={m.id} message={m} index={index} />
+              <ContactRow key={m.id} message={m} index={index} onView={onViewMessage} />
             ))}
           </tbody>
         </table>

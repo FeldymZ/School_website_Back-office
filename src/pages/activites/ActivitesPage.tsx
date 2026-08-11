@@ -75,15 +75,22 @@ const ActivitesPage = () => {
   /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-2xl opacity-30 animate-pulse" />
-            <div className="relative w-20 h-20 border-4 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-20 text-center">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
+          <div className="relative z-10">
+            <div className="w-20 h-20 mx-auto mb-6 relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Grid3x3 className="w-10 h-10 text-white animate-bounce" />
+              </div>
+            </div>
+            <div className="inline-flex items-center gap-3 text-[#00A4E0]">
+              <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
+              <span className="text-lg font-semibold">Chargement des activités...</span>
+            </div>
+            <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
           </div>
-          <p className="text-xl font-bold text-gray-700">
-            Chargement des activités...
-          </p>
         </div>
       </div>
     );

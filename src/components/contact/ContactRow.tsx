@@ -1,13 +1,13 @@
-import { Link } from "react-router-dom";
 import { Eye, CheckCircle, XCircle } from "lucide-react";
 import type { ContactMessage } from "@/types/contact";
 
 interface Props {
   message: ContactMessage;
   index: number;
+  onView: (id: number) => void;
 }
 
-export default function ContactRow({ message, index }: Props) {
+export default function ContactRow({ message, index, onView }: Props) {
   return (
     <tr className="bg-white transition-all hover:bg-gray-50">
       {/* Nom */}
@@ -100,15 +100,15 @@ export default function ContactRow({ message, index }: Props) {
             animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.5}s both`
           }}
         >
-          <Link
-            to={`/contact/${message.id}`}
+          <button
+            onClick={() => onView(message.id)}
             className="group relative inline-flex items-center gap-2 p-2.5 rounded-xl border-2 border-[#cfe3ff] bg-[#cfe3ff]/30 text-[#00A4E0] hover:bg-[#cfe3ff]/60 hover:scale-110 active:scale-95 transition-all shadow-sm hover:shadow-lg"
           >
             <Eye size={16} />
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               Voir détails
             </span>
-          </Link>
+          </button>
         </div>
       </td>
     </tr>

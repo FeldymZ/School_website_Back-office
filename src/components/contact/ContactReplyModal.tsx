@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { X, Send, Loader, Sparkles, Paperclip, Mail } from "lucide-react";
+import { X, Send, Loader, Sparkles, Paperclip, Mail, MessageSquareQuote } from "lucide-react";
 import toast from "react-hot-toast";
 import { ContactService } from "@/services/contactService";
+import type { ContactMessage } from "@/types/contact";
 
 interface Props {
   messageId: number;
   onClose: () => void;
   onSuccess: () => void;
+  originalMessage?: Pick<ContactMessage, "senderName" | "senderEmail" | "message" | "sentAt">;
 }
 
-export default function ContactReplyModal({ messageId, onClose, onSuccess }: Props) {
+export default function ContactReplyModal({ messageId, onClose, onSuccess, originalMessage }: Props) {
   const [replyMessage, setReplyMessage] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -39,7 +41,7 @@ export default function ContactReplyModal({ messageId, onClose, onSuccess }: Pro
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300">
+      <div className="relative bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] opacity-10" />
@@ -68,7 +70,33 @@ export default function ContactReplyModal({ messageId, onClose, onSuccess }: Pro
 
         {/* Content */}
         <div className="p-8 space-y-6">
-          {/* Message */}
+          {/* Message original */}
+          {originalMessage && (
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <MessageSquareQuote size={16} className="text-[#00A4E0]" />
+                Message auquel vous répondez
+              </label>
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2">
+                <div className="flex items-center justify-between flex-wrap gap-1">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {originalMessage.senderName}
+                    <span className="font-normal text-gray-500 ml-2">
+                      &lt;{originalMessage.senderEmail}&gt;
+                    </span>
+                  </p>
+                  <p className="text-xs text-[#A6A6A6]">
+                    {new Date(originalMessage.sentAt).toLocaleString("fr-FR")}
+                  </p>
+                </div>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap border-l-2 border-[#00A4E0]/30 pl-3">
+                  {originalMessage.message}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Réponse */}
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
               <Sparkles size={16} className="text-[#00A4E0]" />
