@@ -9,9 +9,13 @@ import {
   Clock,
   CalendarCheck,
   CalendarX,
+  ToggleLeft,
+  ToggleRight,
+  Loader2,
 } from "lucide-react";
 import { AgendaService } from "@/services/agenda.service";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface Props {
   upcomingEvents: AgendaEvent[];
@@ -31,6 +35,7 @@ const AgendaList = ({
   onRefresh,
 }: Props) => {
   const [showPastEvents, setShowPastEvents] = useState(false);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
 
   if (loading) {
     return (
@@ -58,10 +63,19 @@ const AgendaList = ({
   }
 
   const toggleEnabled = async (event: AgendaEvent) => {
-    await AgendaService.update(event.id, {
-      enabled: !event.enabled,
-    });
-    onRefresh();
+    try {
+      setTogglingId(event.id);
+      await AgendaService.update(event.id, {
+        enabled: !event.enabled,
+      });
+      toast.success(event.enabled ? "Événement désactivé" : "Événement activé");
+      onRefresh();
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de la modification du statut");
+    } finally {
+      setTogglingId(null);
+    }
   };
 
   const EventCard = ({
@@ -72,122 +86,133 @@ const AgendaList = ({
     event: AgendaEvent;
     index: number;
     isPast?: boolean;
-  }) => (
-    <div
-      key={event.id}
-      className="group relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-200
-                 hover:shadow-xl hover:border-[#00A4E0] transition-all duration-300"
-      style={{
-        animation: `slideUp 0.4s ease-out ${index * 0.1}s both`
-      }}
-    >
-      {/* Gradient Background on hover */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#cfe3ff]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+  }) => {
+    const isToggling = togglingId === event.id;
 
-      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Event Info */}
-        <div className="flex-1 space-y-3">
-          {/* Title & Status */}
-          <div className="flex items-start gap-3">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
-              isPast || !event.enabled
-                ? "bg-gradient-to-br from-[#A6A6A6] to-gray-500"
-                : "bg-gradient-to-br from-[#00A4E0] to-[#0077A8]"
-            }`}>
-              <Calendar size={20} className="text-white" />
-            </div>
+    return (
+      <div
+        key={event.id}
+        className="group relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-200
+                   hover:shadow-xl hover:border-[#00A4E0] transition-all duration-300"
+        style={{
+          animation: `slideUp 0.4s ease-out ${index * 0.1}s both`
+        }}
+      >
+        {/* Gradient Background on hover */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#cfe3ff]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className={`text-lg font-bold transition-colors ${
-                  isPast || !event.enabled
-                    ? "text-[#A6A6A6]"
-                    : "text-gray-900 group-hover:text-[#00A4E0]"
-                }`}>
-                  {event.title}
-                </h3>
-                {!event.enabled && (
-                  <span className="px-2 py-0.5 bg-[#A6A6A6]/10 text-[#A6A6A6] text-xs font-medium rounded-full">
-                    Désactivé
-                  </span>
-                )}
-                {isPast && event.enabled && (
-                  <span className="px-2 py-0.5 bg-[#A6A6A6]/10 text-[#A6A6A6] text-xs font-medium rounded-full">
-                    Passé
-                  </span>
-                )}
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Event Info */}
+          <div className="flex-1 space-y-3">
+            {/* Title & Status */}
+            <div className="flex items-start gap-3">
+              <div className={`w-12 h-12 flex-shrink-0 rounded-xl flex items-center justify-center shadow-lg ${
+                isPast || !event.enabled
+                  ? "bg-gradient-to-br from-[#A6A6A6] to-gray-500"
+                  : "bg-gradient-to-br from-[#00A4E0] to-[#0077A8]"
+              }`}>
+                <Calendar size={20} className="text-white" />
               </div>
 
-              {/* Meta Info */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                <span className="flex items-center gap-1.5">
-                  <Calendar size={14} className={isPast ? "text-[#A6A6A6]" : "text-[#00A4E0]"} />
-                  <span className="font-medium">{event.eventDate}</span>
-                </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <h3 className={`text-lg font-bold transition-colors ${
+                    isPast || !event.enabled
+                      ? "text-[#A6A6A6]"
+                      : "text-gray-900 group-hover:text-[#00A4E0]"
+                  }`}>
+                    {event.title}
+                  </h3>
+                  {!event.enabled && (
+                    <span className="px-2 py-0.5 bg-[#A6A6A6]/10 text-[#A6A6A6] text-xs font-medium rounded-full">
+                      Désactivé
+                    </span>
+                  )}
+                  {isPast && event.enabled && (
+                    <span className="px-2 py-0.5 bg-[#A6A6A6]/10 text-[#A6A6A6] text-xs font-medium rounded-full">
+                      Passé
+                    </span>
+                  )}
+                </div>
 
-                {event.startTime && (
+                {/* Meta Info */}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                   <span className="flex items-center gap-1.5">
-                    <Clock size={14} className={isPast ? "text-[#A6A6A6]" : "text-[#00A4E0]"} />
-                    {event.startTime}
-                    {event.endTime && ` - ${event.endTime}`}
+                    <Calendar size={14} className={isPast ? "text-[#A6A6A6]" : "text-[#00A4E0]"} />
+                    <span className="font-medium">{event.eventDate}</span>
                   </span>
-                )}
 
-                {event.location && (
-                  <span className="flex items-center gap-1.5">
-                    <MapPin size={14} className={isPast ? "text-[#A6A6A6]" : "text-[#00A4E0]"} />
-                    {event.location}
-                  </span>
+                  {event.startTime && (
+                    <span className="flex items-center gap-1.5">
+                      <Clock size={14} className={isPast ? "text-[#A6A6A6]" : "text-[#00A4E0]"} />
+                      {event.startTime}
+                      {event.endTime && ` - ${event.endTime}`}
+                    </span>
+                  )}
+
+                  {event.location && (
+                    <span className="flex items-center gap-1.5">
+                      <MapPin size={14} className={isPast ? "text-[#A6A6A6]" : "text-[#00A4E0]"} />
+                      {event.location}
+                    </span>
+                  )}
+                </div>
+
+                {/* Description */}
+                {event.description && (
+                  <p className={`text-sm line-clamp-2 mt-2 ${
+                    isPast || !event.enabled ? "text-[#A6A6A6]" : "text-gray-600"
+                  }`}>
+                    {event.description}
+                  </p>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Description */}
-          {event.description && (
-            <p className={`text-sm line-clamp-2 pl-15 ${
-              isPast || !event.enabled ? "text-[#A6A6A6]" : "text-gray-600"
-            }`}>
-              {event.description}
-            </p>
-          )}
-        </div>
+          {/* Actions */}
+          <div className="flex items-center gap-2 md:flex-shrink-0">
+            <button
+              onClick={() => toggleEnabled(event)}
+              disabled={isToggling}
+              title={event.enabled ? "Désactiver" : "Activer"}
+              className={`p-3 rounded-xl border-2 transition-all hover:scale-110 active:scale-95 disabled:opacity-60 disabled:hover:scale-100 ${
+                event.enabled
+                  ? "text-[#00A4E0] border-[#cfe3ff] bg-[#cfe3ff]/30 hover:bg-[#cfe3ff]/50"
+                  : "text-[#A6A6A6] border-gray-200 bg-gray-50 hover:bg-gray-100"
+              }`}
+            >
+              {isToggling ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : event.enabled ? (
+                <ToggleRight size={18} />
+              ) : (
+                <ToggleLeft size={18} />
+              )}
+            </button>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2 md:flex-shrink-0">
-          <button
-            onClick={() => toggleEnabled(event)}
-            title={event.enabled ? "Désactiver" : "Activer"}
-            className={`p-3 rounded-xl border-2 transition-all hover:scale-110 active:scale-95 ${
-              event.enabled
-                ? "text-[#00A4E0] border-[#cfe3ff] bg-[#cfe3ff]/30 hover:bg-[#cfe3ff]/50"
-                : "text-[#A6A6A6] border-gray-200 bg-gray-50 hover:bg-gray-100"
-            }`}
-          >
-            {event.enabled ? <Eye size={18} /> : <EyeOff size={18} />}
-          </button>
+            <button
+              onClick={() => onEdit(event)}
+              className="p-3 rounded-xl border-2 border-[#cfe3ff] bg-[#cfe3ff]/30 text-[#00A4E0]
+                         hover:bg-[#cfe3ff]/50 hover:scale-110 active:scale-95 transition-all"
+              title="Modifier"
+            >
+              <Pencil size={18} />
+            </button>
 
-          <button
-            onClick={() => onEdit(event)}
-            className="p-3 rounded-xl border-2 border-[#cfe3ff] bg-[#cfe3ff]/30 text-[#00A4E0]
-                       hover:bg-[#cfe3ff]/50 hover:scale-110 active:scale-95 transition-all"
-            title="Modifier"
-          >
-            <Pencil size={18} />
-          </button>
-
-          <button
-            onClick={() => onDelete(event)}
-            className="p-3 rounded-xl border-2 border-red-200 bg-red-50 text-red-600
-                       hover:bg-red-100 hover:scale-110 active:scale-95 transition-all"
-            title="Supprimer"
-          >
-            <Trash2 size={18} />
-          </button>
+            <button
+              onClick={() => onDelete(event)}
+              className="p-3 rounded-xl border-2 border-red-200 bg-red-50 text-red-600
+                         hover:bg-red-100 hover:scale-110 active:scale-95 transition-all"
+              title="Supprimer"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -250,10 +275,11 @@ const AgendaList = ({
               </span>
               <button
                 onClick={() => setShowPastEvents(!showPastEvents)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
                 title={showPastEvents ? "Masquer" : "Afficher"}
               >
-                {showPastEvents ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPastEvents ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPastEvents ? "Masquer" : "Afficher"}
               </button>
             </div>
           </div>

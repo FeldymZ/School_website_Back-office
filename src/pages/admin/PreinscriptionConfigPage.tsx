@@ -12,6 +12,7 @@ import {
   X,
   Save,
   AlertTriangle,
+  AlertCircle,
   Plus,
   ChevronDown,
   ImagePlus,
@@ -28,6 +29,8 @@ import { PreinscriptionService } from "@/services/preinscription.service";
 
 const inputCls =
   "w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] text-sm transition-all bg-white";
+
+type EditableEmetteur = PreinscriptionEmetteur & { _newSignature?: File | null };
 
 /* =====================================================
    SECTION HEADER
@@ -60,14 +63,20 @@ const PreinscriptionConfigPage = () => {
   const [periodes, setPeriodes]   = useState<PreinscriptionPeriode[]>([]);
   const [emetteurs, setEmetteurs] = useState<PreinscriptionEmetteur[]>([]);
   const [loading, setLoading]     = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"sessions" | "periodes" | "emetteurs">("sessions");
 
+  /* ── Modal submit state (une seule modale ouverte à la fois) ── */
+  const [submitting, setSubmitting]   = useState(false);
+  const [modalError, setModalError]   = useState<string | null>(null);
+  const [deleting, setDeleting]       = useState(false);
+
   /* ── Edit / Delete ── */
-  const [editSession, setEditSession]       = useState<any | null>(null);
+  const [editSession, setEditSession]       = useState<SessionUniversitaire | null>(null);
   const [deleteSession, setDeleteSession]   = useState<number | null>(null);
-  const [editPeriode, setEditPeriode]       = useState<any | null>(null);
+  const [editPeriode, setEditPeriode]       = useState<PreinscriptionPeriode | null>(null);
   const [deletePeriode, setDeletePeriode]   = useState<number | null>(null);
-  const [editEmetteur, setEditEmetteur]     = useState<any | null>(null);
+  const [editEmetteur, setEditEmetteur]     = useState<EditableEmetteur | null>(null);
   const [deleteEmetteur, setDeleteEmetteur] = useState<number | null>(null);
 
   /* ── Create ── */
@@ -88,6 +97,7 @@ const PreinscriptionConfigPage = () => {
   const load = async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const [s, p, e] = await Promise.all([
         PreinscriptionService.getSessions(),
         PreinscriptionService.getPeriodes(),
@@ -96,6 +106,9 @@ const PreinscriptionConfigPage = () => {
       setSessions(s || []);
       setPeriodes(p || []);
       setEmetteurs(e || []);
+    } catch (err) {
+      console.error(err);
+      setLoadError("Impossible de charger la configuration");
     } finally {
       setLoading(false);
     }
@@ -103,16 +116,67 @@ const PreinscriptionConfigPage = () => {
 
   useEffect(() => { load(); }, []);
 
+  /* ── Helpers modale ── */
+  const resetModalState = () => {
+    setModalError(null);
+    setSubmitting(false);
+  };
+
+  const closeAllCreateModals = () => {
+    setOpenCreateSession(false);
+    setOpenCreatePeriode(false);
+    setOpenCreateEmetteur(false);
+  };
+
+  const closeAllEditModals = () => {
+    setEditSession(null);
+    setEditPeriode(null);
+    setEditEmetteur(null);
+  };
+
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-2xl opacity-30 animate-pulse" />
-            <Loader2 className="relative w-12 h-12 text-[#00A4E0] animate-spin" />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-20 text-center">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
+          <div className="relative z-10">
+            <div className="w-20 h-20 mx-auto mb-6 relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Settings className="w-10 h-10 text-white animate-bounce" />
+              </div>
+            </div>
+            <div className="inline-flex items-center gap-3 text-[#00A4E0]">
+              <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
+              <span className="text-lg font-semibold">Chargement de la configuration...</span>
+            </div>
+            <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
           </div>
-          <p className="text-gray-600 font-medium">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Error ── */
+  if (loadError) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-red-100 p-10 text-center max-w-md mx-auto space-y-4">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-red-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="relative z-10 space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-red-50 border-2 border-red-100 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+            </div>
+            <p className="text-red-600 font-semibold">{loadError}</p>
+            <button
+              onClick={load}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-50 text-red-600 font-medium text-sm hover:bg-red-100 hover:scale-105 active:scale-95 transition-all"
+            >
+              <RefreshCw size={15} />
+              Réessayer
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -185,7 +249,7 @@ const PreinscriptionConfigPage = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <SectionHeader icon={Calendar} title="Années universitaires" color="from-[#00A4E0] to-[#0077A8]" count={sessions.length} />
-              <button onClick={() => setOpenCreateSession(true)}
+              <button onClick={() => { resetModalState(); setOpenCreateSession(true); }}
                 className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-blue-200">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
                 <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
@@ -204,7 +268,7 @@ const PreinscriptionConfigPage = () => {
                     <span className="font-semibold text-gray-800 text-sm">{s.annee}</span>
                   </div>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setEditSession(s)}
+                    <button onClick={() => { resetModalState(); setEditSession(s); }}
                       className="p-2 rounded-lg text-gray-400 hover:text-[#00A4E0] hover:bg-blue-50 transition-all hover:scale-110">
                       <Pencil size={14} />
                     </button>
@@ -224,7 +288,7 @@ const PreinscriptionConfigPage = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <SectionHeader icon={Clock} title="Périodes de demandes" color="from-purple-500 to-indigo-600" count={periodes.length} />
-              <button onClick={() => setOpenCreatePeriode(true)}
+              <button onClick={() => { resetModalState(); setOpenCreatePeriode(true); }}
                 className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-purple-200">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600" />
                 <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
@@ -263,7 +327,7 @@ const PreinscriptionConfigPage = () => {
                         <X size={14} />
                       </button>
                     )}
-                    <button onClick={() => setEditPeriode(p)}
+                    <button onClick={() => { resetModalState(); setEditPeriode(p); }}
                       className="p-2 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all hover:scale-110">
                       <Pencil size={14} />
                     </button>
@@ -283,7 +347,7 @@ const PreinscriptionConfigPage = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <SectionHeader icon={UserCheck} title="Émetteurs" color="from-orange-400 to-amber-500" count={emetteurs.length} />
-              <button onClick={() => setOpenCreateEmetteur(true)}
+              <button onClick={() => { resetModalState(); setOpenCreateEmetteur(true); }}
                 className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-orange-200">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-500" />
                 <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
@@ -305,9 +369,14 @@ const PreinscriptionConfigPage = () => {
                       <p className="font-semibold text-gray-800 text-sm">{e.nom}</p>
                       <p className="text-xs text-gray-500">{e.fonction}</p>
                     </div>
+                    {e.actif && (
+                      <span className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 border border-green-200 text-green-600 text-[10px] font-bold uppercase tracking-wide">
+                        Actif
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setEditEmetteur(e)}
+                    <button onClick={() => { resetModalState(); setEditEmetteur(e); }}
                       className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all hover:scale-110">
                       <Pencil size={14} />
                     </button>
@@ -332,18 +401,32 @@ const PreinscriptionConfigPage = () => {
       {openCreateSession && (
         <Modal title="Nouvelle année universitaire" color="from-[#00A4E0] to-[#0077A8]"
           icon={<Calendar size={17} className="text-white" />}
-          onClose={() => setOpenCreateSession(false)}>
+          error={modalError}
+          onClose={() => { closeAllCreateModals(); resetModalState(); }}>
           <input
             value={createSessionForm.annee}
             onChange={e => setCreateSessionForm({ annee: e.target.value })}
             placeholder="ex: 2025-2026"
             className={inputCls}
           />
-          <SaveButton label="Créer l'année universitaire" onClick={async () => {
-            await PreinscriptionService.createSession({ annee: createSessionForm.annee });
-            setCreateSessionForm({ annee: "" });
-            setOpenCreateSession(false);
-            await load();
+          <SaveButton label="Créer l'année universitaire" loading={submitting} onClick={async () => {
+            if (!createSessionForm.annee.trim()) {
+              setModalError("L'année universitaire est obligatoire");
+              return;
+            }
+            try {
+              setSubmitting(true);
+              setModalError(null);
+              await PreinscriptionService.createSession({ annee: createSessionForm.annee.trim() });
+              setCreateSessionForm({ annee: "" });
+              setOpenCreateSession(false);
+              await load();
+            } catch (err) {
+              console.error(err);
+              setModalError("Erreur lors de la création de l'année universitaire");
+            } finally {
+              setSubmitting(false);
+            }
           }} />
         </Modal>
       )}
@@ -352,11 +435,13 @@ const PreinscriptionConfigPage = () => {
       {openCreatePeriode && (
         <Modal title="Nouvelle période de demandes" color="from-purple-500 to-indigo-600"
           icon={<Clock size={17} className="text-white" />}
-          onClose={() => setOpenCreatePeriode(false)}>
+          error={modalError}
+          onClose={() => { closeAllCreateModals(); resetModalState(); }}>
           <div className="space-y-3">
             <div className="relative">
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
               <select className="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] text-sm bg-white appearance-none"
+                value={createPeriodeForm.sessionId}
                 onChange={e => setCreatePeriodeForm({ ...createPeriodeForm, sessionId: e.target.value })}>
                 <option value="">Année universitaire</option>
                 {sessions.map(s => <option key={s.id} value={s.id}>{s.annee}</option>)}
@@ -365,26 +450,45 @@ const PreinscriptionConfigPage = () => {
             <div className="relative">
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
               <select className="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30 focus:border-[#00A4E0] text-sm bg-white appearance-none"
+                value={createPeriodeForm.emetteurId}
                 onChange={e => setCreatePeriodeForm({ ...createPeriodeForm, emetteurId: e.target.value })}>
                 <option value="">Émetteur</option>
                 {emetteurs.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
               </select>
             </div>
-            <input type="datetime-local" className={inputCls}
+            <input type="datetime-local" className={inputCls} value={createPeriodeForm.dateDebut}
               onChange={e => setCreatePeriodeForm({ ...createPeriodeForm, dateDebut: e.target.value })} />
-            <input type="datetime-local" className={inputCls}
+            <input type="datetime-local" className={inputCls} value={createPeriodeForm.dateFin}
               onChange={e => setCreatePeriodeForm({ ...createPeriodeForm, dateFin: e.target.value })} />
           </div>
-          <SaveButton label="Créer la période de demandes" onClick={async () => {
-            await PreinscriptionService.createPeriode({
-              sessionId:  Number(createPeriodeForm.sessionId),
-              emetteurId: Number(createPeriodeForm.emetteurId),
-              dateDebut:  createPeriodeForm.dateDebut,
-              dateFin:    createPeriodeForm.dateFin,
-            });
-            setCreatePeriodeForm({ dateDebut: "", dateFin: "", sessionId: "", emetteurId: "" });
-            setOpenCreatePeriode(false);
-            await load();
+          <SaveButton label="Créer la période de demandes" loading={submitting} onClick={async () => {
+            const { sessionId, emetteurId, dateDebut, dateFin } = createPeriodeForm;
+            if (!sessionId || !emetteurId || !dateDebut || !dateFin) {
+              setModalError("Tous les champs sont obligatoires");
+              return;
+            }
+            if (new Date(dateFin) <= new Date(dateDebut)) {
+              setModalError("La date de fin doit être après la date de début");
+              return;
+            }
+            try {
+              setSubmitting(true);
+              setModalError(null);
+              await PreinscriptionService.createPeriode({
+                sessionId:  Number(sessionId),
+                emetteurId: Number(emetteurId),
+                dateDebut,
+                dateFin,
+              });
+              setCreatePeriodeForm({ dateDebut: "", dateFin: "", sessionId: "", emetteurId: "" });
+              setOpenCreatePeriode(false);
+              await load();
+            } catch (err) {
+              console.error(err);
+              setModalError("Erreur lors de la création de la période");
+            } finally {
+              setSubmitting(false);
+            }
           }} />
         </Modal>
       )}
@@ -393,11 +497,12 @@ const PreinscriptionConfigPage = () => {
       {openCreateEmetteur && (
         <Modal title="Nouvel émetteur" color="from-orange-400 to-amber-500"
           icon={<UserCheck size={17} className="text-white" />}
-          onClose={() => setOpenCreateEmetteur(false)}>
+          error={modalError}
+          onClose={() => { closeAllCreateModals(); resetModalState(); }}>
           <div className="space-y-3">
-            <input placeholder="Nom de l'émetteur" className={inputCls}
+            <input placeholder="Nom de l'émetteur" className={inputCls} value={createEmetteurForm.nom}
               onChange={e => setCreateEmetteurForm({ ...createEmetteurForm, nom: e.target.value })} />
-            <input placeholder="Fonction (ex: Directeur général)" className={inputCls}
+            <input placeholder="Fonction (ex: Directeur général)" className={inputCls} value={createEmetteurForm.fonction}
               onChange={e => setCreateEmetteurForm({ ...createEmetteurForm, fonction: e.target.value })} />
             <label className="flex items-center gap-2.5 px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 hover:border-orange-400 hover:bg-orange-50/30 transition-all cursor-pointer group">
               <ImagePlus size={16} className="text-gray-400 group-hover:text-orange-500 transition-colors flex-shrink-0" />
@@ -408,16 +513,32 @@ const PreinscriptionConfigPage = () => {
                 onChange={e => setCreateEmetteurForm({ ...createEmetteurForm, signature: e.target.files?.[0] || null })} />
             </label>
           </div>
-          <SaveButton label="Créer l'émetteur" onClick={async () => {
-            if (!createEmetteurForm.signature) return;
-            await PreinscriptionService.createEmetteur(
-              createEmetteurForm.nom,
-              createEmetteurForm.fonction,
-              createEmetteurForm.signature
-            );
-            setCreateEmetteurForm({ nom: "", fonction: "", signature: null });
-            setOpenCreateEmetteur(false);
-            await load();
+          <SaveButton label="Créer l'émetteur" loading={submitting} onClick={async () => {
+            if (!createEmetteurForm.nom.trim() || !createEmetteurForm.fonction.trim()) {
+              setModalError("Le nom et la fonction sont obligatoires");
+              return;
+            }
+            if (!createEmetteurForm.signature) {
+              setModalError("La signature est obligatoire");
+              return;
+            }
+            try {
+              setSubmitting(true);
+              setModalError(null);
+              await PreinscriptionService.createEmetteur(
+                createEmetteurForm.nom.trim(),
+                createEmetteurForm.fonction.trim(),
+                createEmetteurForm.signature
+              );
+              setCreateEmetteurForm({ nom: "", fonction: "", signature: null });
+              setOpenCreateEmetteur(false);
+              await load();
+            } catch (err) {
+              console.error(err);
+              setModalError("Erreur lors de la création de l'émetteur");
+            } finally {
+              setSubmitting(false);
+            }
           }} />
         </Modal>
       )}
@@ -430,14 +551,28 @@ const PreinscriptionConfigPage = () => {
       {editSession && (
         <Modal title="Modifier l'année universitaire" color="from-[#00A4E0] to-[#0077A8]"
           icon={<Calendar size={17} className="text-white" />}
-          onClose={() => setEditSession(null)}>
+          error={modalError}
+          onClose={() => { closeAllEditModals(); resetModalState(); }}>
           <input value={editSession.annee}
             onChange={e => setEditSession({ ...editSession, annee: e.target.value })}
             className={inputCls} placeholder="Année universitaire" />
-          <SaveButton onClick={async () => {
-            await PreinscriptionService.updateSession(editSession.id, editSession);
-            setEditSession(null);
-            await load();
+          <SaveButton loading={submitting} onClick={async () => {
+            if (!editSession.annee.trim()) {
+              setModalError("L'année universitaire est obligatoire");
+              return;
+            }
+            try {
+              setSubmitting(true);
+              setModalError(null);
+              await PreinscriptionService.updateSession(editSession.id, editSession);
+              setEditSession(null);
+              await load();
+            } catch (err) {
+              console.error(err);
+              setModalError("Erreur lors de la modification");
+            } finally {
+              setSubmitting(false);
+            }
           }} />
         </Modal>
       )}
@@ -446,7 +581,8 @@ const PreinscriptionConfigPage = () => {
       {editPeriode && (
         <Modal title="Modifier la période de demandes" color="from-purple-500 to-indigo-600"
           icon={<Clock size={17} className="text-white" />}
-          onClose={() => setEditPeriode(null)}>
+          error={modalError}
+          onClose={() => { closeAllEditModals(); resetModalState(); }}>
           <div className="space-y-3">
             <input type="datetime-local" value={editPeriode.dateDebut}
               onChange={e => setEditPeriode({ ...editPeriode, dateDebut: e.target.value })}
@@ -455,10 +591,27 @@ const PreinscriptionConfigPage = () => {
               onChange={e => setEditPeriode({ ...editPeriode, dateFin: e.target.value })}
               className={inputCls} />
           </div>
-          <SaveButton onClick={async () => {
-            await PreinscriptionService.updatePeriode(editPeriode.id, editPeriode);
-            setEditPeriode(null);
-            await load();
+          <SaveButton loading={submitting} onClick={async () => {
+            if (!editPeriode.dateDebut || !editPeriode.dateFin) {
+              setModalError("Les deux dates sont obligatoires");
+              return;
+            }
+            if (new Date(editPeriode.dateFin) <= new Date(editPeriode.dateDebut)) {
+              setModalError("La date de fin doit être après la date de début");
+              return;
+            }
+            try {
+              setSubmitting(true);
+              setModalError(null);
+              await PreinscriptionService.updatePeriode(editPeriode.id, editPeriode);
+              setEditPeriode(null);
+              await load();
+            } catch (err) {
+              console.error(err);
+              setModalError("Erreur lors de la modification de la période");
+            } finally {
+              setSubmitting(false);
+            }
           }} />
         </Modal>
       )}
@@ -467,7 +620,8 @@ const PreinscriptionConfigPage = () => {
       {editEmetteur && (
         <Modal title="Modifier l'émetteur" color="from-orange-400 to-amber-500"
           icon={<UserCheck size={17} className="text-white" />}
-          onClose={() => setEditEmetteur(null)}>
+          error={modalError}
+          onClose={() => { closeAllEditModals(); resetModalState(); }}>
           <div className="space-y-3">
             <input value={editEmetteur.nom}
               onChange={e => setEditEmetteur({ ...editEmetteur, nom: e.target.value })}
@@ -484,10 +638,23 @@ const PreinscriptionConfigPage = () => {
                 onChange={e => setEditEmetteur({ ...editEmetteur, _newSignature: e.target.files?.[0] || null })} />
             </label>
           </div>
-          <SaveButton onClick={async () => {
-            await PreinscriptionService.updateEmetteur(editEmetteur.id, editEmetteur, editEmetteur._newSignature ?? undefined);
-            setEditEmetteur(null);
-            await load();
+          <SaveButton loading={submitting} onClick={async () => {
+            if (!editEmetteur.nom.trim() || !editEmetteur.fonction.trim()) {
+              setModalError("Le nom et la fonction sont obligatoires");
+              return;
+            }
+            try {
+              setSubmitting(true);
+              setModalError(null);
+              await PreinscriptionService.updateEmetteur(editEmetteur.id, editEmetteur, editEmetteur._newSignature ?? undefined);
+              setEditEmetteur(null);
+              await load();
+            } catch (err) {
+              console.error(err);
+              setModalError("Erreur lors de la modification de l'émetteur");
+            } finally {
+              setSubmitting(false);
+            }
           }} />
         </Modal>
       )}
@@ -497,20 +664,53 @@ const PreinscriptionConfigPage = () => {
       ===================================================== */}
 
       {deleteSession !== null && (
-        <ConfirmModal title="Supprimer cette année universitaire ?"
-          onConfirm={async () => { await PreinscriptionService.deleteSession(deleteSession); setDeleteSession(null); await load(); }}
+        <ConfirmModal title="Supprimer cette année universitaire ?" loading={deleting}
+          onConfirm={async () => {
+            try {
+              setDeleting(true);
+              await PreinscriptionService.deleteSession(deleteSession);
+              setDeleteSession(null);
+              await load();
+            } catch (err) {
+              console.error(err);
+            } finally {
+              setDeleting(false);
+            }
+          }}
           onClose={() => setDeleteSession(null)} />
       )}
 
       {deletePeriode !== null && (
-        <ConfirmModal title="Supprimer cette période de demandes ?"
-          onConfirm={async () => { await PreinscriptionService.deletePeriode(deletePeriode); setDeletePeriode(null); await load(); }}
+        <ConfirmModal title="Supprimer cette période de demandes ?" loading={deleting}
+          onConfirm={async () => {
+            try {
+              setDeleting(true);
+              await PreinscriptionService.deletePeriode(deletePeriode);
+              setDeletePeriode(null);
+              await load();
+            } catch (err) {
+              console.error(err);
+            } finally {
+              setDeleting(false);
+            }
+          }}
           onClose={() => setDeletePeriode(null)} />
       )}
 
       {deleteEmetteur !== null && (
-        <ConfirmModal title="Supprimer cet émetteur ?"
-          onConfirm={async () => { await PreinscriptionService.deleteEmetteur(deleteEmetteur); setDeleteEmetteur(null); await load(); }}
+        <ConfirmModal title="Supprimer cet émetteur ?" loading={deleting}
+          onConfirm={async () => {
+            try {
+              setDeleting(true);
+              await PreinscriptionService.deleteEmetteur(deleteEmetteur);
+              setDeleteEmetteur(null);
+              await load();
+            } catch (err) {
+              console.error(err);
+            } finally {
+              setDeleting(false);
+            }
+          }}
           onClose={() => setDeleteEmetteur(null)} />
       )}
 
@@ -530,7 +730,7 @@ export default PreinscriptionConfigPage;
 /* =====================================================
    MODAL
 ===================================================== */
-function Modal({ title, color, icon, children, onClose }: any) {
+function Modal({ title, color, icon, children, onClose, error }: any) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
       onClick={onClose}>
@@ -552,7 +752,15 @@ function Modal({ title, color, icon, children, onClose }: any) {
             </button>
           </div>
         </div>
-        <div className="p-6 space-y-4 overflow-y-auto">{children}</div>
+        <div className="p-6 space-y-4 overflow-y-auto">
+          {error && (
+            <div className="flex items-start gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+              <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-red-600 text-xs font-medium leading-relaxed">{error}</p>
+            </div>
+          )}
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -561,10 +769,10 @@ function Modal({ title, color, icon, children, onClose }: any) {
 /* =====================================================
    CONFIRM MODAL
 ===================================================== */
-function ConfirmModal({ title, onConfirm, onClose }: any) {
+function ConfirmModal({ title, onConfirm, onClose, loading = false }: any) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}>
+      onClick={loading ? undefined : onClose}>
       <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-gray-100 overflow-hidden"
         onClick={e => e.stopPropagation()}>
         <div className="relative overflow-hidden">
@@ -576,8 +784,8 @@ function ConfirmModal({ title, onConfirm, onClose }: any) {
               </div>
               <h2 className="font-bold text-white text-base">Confirmation</h2>
             </div>
-            <button onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all">
+            <button onClick={onClose} disabled={loading}
+              className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all disabled:opacity-50">
               <X size={15} />
             </button>
           </div>
@@ -586,12 +794,13 @@ function ConfirmModal({ title, onConfirm, onClose }: any) {
           <p className="text-gray-800 font-semibold">{title}</p>
           <p className="text-gray-500 text-sm">Cette action est irréversible.</p>
           <div className="flex gap-3">
-            <button onClick={onClose}
-              className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:border-gray-300 hover:bg-gray-50 transition-all">
+            <button onClick={onClose} disabled={loading}
+              className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:border-gray-300 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
               Annuler
             </button>
-            <button onClick={onConfirm}
-              className="flex-1 py-3 rounded-xl font-semibold text-white text-sm bg-gradient-to-r from-red-500 to-rose-600 hover:opacity-90 transition-all">
+            <button onClick={onConfirm} disabled={loading}
+              className="flex-1 py-3 rounded-xl font-semibold text-white text-sm bg-gradient-to-r from-red-500 to-rose-600 hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {loading ? <Loader2 size={15} className="animate-spin" /> : null}
               Supprimer
             </button>
           </div>
@@ -604,15 +813,16 @@ function ConfirmModal({ title, onConfirm, onClose }: any) {
 /* =====================================================
    SAVE BUTTON
 ===================================================== */
-function SaveButton({ onClick, label = "Enregistrer" }: { onClick: () => void; label?: string }) {
+function SaveButton({ onClick, label = "Enregistrer", loading = false }: { onClick: () => void; label?: string; loading?: boolean }) {
   return (
-    <button onClick={onClick}
+    <button onClick={onClick} disabled={loading}
       className="group relative w-full py-3 rounded-xl font-semibold text-white text-sm overflow-hidden
-                 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-blue-200">
+                 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-blue-200
+                 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
       <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
       <span className="relative flex items-center justify-center gap-2">
-        <Save size={15} />
-        {label}
+        {loading ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+        {loading ? "Enregistrement..." : label}
       </span>
     </button>
   );

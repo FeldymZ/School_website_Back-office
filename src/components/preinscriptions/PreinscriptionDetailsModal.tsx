@@ -20,6 +20,8 @@ import {
   CheckCircle,
   Clock,
   Send,
+  CalendarCheck,
+  CalendarX,
 } from "lucide-react";
 
 import { PreinscriptionService } from "@/services/preinscription.service";
@@ -185,6 +187,14 @@ export default function PreinscriptionDetailsModal({
     },
   }[demande?.statut ?? "EN_ATTENTE"] ?? { label: "—", cls: "", icon: null };
 
+  /* ── Date d'action (validation ou rejet) ── */
+  const actionDate =
+    demande?.statut === "VALIDEE" && demande.validatedAt
+      ? { label: "Validée le", value: formatDate(demande.validatedAt), icon: <CalendarCheck size={13} />, cls: "text-green-600" }
+      : demande?.statut === "REJETEE" && demande.rejectedAt
+      ? { label: "Rejetée le", value: formatDate(demande.rejectedAt), icon: <CalendarX size={13} />, cls: "text-red-600" }
+      : null;
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -227,7 +237,10 @@ export default function PreinscriptionDetailsModal({
             {/* Loading */}
             {loading && (
               <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <Loader2 className="w-10 h-10 text-[#00A4E0] animate-spin" />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-xl opacity-30 animate-pulse" />
+                  <Loader2 className="relative w-10 h-10 text-[#00A4E0] animate-spin" />
+                </div>
                 <p className="text-sm text-gray-400">Chargement des informations...</p>
               </div>
             )}
@@ -245,7 +258,7 @@ export default function PreinscriptionDetailsModal({
               <div className="flex items-center gap-3 bg-green-50 border border-green-100 rounded-2xl px-5 py-4">
                 <CheckCircle size={18} className="text-green-500 flex-shrink-0" />
                 <p className="text-green-700 text-sm font-medium">
-                  Demande de préinsccription renvoyée avec succès par email
+                  Demande de préinscription renvoyée avec succès par email
                 </p>
               </div>
             )}
@@ -257,17 +270,33 @@ export default function PreinscriptionDetailsModal({
                 {/* Header user */}
                 <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                      <h3 className="text-2xl font-black text-gray-900">
-                        {demande.civilite} {demande.nom} {demande.prenom}
-                      </h3>
-                      <p className="text-sm text-gray-400 mt-1">
-                        Demande #{demande.id} · Envoyée le {formatDate(demande.createdAt)}
-                      </p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-md flex-shrink-0">
+                        <span className="text-white font-black text-lg">
+                          {demande.nom.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-black text-gray-900">
+                          {demande.civilite} {demande.nom} {demande.prenom}
+                        </h3>
+                        <p className="text-sm text-gray-400 mt-1">
+                          Demande #{demande.id} · Envoyée le {formatDate(demande.createdAt)}
+                        </p>
+                      </div>
                     </div>
-                    <div className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border ${statutConfig.cls}`}>
-                      {statutConfig.icon}
-                      {statutConfig.label}
+
+                    <div className="flex flex-col items-start sm:items-end gap-1.5">
+                      <div className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border ${statutConfig.cls}`}>
+                        {statutConfig.icon}
+                        {statutConfig.label}
+                      </div>
+                      {actionDate && (
+                        <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${actionDate.cls}`}>
+                          {actionDate.icon}
+                          {actionDate.label} {actionDate.value}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

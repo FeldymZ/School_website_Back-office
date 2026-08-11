@@ -1,6 +1,6 @@
 // BannerMessagePage.tsx
 import { useEffect, useState } from "react";
-import { Plus, Image, Sparkles, Info,  RefreshCw } from "lucide-react";
+import { Plus, Image, Sparkles, Info, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
 import type { BannerMessage } from "@/types/bannerMessage";
@@ -37,7 +37,6 @@ export default function BannerMessagePage() {
 
   const activeMessage = messages.find((m) => m.active) ?? null;
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 p-4 lg:p-6 xl:p-8">
       <div className="w-full space-y-8">
@@ -50,27 +49,24 @@ export default function BannerMessagePage() {
           <div className="relative px-6 py-8 lg:px-8 lg:py-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               {/* Titre et description */}
-              <div className="space-y-4 flex-1">
-                <div className="flex items-start gap-4">
-                  <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                    <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
-                      <Image className="text-white" size={28} />
-                    </div>
-                  </div>
-
-                  <div className="flex-1">
-                    <h1 className="text-3xl lg:text-4xl font-black text-gray-900 mb-2">
-                      Messages de bannière
-                    </h1>
-                    <p className="text-sm lg:text-base text-gray-600 leading-relaxed">
-                      Gérez les messages affichés publiquement en bas du site.
-                       Un seul message peut être actif à la fois.
-                    </p>
+              <div className="flex items-start gap-4 flex-1">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                  <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
+                    <Image className="text-white" size={28} />
                   </div>
                 </div>
 
-
+                <div className="flex-1">
+                  <h1 className="text-3xl lg:text-4xl font-black text-gray-900 mb-2 flex items-center gap-2">
+                    Messages de bannière
+                    <Sparkles size={22} className="text-[#00A4E0] animate-pulse" />
+                  </h1>
+                  <p className="text-sm lg:text-base text-gray-600 leading-relaxed">
+                    {messages.length} message{messages.length > 1 ? "s" : ""} — Gérez les messages affichés
+                    publiquement en bas du site. Un seul message peut être actif à la fois.
+                  </p>
+                </div>
               </div>
 
               {/* Bouton créer */}
@@ -97,9 +93,12 @@ export default function BannerMessagePage() {
         </div>
 
         {/* ================= INFO BOX ================= */}
-        <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-            <Info size={18} className="text-blue-600" />
+        <div className="relative overflow-hidden flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <div className="relative flex-shrink-0">
+            <div className="absolute inset-0 bg-blue-400 rounded-lg blur-md opacity-30" />
+            <div className="relative w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Info size={18} className="text-blue-600" />
+            </div>
           </div>
           <div className="flex-1">
             <h3 className="text-sm font-bold text-blue-900 mb-1">

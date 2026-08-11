@@ -122,26 +122,21 @@ const FormationsContinuesPage = () => {
   /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6">
-        <div className="w-full space-y-8 animate-pulse">
-          <div className="h-24 bg-white rounded-3xl border border-gray-100" />
-          <div className="bg-white rounded-2xl border border-gray-100">
-            <div className="p-6 space-y-4">
-              {[1,2,3,4,5].map(i => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gray-100 rounded-xl flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-100 rounded w-3/4" />
-                    <div className="h-3 bg-gray-100 rounded w-1/3" />
-                  </div>
-                  <div className="flex gap-2">
-                    {[1,2,3,4].map(j => (
-                      <div key={j} className="w-9 h-9 bg-gray-100 rounded-xl" />
-                    ))}
-                  </div>
-                </div>
-              ))}
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-20 text-center">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
+          <div className="relative z-10">
+            <div className="w-20 h-20 mx-auto mb-6 relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <GraduationCap className="w-10 h-10 text-white animate-bounce" />
+              </div>
             </div>
+            <div className="inline-flex items-center gap-3 text-[#00A4E0]">
+              <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
+              <span className="text-lg font-semibold">Chargement des formations...</span>
+            </div>
+            <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
           </div>
         </div>
       </div>
@@ -150,16 +145,16 @@ const FormationsContinuesPage = () => {
 
   /* ================= RENDER ================= */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
       <div className="w-full space-y-6 animate-in fade-in duration-500">
 
         {/* ===== HEADER ===== */}
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-3xl opacity-5 blur-3xl" />
-          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-xl">
+          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white shadow-xl">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50" />
                   <div className="relative w-14 h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
                     <GraduationCap className="w-7 h-7 text-white" />
@@ -169,7 +164,7 @@ const FormationsContinuesPage = () => {
                   <h1 className="text-2xl font-black bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                     Formations Continues
                   </h1>
-                  <p className="text-gray-500 text-sm mt-0.5 flex items-center gap-1.5">
+                  <p className="text-gray-500 text-sm mt-0.5 flex items-center gap-1.5 flex-wrap">
                     <Sparkles size={13} className="text-[#00A4E0]" />
                     {formations.length} formation{formations.length > 1 ? "s" : ""} — page {page + 1} / {totalPages}
                     {/* ✅ Indicateur de tri */}
