@@ -17,6 +17,7 @@ import MenuAccessProtectedRoute from "./app/MenuAccessProtectedRoute"; // 🆕
 
 import { UserProvider } from "./context/UserContext"; // 🆕
 import { LayoutProvider } from "./context/LayoutProvider";
+import { ThemeProvider } from "./context/ThemeContext"; // 🌙 mode sombre
 
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import FormationsPage from "./pages/formations/FormationsPage";
@@ -271,14 +272,16 @@ const AppRoutes = () => {
 
 const App = () => {
   return (
-    <UserProvider>
-      <LayoutProvider>
-        <BrowserRouter>
-          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-          <AppRoutes />
-        </BrowserRouter>
-      </LayoutProvider>
-    </UserProvider>
+    <ThemeProvider>
+      <UserProvider>
+        <LayoutProvider>
+          <BrowserRouter>
+            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+            <AppRoutes />
+          </BrowserRouter>
+        </LayoutProvider>
+      </UserProvider>
+    </ThemeProvider>
   );
 };
 

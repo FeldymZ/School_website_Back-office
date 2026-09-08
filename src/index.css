@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================= MODE SOMBRE ================= */
+@import "./dark-mode.css";
+
 html,
 body,
 #root {
