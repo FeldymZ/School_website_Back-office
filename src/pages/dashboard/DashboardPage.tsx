@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Grid3x3,
   RotateCcw,
+  FileCheck2,
 } from "lucide-react"
 
 import { DashboardService } from "../../services/dashboard.service"
@@ -80,6 +81,8 @@ const DashboardPage = () => {
     messages: 0,
     eventsUpcoming: 0,
     eventsPast: 0,
+    preinscriptionsTotal: 0,
+    preinscriptionsEnAttente: 0,
   })
 
   useEffect(() => {
@@ -96,6 +99,8 @@ const DashboardPage = () => {
           messages,
           upcoming,
           past,
+          preinscriptionsTotal,
+          preinscriptionsEnAttente,
         ] = await Promise.all([
           FormationService.getAll(),
           FormationContinueService.getAll(0, 1),
@@ -107,6 +112,8 @@ const DashboardPage = () => {
           DashboardService.getMessagesCount(),
           DashboardService.getEvenementsAVenir(),
           DashboardService.getEvenementsPasses(),
+          DashboardService.getPreinscriptionsTotal(),
+          DashboardService.getPreinscriptionsEnAttente(),
         ])
 
         setStats({
@@ -120,6 +127,8 @@ const DashboardPage = () => {
           messages,
           eventsUpcoming: upcoming,
           eventsPast: past,
+          preinscriptionsTotal,
+          preinscriptionsEnAttente,
         })
       } catch (e) {
         console.error(e)
@@ -165,11 +174,12 @@ const DashboardPage = () => {
 
   /* ================= CHART DATA ================= */
   const chartData = [
-    { name: "Initiales",  value: stats.formationsInitiales,  color: "#3B82F6" },
-    { name: "Continues",  value: stats.formationsContinues,  color: "#10B981" },
-    { name: "Actualités", value: stats.actualites,           color: "#F59E0B" },
-    { name: "Activités",  value: stats.activites,            color: "#8B5CF6" },
-    { name: "Messages",   value: stats.messages,             color: "#EF4444" },
+    { name: "Initiales",       value: stats.formationsInitiales,     color: "#3B82F6" },
+    { name: "Continues",       value: stats.formationsContinues,     color: "#10B981" },
+    { name: "Actualités",      value: stats.actualites,              color: "#F59E0B" },
+    { name: "Activités",       value: stats.activites,               color: "#8B5CF6" },
+    { name: "Messages",        value: stats.messages,                color: "#EF4444" },
+    { name: "Préinscriptions", value: stats.preinscriptionsTotal,    color: "#6366F1" },
   ]
 
   const pieData = [
@@ -282,7 +292,7 @@ const DashboardPage = () => {
         </div>
 
         {/* ===== KPI CARDS ===== */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
           <KpiCard
             title="Formations initiales"
             value={stats.formationsInitiales}
@@ -298,6 +308,15 @@ const DashboardPage = () => {
             onClick={() => navigate("/formations-continues")}
             gradient="from-emerald-500 via-green-500 to-teal-600"
             subtitle="Catalogue en ligne"
+          />
+          <KpiCard
+            title="Préinscriptions"
+            value={stats.preinscriptionsTotal}
+            icon={<FileCheck2 size={24} />}
+            onClick={() => navigate("/preinscriptions")}
+            gradient="from-purple-500 via-fuchsia-500 to-indigo-600"
+            badge={stats.preinscriptionsEnAttente > 0 ? stats.preinscriptionsEnAttente : undefined}
+            badgeLabel="En attente"
           />
           <KpiCard
             title="Messages"
