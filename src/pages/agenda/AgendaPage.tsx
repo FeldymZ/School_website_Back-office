@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Calendar as CalendarIcon, Sparkles, ChevronDown, RefreshCw, CalendarCheck, CalendarX, PowerOff } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { AgendaEvent } from "@/types/agenda";
 import AgendaList from "@/components/agenda/AgendaList";
@@ -18,7 +19,7 @@ type StatusFilter = "all" | "enabled" | "disabled";
    Mini stat card
 ======================= */
 function MiniStat({ label, value, icon: Icon, color }: {
-  label: string; value: number; icon: any; color: string;
+  label: string; value: number; icon: LucideIcon; color: string;
 }) {
   return (
     <div className="flex items-center gap-2.5 sm:gap-3 bg-white/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-white shadow-md px-3.5 sm:px-5 py-3 sm:py-4">
@@ -210,4 +211,4 @@ const AgendaPage = () => {
   );
 };
 
-export default AgendaPage;
+export default AgendaPage;  

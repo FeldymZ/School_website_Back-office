@@ -38,31 +38,31 @@ export default function BannerMessagePage() {
   const activeMessage = messages.find((m) => m.active) ?? null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 p-4 lg:p-6 xl:p-8">
-      <div className="w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 p-3 sm:p-4 lg:p-6 xl:p-8">
+      <div className="w-full space-y-5 sm:space-y-8">
         {/* ================= HEADER ================= */}
         <div className="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-gray-100">
           {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0]/10 to-[#0077A8]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-100/50 to-transparent rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0]/10 to-[#0077A8]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-100/50 to-transparent rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-          <div className="relative px-6 py-8 lg:px-8 lg:py-10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="relative px-4 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
               {/* Titre et description */}
-              <div className="flex items-start gap-4 flex-1">
-                <div className="relative group">
+              <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                <div className="relative group flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                  <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
-                    <Image className="text-white" size={28} />
+                  <div className="relative w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-lg">
+                    <Image className="text-white w-5 h-5 sm:w-7 sm:h-7" />
                   </div>
                 </div>
 
-                <div className="flex-1">
-                  <h1 className="text-3xl lg:text-4xl font-black text-gray-900 mb-2 flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-gray-900 mb-1 sm:mb-2 flex items-center gap-2">
                     Messages de bannière
-                    <Sparkles size={22} className="text-[#00A4E0] animate-pulse" />
+                    <Sparkles size={18} className="text-[#00A4E0] animate-pulse flex-shrink-0" />
                   </h1>
-                  <p className="text-sm lg:text-base text-gray-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm lg:text-base text-gray-600 leading-relaxed">
                     {messages.length} message{messages.length > 1 ? "s" : ""} — Gérez les messages affichés
                     publiquement en bas du site. Un seul message peut être actif à la fois.
                   </p>
@@ -73,8 +73,8 @@ export default function BannerMessagePage() {
               <button
                 onClick={() => setCreateOpen(true)}
                 className="
-                  group relative inline-flex items-center justify-center gap-2
-                  px-6 py-4 rounded-xl
+                  group relative w-full lg:w-auto inline-flex items-center justify-center gap-2
+                  px-6 py-3.5 sm:py-4 rounded-xl
                   font-bold text-white text-sm lg:text-base
                   bg-gradient-to-r from-[#00A4E0] to-[#0077A8]
                   shadow-lg shadow-[#00A4E0]/30
@@ -85,7 +85,7 @@ export default function BannerMessagePage() {
                 "
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                <Plus size={20} className="relative z-10" />
+                <Plus size={18} className="relative z-10" />
                 <span className="relative z-10">Nouveau message</span>
               </button>
             </div>
@@ -93,18 +93,18 @@ export default function BannerMessagePage() {
         </div>
 
         {/* ================= INFO BOX ================= */}
-        <div className="relative overflow-hidden flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+        <div className="relative overflow-hidden flex items-start gap-2.5 sm:gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-xl">
           <div className="relative flex-shrink-0">
             <div className="absolute inset-0 bg-blue-400 rounded-lg blur-md opacity-30" />
-            <div className="relative w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Info size={18} className="text-blue-600" />
+            <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Info size={16} className="text-blue-600" />
             </div>
           </div>
-          <div className="flex-1">
-            <h3 className="text-sm font-bold text-blue-900 mb-1">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xs sm:text-sm font-bold text-blue-900 mb-1">
               À propos des bannières
             </h3>
-            <p className="text-xs text-blue-700 leading-relaxed">
+            <p className="text-[11px] sm:text-xs text-blue-700 leading-relaxed">
               Les messages de bannière apparaissent en bas du site pour informer
               les visiteurs. Seul le message actif sera visible publiquement.
               Désactivez le message actuel avant d'en activer un nouveau.
@@ -113,30 +113,30 @@ export default function BannerMessagePage() {
         </div>
 
         {/* ================= PREVIEW ================= */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <Sparkles size={20} className="text-[#00A4E0]" />
-              <h2 className="text-lg font-bold text-gray-900">
+              <Sparkles size={18} className="text-[#00A4E0] flex-shrink-0" />
+              <h2 className="text-base sm:text-lg font-bold text-gray-900">
                 Aperçu public
               </h2>
             </div>
 
             {activeMessage && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-semibold text-emerald-700">
+              <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                <span className="text-[11px] sm:text-xs font-semibold text-emerald-700 whitespace-nowrap">
                   Message actif
                 </span>
               </div>
             )}
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                <div className="w-12 h-12 border-4 border-[#00A4E0]/30 border-t-[#00A4E0] rounded-full animate-spin" />
-                <p className="text-sm text-gray-500 font-medium">
+              <div className="flex flex-col items-center justify-center py-10 sm:py-12 space-y-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-[#00A4E0]/30 border-t-[#00A4E0] rounded-full animate-spin" />
+                <p className="text-xs sm:text-sm text-gray-500 font-medium">
                   Chargement de l'aperçu...
                 </p>
               </div>
@@ -147,17 +147,17 @@ export default function BannerMessagePage() {
         </div>
 
         {/* ================= LIST ================= */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">
               Tous les messages
             </h2>
             <button
               onClick={load}
               disabled={loading}
-              className="flex items-center gap-2 text-sm font-medium text-[#00A4E0] hover:text-[#0077A8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-[#00A4E0] hover:text-[#0077A8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+              <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
               {loading ? "Actualisation..." : "Actualiser"}
             </button>
           </div>

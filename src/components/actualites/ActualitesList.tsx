@@ -24,6 +24,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { Actualite } from "@/types/actualite";
 import { ActualiteService } from "@/services/actualiteService";
@@ -135,6 +136,7 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
       await ActualiteService.reorder(newOrder.map(a => a.id));
     } catch (error) {
       console.error("Erreur lors de la réorganisation:", error);
+      toast.error("Erreur lors de la réorganisation");
       load();
     }
   };
@@ -157,6 +159,7 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
       await ActualiteService.reorder(newOrder.map(a => a.id));
     } catch (error) {
       console.error("Erreur lors de la réorganisation:", error);
+      toast.error("Erreur lors de la réorganisation");
       load();
     } finally {
       setReordering(null);
@@ -168,7 +171,7 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
     const user = getUserFromToken();
 
     if (!user || user.role !== UserRole.SUPERADMIN) {
-      alert("Vous n'avez pas les droits pour supprimer une actualité.");
+      toast.error("Vous n'avez pas les droits pour supprimer une actualité.");
       return;
     }
 
@@ -181,11 +184,12 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
     try {
       setDeleteLoading(true);
       await ActualiteService.delete(deleteTarget.id);
+      toast.success("Actualité supprimée");
       setDeleteTarget(null);
       load();
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
-      alert("Erreur lors de la suppression.");
+      toast.error("Erreur lors de la suppression.");
     } finally {
       setDeleteLoading(false);
     }
@@ -201,20 +205,20 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
 
   if (state.loading) {
     return (
-      <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-10 sm:p-20 text-center">
+      <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 sm:p-20 text-center">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
         <div className="relative z-10">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 relative">
+          <div className="w-14 h-14 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Newspaper className="w-8 h-8 sm:w-10 sm:h-10 text-white animate-bounce" />
+              <Newspaper className="w-7 h-7 sm:w-10 sm:h-10 text-white animate-bounce" />
             </div>
           </div>
-          <div className="inline-flex items-center gap-3 text-[#00A4E0]">
-            <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
-            <span className="text-base sm:text-lg font-semibold">Chargement des actualités...</span>
+          <div className="inline-flex items-center gap-2.5 sm:gap-3 text-[#00A4E0]">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 sm:border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm sm:text-lg font-semibold">Chargement des actualités...</span>
           </div>
-          <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
+          <p className="text-xs sm:text-sm text-[#A6A6A6] mt-2.5 sm:mt-3">Veuillez patienter un instant</p>
         </div>
       </div>
     );
@@ -222,23 +226,23 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
 
   if (state.data.length === 0) {
     return (
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#cfe3ff] via-white to-[#cfe3ff]/30 rounded-2xl p-10 sm:p-20 text-center border-2 border-[#00A4E0]/20 shadow-xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#cfe3ff] via-white to-[#cfe3ff]/30 rounded-2xl p-8 sm:p-20 text-center border-2 border-[#00A4E0]/20 shadow-xl">
         <div className="absolute top-10 right-10 w-40 h-40 bg-[#00A4E0]/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-10 left-10 w-40 h-40 bg-[#0077A8]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
         <div className="relative z-10">
-          <div className="relative inline-block mb-6">
+          <div className="relative inline-block mb-5 sm:mb-6">
             <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl blur-2xl opacity-30 animate-pulse" />
-            <div className="relative w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl flex items-center justify-center shadow-2xl">
-              <Newspaper className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
+            <div className="relative w-14 h-14 sm:w-24 sm:h-24 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl flex items-center justify-center shadow-2xl">
+              <Newspaper className="w-7 h-7 sm:w-12 sm:h-12 text-white" />
             </div>
           </div>
 
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
+          <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 flex items-center justify-center gap-2">
             Aucune actualité
-            <Sparkles size={20} className="text-[#00A4E0] animate-pulse" />
+            <Sparkles size={18} className="text-[#00A4E0] animate-pulse" />
           </h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm sm:text-base">
+          <p className="text-gray-600 mb-5 sm:mb-6 max-w-md mx-auto text-sm sm:text-base px-4">
             Commencez par créer votre première actualité pour partager vos informations avec votre communauté
           </p>
         </div>
@@ -248,9 +252,9 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
 
   if (filteredData.length === 0) {
     return (
-      <div className="relative overflow-hidden bg-white rounded-2xl p-10 sm:p-16 text-center border border-gray-100 shadow-lg">
-        <Newspaper className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500 text-sm sm:text-base">
+      <div className="relative overflow-hidden bg-white rounded-2xl p-8 sm:p-16 text-center border border-gray-100 shadow-lg">
+        <Newspaper className="w-9 h-9 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-4" />
+        <p className="text-gray-500 text-sm sm:text-base px-4">
           Aucun résultat pour « {searchQuery} »
         </p>
       </div>
@@ -268,10 +272,10 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-[#00A4E0]/10 to-transparent rounded-full blur-3xl opacity-30 pointer-events-none" />
 
         {/* Stats Bar */}
-        <div className="relative z-10 bg-gradient-to-r from-[#cfe3ff]/40 via-white/50 to-[#cfe3ff]/40 border-b border-gray-200 px-4 sm:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-            <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
+        <div className="relative z-10 bg-gradient-to-r from-[#cfe3ff]/40 via-white/50 to-[#cfe3ff]/40 border-b border-gray-200 px-4 sm:px-8 py-2.5 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4">
+            <div className="flex items-center gap-2.5 sm:gap-4 flex-wrap">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className="w-2 h-2 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-full animate-pulse flex-shrink-0" />
                 <span className="text-xs sm:text-sm font-semibold text-gray-700 whitespace-nowrap">
                   {filteredData.length} actualité{filteredData.length > 1 ? 's' : ''}
@@ -279,13 +283,13 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
               </div>
               <div className="h-4 w-px bg-gray-300 hidden sm:block" />
               <div className="flex items-center gap-1.5">
-                <Eye size={13} className="text-green-500 flex-shrink-0" />
+                <Eye size={12} className="text-green-500 flex-shrink-0" />
                 <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
                   {publishedCount} publiée{publishedCount > 1 ? 's' : ''}
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <EyeOff size={13} className="text-[#A6A6A6] flex-shrink-0" />
+                <EyeOff size={12} className="text-[#A6A6A6] flex-shrink-0" />
                 <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
                   {draftCount} brouillon{draftCount > 1 ? 's' : ''}
                 </span>
@@ -300,7 +304,7 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
 
         {isFiltering && (
           <div className="relative z-10 px-4 sm:px-8 py-2 bg-amber-50 border-b border-amber-100">
-            <p className="text-xs text-amber-700">
+            <p className="text-[11px] sm:text-xs text-amber-700">
               Le réordonnancement se fait sur la liste complète, même filtrée par la recherche.
             </p>
           </div>
@@ -507,33 +511,38 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
             const isFirst = dataIndex === 0;
             const isLast = dataIndex === state.data.length - 1;
             const isMoving = reordering === a.id;
+            const anyMoving = reordering !== null;
 
             return (
               <div
                 key={a.id}
-                className={`p-4 transition-opacity ${isMoving ? "opacity-50" : ""}`}
-                style={{ animation: `slideIn 0.4s ease-out ${index * 0.05}s both` }}
+                className={`p-3.5 sm:p-4 transition-opacity ${isMoving ? "opacity-50" : ""}`}
+                style={{ animation: `slideIn 0.4s ease-out ${Math.min(index, 8) * 0.05}s both` }}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-2.5 sm:gap-3">
                   {/* Boutons monter/descendre */}
-                  <div className="flex flex-col gap-1 flex-shrink-0 pt-0.5">
+                  <div className="flex flex-col gap-1.5 flex-shrink-0">
                     <button
                       type="button"
                       onClick={() => moveItem(a.id, "up")}
-                      disabled={isFirst || isFiltering || reordering !== null}
-                      className="p-1 rounded-md border border-gray-200 text-gray-400 active:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      disabled={isFirst || isFiltering || anyMoving}
+                      aria-label="Monter dans la liste"
                       title="Monter"
+                      className="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-gray-200 text-gray-500
+                                 active:bg-gray-100 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                     >
-                      <ChevronUp size={14} />
+                      <ChevronUp size={16} />
                     </button>
                     <button
                       type="button"
                       onClick={() => moveItem(a.id, "down")}
-                      disabled={isLast || isFiltering || reordering !== null}
-                      className="p-1 rounded-md border border-gray-200 text-gray-400 active:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      disabled={isLast || isFiltering || anyMoving}
+                      aria-label="Descendre dans la liste"
                       title="Descendre"
+                      className="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-gray-200 text-gray-500
+                                 active:bg-gray-100 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                     >
-                      <ChevronDown size={14} />
+                      <ChevronDown size={16} />
                     </button>
                   </div>
 
@@ -575,46 +584,51 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
                 </div>
 
                 {/* Actions — toujours visibles, pas de tooltip hover-only */}
-                <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+                <div className="grid grid-cols-5 gap-1.5 sm:gap-2 mt-3">
                   <button
                     type="button"
                     onClick={() => setEditId(a.id)}
-                    className="p-2 rounded-lg border-2 border-[#cfe3ff] bg-[#cfe3ff]/30 text-[#00A4E0] active:bg-[#cfe3ff]/60 transition-all"
+                    aria-label="Modifier"
                     title="Modifier"
+                    className="min-h-[40px] flex items-center justify-center rounded-lg border-2 border-[#cfe3ff] bg-[#cfe3ff]/30 text-[#00A4E0] active:bg-[#cfe3ff]/60 active:scale-95 transition-all"
                   >
-                    <Pencil size={15} />
+                    <Pencil size={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => setCoverId(a.id)}
-                    className="p-2 rounded-lg border-2 border-purple-200 bg-purple-50 text-purple-600 active:bg-purple-100 transition-all"
+                    aria-label="Changer la couverture"
                     title="Couverture"
+                    className="min-h-[40px] flex items-center justify-center rounded-lg border-2 border-purple-200 bg-purple-50 text-purple-600 active:bg-purple-100 active:scale-95 transition-all"
                   >
-                    <Image size={15} />
+                    <Image size={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => setGalleryId(a.id)}
-                    className="p-2 rounded-lg border-2 border-blue-200 bg-blue-50 text-blue-600 active:bg-blue-100 transition-all"
+                    aria-label="Gérer la galerie"
                     title="Galerie"
+                    className="min-h-[40px] flex items-center justify-center rounded-lg border-2 border-blue-200 bg-blue-50 text-blue-600 active:bg-blue-100 active:scale-95 transition-all"
                   >
-                    <Image size={15} />
+                    <Image size={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => setHistoryItem({ id: a.id, title: a.title })}
-                    className="p-2 rounded-lg border-2 border-orange-200 bg-orange-50 text-orange-600 active:bg-orange-100 transition-all"
+                    aria-label="Voir l'historique"
                     title="Historique"
+                    className="min-h-[40px] flex items-center justify-center rounded-lg border-2 border-orange-200 bg-orange-50 text-orange-600 active:bg-orange-100 active:scale-95 transition-all"
                   >
-                    <Clock size={15} />
+                    <Clock size={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => requestDelete(a)}
-                    className="p-2 rounded-lg border-2 border-red-200 bg-red-50 text-red-600 active:bg-red-100 transition-all"
+                    aria-label="Supprimer"
                     title="Supprimer"
+                    className="min-h-[40px] flex items-center justify-center rounded-lg border-2 border-red-200 bg-red-50 text-red-600 active:bg-red-100 active:scale-95 transition-all"
                   >
-                    <Trash2 size={15} />
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -623,18 +637,18 @@ const ActualitesList = ({ searchQuery = "" }: Props) => {
         </div>
 
         {/* Footer Info */}
-        <div className="relative z-10 bg-gradient-to-r from-gray-50/80 to-[#cfe3ff]/20 border-t border-gray-200 px-4 sm:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm text-[#A6A6A6]">
+        <div className="relative z-10 bg-gradient-to-r from-gray-50/80 to-[#cfe3ff]/20 border-t border-gray-200 px-4 sm:px-8 py-2.5 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 sm:gap-2 text-xs sm:text-sm text-[#A6A6A6]">
             <div className="hidden lg:flex items-center gap-2">
               <Sparkles size={14} className="text-[#00A4E0]" />
               <span>Glissez les lignes pour réorganiser l'ordre d'affichage</span>
             </div>
-            <div className="lg:hidden flex items-center gap-2">
-              <ChevronUp size={12} />
+            <div className="lg:hidden flex items-center gap-1.5">
+              <ChevronUp size={12} className="flex-shrink-0" />
               <span>Utilisez les flèches pour réorganiser</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0" />
               <span>Synchronisé</span>
             </div>
           </div>

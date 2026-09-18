@@ -1,23 +1,51 @@
-import { CheckCircle, XCircle, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle, XCircle, Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import type { KeyFigure } from "@/types/keyFigure";
 
 interface Props {
   item: KeyFigure;
   index: number;
+  isFirst: boolean;
+  isLast: boolean;
   onEdit: (k: KeyFigure) => void;
   onDelete: (k: KeyFigure) => void;
+  onMove: (index: number, direction: "up" | "down") => void;
 }
 
-export default function KeyFigureRow({ item, index, onEdit, onDelete }: Props) {
+export default function KeyFigureRow({
+  item,
+  index,
+  isFirst,
+  isLast,
+  onEdit,
+  onDelete,
+  onMove,
+}: Props) {
   return (
     <tr className="bg-white transition-all hover:bg-gray-50">
-      {/* Ordre */}
+      {/* Ordre avec flèches */}
       <td className="px-6 py-5">
         <div
+          className="flex items-center gap-2"
           style={{
             animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
           }}
         >
+          <button
+            onClick={() => onMove(index, "up")}
+            disabled={isFirst}
+            aria-label="Monter"
+            className="p-2 rounded-lg border-2 border-gray-200 hover:border-[#00A4E0] hover:bg-[#cfe3ff]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <ArrowUp size={16} className="text-[#00A4E0]" />
+          </button>
+          <button
+            onClick={() => onMove(index, "down")}
+            disabled={isLast}
+            aria-label="Descendre"
+            className="p-2 rounded-lg border-2 border-gray-200 hover:border-[#00A4E0] hover:bg-[#cfe3ff]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <ArrowDown size={16} className="text-[#00A4E0]" />
+          </button>
           <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#cfe3ff] to-white border-2 border-[#00A4E0]/20 font-bold text-[#00A4E0] shadow-sm">
             {item.displayOrder}
           </span>
