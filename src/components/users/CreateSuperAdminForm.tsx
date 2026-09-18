@@ -52,24 +52,25 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl border-2 border-amber-300 shadow-xl">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-200/30 rounded-full blur-3xl" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-200/30 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 p-8 space-y-6">
+      <div className="relative z-10 p-4 sm:p-8 space-y-5 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-start gap-4">
-          <div className="relative group">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="relative group flex-shrink-0 hidden sm:block">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl blur-lg opacity-50 animate-pulse" />
             <div className="relative w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
               <ShieldAlert className="text-white" size={26} />
             </div>
           </div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-amber-900 flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base sm:text-2xl font-bold text-amber-900 flex items-center gap-1.5 sm:gap-2">
+              <ShieldAlert className="text-amber-600 flex-shrink-0 sm:hidden" size={20} />
               Créer le second SUPERADMIN
-              <Sparkles size={18} className="text-amber-600 animate-pulse" />
+              <Sparkles size={16} className="text-amber-600 animate-pulse flex-shrink-0 hidden sm:block" />
             </h2>
-            <p className="text-sm text-amber-700 mt-2">
-              <AlertTriangle size={14} className="inline mr-1" />
+            <p className="text-xs sm:text-sm text-amber-700 mt-1.5 sm:mt-2">
+              <AlertTriangle size={13} className="inline mr-1 flex-shrink-0" />
               Cette action est <strong>définitive</strong>. Une fois le second SUPERADMIN créé,
               ce formulaire sera automatiquement désactivé.
             </p>
@@ -77,9 +78,9 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
         </div>
 
         {success ? (
-          <div className="p-6 bg-green-50 border-2 border-green-300 rounded-xl">
-            <p className="text-green-700 font-semibold text-center flex items-center justify-center gap-2">
-              <Sparkles size={18} className="text-green-600" />
+          <div className="p-5 sm:p-6 bg-green-50 border-2 border-green-300 rounded-xl">
+            <p className="text-green-700 font-semibold text-center flex items-center justify-center gap-2 text-sm sm:text-base">
+              <Sparkles size={18} className="text-green-600 flex-shrink-0" />
               Second SUPERADMIN créé avec succès !
             </p>
           </div>
@@ -89,8 +90,8 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
             {/* Nom + Prénom */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-amber-900">
-                  <UserIcon size={16} className="text-amber-600" />
+                <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-900">
+                  <UserIcon size={14} className="text-amber-600 flex-shrink-0" />
                   Nom
                   <span className="text-red-500">*</span>
                 </label>
@@ -99,15 +100,15 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
                   placeholder="Nguema"
                   value={nom}
                   onChange={(e) => setNom(e.target.value)}
-                  className="w-full border-2 border-amber-200 rounded-xl px-4 py-3
+                  className="w-full border-2 border-amber-200 rounded-xl px-4 py-3 text-sm sm:text-base
                              focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
                              transition-all hover:border-amber-300 bg-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-amber-900">
-                  <UserIcon size={16} className="text-amber-600" />
+                <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-900">
+                  <UserIcon size={14} className="text-amber-600 flex-shrink-0" />
                   Prénom
                   <span className="text-red-500">*</span>
                 </label>
@@ -116,7 +117,7 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
                   placeholder="Jean"
                   value={prenom}
                   onChange={(e) => setPrenom(e.target.value)}
-                  className="w-full border-2 border-amber-200 rounded-xl px-4 py-3
+                  className="w-full border-2 border-amber-200 rounded-xl px-4 py-3 text-sm sm:text-base
                              focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
                              transition-all hover:border-amber-300 bg-white"
                 />
@@ -125,17 +126,18 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
 
             {/* Email */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-amber-900">
-                <Mail size={16} className="text-amber-600" />
+              <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-900">
+                <Mail size={14} className="text-amber-600 flex-shrink-0" />
                 Email
                 <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
+                inputMode="email"
                 placeholder="superadmin2@school.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border-2 border-amber-200 rounded-xl px-4 py-3
+                className="w-full border-2 border-amber-200 rounded-xl px-4 py-3 text-sm sm:text-base
                            focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
                            transition-all hover:border-amber-300 bg-white"
               />
@@ -143,8 +145,8 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
 
             {/* Password */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-amber-900">
-                <Lock size={16} className="text-amber-600" />
+              <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-900">
+                <Lock size={14} className="text-amber-600 flex-shrink-0" />
                 Mot de passe
                 <span className="text-red-500">*</span>
               </label>
@@ -153,7 +155,7 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
                 placeholder="Minimum 8 caractères"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border-2 border-amber-200 rounded-xl px-4 py-3
+                className="w-full border-2 border-amber-200 rounded-xl px-4 py-3 text-sm sm:text-base
                            focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
                            transition-all hover:border-amber-300 bg-white"
               />
@@ -161,8 +163,8 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
 
             {/* Error */}
             {error && (
-              <div className="p-4 bg-red-50 border-2 border-red-300 rounded-xl">
-                <p className="text-sm text-red-700 font-medium">{error}</p>
+              <div className="p-3.5 sm:p-4 bg-red-50 border-2 border-red-300 rounded-xl">
+                <p className="text-xs sm:text-sm text-red-700 font-medium">{error}</p>
               </div>
             )}
 
@@ -170,9 +172,9 @@ const CreateSuperAdminForm = ({ users, onCreated }: Props) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-3 rounded-xl font-semibold text-white
+              className="w-full min-h-[48px] px-6 py-3 rounded-xl font-semibold text-white text-sm sm:text-base
                          bg-gradient-to-r from-amber-500 to-orange-500
-                         hover:shadow-lg hover:scale-105 active:scale-95
+                         hover:shadow-lg sm:hover:scale-105 active:scale-[0.98]
                          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
                          transition-all duration-200 flex items-center justify-center gap-2"
             >

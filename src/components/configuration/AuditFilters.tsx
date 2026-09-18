@@ -88,29 +88,32 @@ const AuditFilters = ({
 
   return (
     <div
-      className="relative overflow-hidden bg-white/95 backdrop-blur-2xl rounded-3xl border border-white/60"
+      className="relative overflow-hidden bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/60"
       style={{ boxShadow: "0 8px 48px rgba(0,164,224,0.10), 0 1px 0 rgba(255,255,255,0.8) inset" }}
     >
       {/* Orbes décoratifs */}
       <div className="absolute -top-16 -right-16 w-72 h-72 bg-gradient-to-br from-[#00A4E0]/12 to-[#cfe3ff]/25 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-12 -left-12 w-56 h-56 bg-gradient-to-tr from-[#cfe3ff]/18 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 p-6 space-y-5">
+      <div className="relative z-10 p-4 sm:p-6 space-y-4 sm:space-y-5">
 
         {/* ── Header ── */}
-        <div className="flex items-center gap-4">
-          <div className="relative">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="relative flex-shrink-0 hidden sm:block">
             <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-40" />
             <div className="relative w-12 h-12 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-xl">
               <Filter className="text-white" size={20} />
             </div>
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              Consulter les actions des utilisateur de la plateforme
-              <Sparkles size={15} className="text-[#00A4E0] animate-pulse" />
+          <div className="min-w-0">
+            <h3 className="text-sm sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center flex-shrink-0 sm:hidden">
+                <Filter className="text-white" size={15} />
+              </div>
+              <span>Consulter les actions des utilisateurs</span>
+              <Sparkles size={14} className="text-[#00A4E0] animate-pulse flex-shrink-0 hidden sm:block" />
             </h3>
-            <p className="text-xs text-gray-400 mt-0.5">Choisissez un utilisateur</p>
+            <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">Choisissez un utilisateur</p>
           </div>
         </div>
 
@@ -118,8 +121,8 @@ const AuditFilters = ({
         <div className="space-y-2" ref={dropdownRef}>
           <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest">
             <Users size={12} className="text-[#00A4E0]" />
-           
-Utilisateur          </label>
+            Utilisateur
+          </label>
 
           {/* ── Trigger ── */}
           {selectedUser ? (
@@ -149,12 +152,12 @@ Utilisateur          </label>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                <CheckCircle2 size={16} className="text-[#00A4E0]" />
+                <CheckCircle2 size={16} className="text-[#00A4E0] hidden xs:block" />
                 <button
                   onClick={handleClear}
-                  className="w-7 h-7 rounded-xl bg-white/80 border border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all"
+                  className="w-8 h-8 rounded-xl bg-white/80 border border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200 active:bg-red-50 transition-all"
                 >
-                  <X size={13} />
+                  <X size={14} />
                 </button>
               </div>
             </div>
@@ -162,7 +165,7 @@ Utilisateur          </label>
             /* Pas de sélection → bouton d'ouverture */
             <button
               onClick={() => setOpen(v => !v)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 text-left transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 text-left transition-all duration-200 min-h-[52px] ${
                 open
                   ? "border-[#00A4E0]/40 bg-white shadow-lg"
                   : "border-gray-200 bg-gray-50/70 hover:border-gray-300 hover:bg-white hover:shadow-sm"
@@ -175,7 +178,7 @@ Utilisateur          </label>
               <span className={`flex-1 text-sm font-medium ${open ? "text-gray-700" : "text-gray-400"}`}>
                 {loadingUsers ? "Chargement…" : "Sélectionner un administrateur"}
               </span>
-              <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+              <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 flex-shrink-0 ${open ? "rotate-180" : ""}`} />
             </button>
           )}
 
@@ -195,7 +198,7 @@ Utilisateur          </label>
                     value={search}
                     autoFocus
                     onChange={e => setSearch(e.target.value)}
-                    className="w-full pl-9 pr-8 py-2 rounded-xl bg-white border border-gray-200 text-sm
+                    className="w-full pl-9 pr-8 py-2.5 sm:py-2 rounded-xl bg-white border border-gray-200 text-sm
                                text-gray-700 placeholder:text-gray-400
                                focus:outline-none focus:border-[#00A4E0]/50 focus:shadow-sm transition-all"
                   />
@@ -225,14 +228,14 @@ Utilisateur          </label>
                         <button
                           key={user.id}
                           onClick={() => handleSelect(user)}
-                          className={`w-full flex items-center gap-3.5 px-3 py-3 rounded-xl text-left transition-all group ${
+                          className={`w-full flex items-center gap-3 sm:gap-3.5 px-3 py-3 rounded-xl text-left transition-all group min-h-[56px] ${
                             isSelected
                               ? "bg-gradient-to-r from-[#cfe3ff]/40 to-white border border-[#00A4E0]/20"
-                              : "hover:bg-gray-50 border border-transparent"
+                              : "hover:bg-gray-50 active:bg-gray-100 border border-transparent"
                           }`}
                         >
                           {/* Avatar */}
-                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getColor(user.email)} flex items-center justify-center text-white font-bold text-sm shadow-sm shrink-0 group-hover:scale-105 transition-transform`}>
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getColor(user.email)} flex items-center justify-center text-white font-bold text-sm shadow-sm shrink-0 sm:group-hover:scale-105 transition-transform`}>
                             {user.email.charAt(0).toUpperCase()}
                           </div>
 
@@ -241,7 +244,7 @@ Utilisateur          </label>
                             <p className={`text-sm font-semibold truncate ${isSelected ? "text-[#0077A8]" : "text-gray-800"}`}>
                               {user.email}
                             </p>
-                            <div className="flex items-center gap-1.5 mt-0.5">
+                            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                               <Shield size={9} className={user.role === "SUPERADMIN" ? "text-purple-500" : "text-[#00A4E0]"} />
                               <span className={`text-[10px] font-bold ${user.role === "SUPERADMIN" ? "text-purple-600" : "text-[#00A4E0]"}`}>
                                 {user.role}
@@ -257,7 +260,7 @@ Utilisateur          </label>
 
                           {/* Indicateur */}
                           <div className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                            isSelected ? "border-[#00A4E0] bg-[#00A4E0]" : "border-gray-200 group-hover:border-[#00A4E0]/40"
+                            isSelected ? "border-[#00A4E0] bg-[#00A4E0]" : "border-gray-200 sm:group-hover:border-[#00A4E0]/40"
                           }`}>
                             {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
                           </div>
@@ -275,16 +278,16 @@ Utilisateur          </label>
         <div className="space-y-3">
           <button
             onClick={() => setShowDates(v => !v)}
-            className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-[#00A4E0] transition-colors group w-full"
+            className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-[#00A4E0] transition-colors group w-full min-h-[36px]"
           >
-            <SlidersHorizontal size={12} className="group-hover:text-[#00A4E0] transition-colors" />
-            Filtrer par période
-            <ChevronDown size={12} className={`ml-auto transition-transform duration-300 ${showDates ? "rotate-180" : ""}`} />
-            {hasDates && <span className="w-2 h-2 rounded-full bg-[#00A4E0] animate-pulse" />}
+            <SlidersHorizontal size={12} className="group-hover:text-[#00A4E0] transition-colors flex-shrink-0" />
+            <span className="truncate">Filtrer par période</span>
+            <ChevronDown size={12} className={`ml-auto transition-transform duration-300 flex-shrink-0 ${showDates ? "rotate-180" : ""}`} />
+            {hasDates && <span className="w-2 h-2 rounded-full bg-[#00A4E0] animate-pulse flex-shrink-0" />}
           </button>
 
           {showDates && (
-            <div className="rounded-2xl border-2 border-gray-100 bg-gray-50/60 p-4 space-y-3">
+            <div className="rounded-2xl border-2 border-gray-100 bg-gray-50/60 p-3.5 sm:p-4 space-y-3">
 
               {/* Raccourcis rapides */}
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -298,8 +301,8 @@ Utilisateur          </label>
                   <button
                     key={label}
                     onClick={() => applyQuickRange(days)}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-gray-200
-                               text-gray-600 hover:border-[#00A4E0]/40 hover:text-[#00A4E0] hover:bg-[#cfe3ff]/20
+                    className="px-2.5 py-1.5 sm:py-1 rounded-lg text-[11px] font-semibold bg-white border border-gray-200
+                               text-gray-600 hover:border-[#00A4E0]/40 hover:text-[#00A4E0] active:bg-[#cfe3ff]/30 hover:bg-[#cfe3ff]/20
                                transition-all shadow-sm"
                   >
                     {label}
@@ -308,36 +311,36 @@ Utilisateur          </label>
               </div>
 
               {/* Champs dates */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                 <div className="space-y-1.5">
                   <label className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                    <div className="w-4 h-4 rounded-md bg-[#00A4E0]/10 flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-md bg-[#00A4E0]/10 flex items-center justify-center flex-shrink-0">
                       <Calendar size={9} className="text-[#00A4E0]" />
                     </div>
-                    Début
+                    <span className="truncate">Début</span>
                   </label>
                   <div className={`rounded-xl border-2 bg-white transition-all ${dateStart ? "border-[#00A4E0]/40 shadow-sm" : "border-gray-200 hover:border-gray-300"}`}>
                     <input
                       type="date"
                       value={dateStart}
                       onChange={e => onDateStartChange(e.target.value)}
-                      className="w-full px-3 py-2.5 text-sm text-gray-700 bg-transparent focus:outline-none rounded-xl"
+                      className="w-full px-2.5 sm:px-3 py-2.5 text-xs sm:text-sm text-gray-700 bg-transparent focus:outline-none rounded-xl"
                     />
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                    <div className="w-4 h-4 rounded-md bg-[#00A4E0]/10 flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-md bg-[#00A4E0]/10 flex items-center justify-center flex-shrink-0">
                       <Calendar size={9} className="text-[#00A4E0]" />
                     </div>
-                    Fin
+                    <span className="truncate">Fin</span>
                   </label>
                   <div className={`rounded-xl border-2 bg-white transition-all ${dateEnd ? "border-[#00A4E0]/40 shadow-sm" : "border-gray-200 hover:border-gray-300"}`}>
                     <input
                       type="date"
                       value={dateEnd}
                       onChange={e => onDateEndChange(e.target.value)}
-                      className="w-full px-3 py-2.5 text-sm text-gray-700 bg-transparent focus:outline-none rounded-xl"
+                      className="w-full px-2.5 sm:px-3 py-2.5 text-xs sm:text-sm text-gray-700 bg-transparent focus:outline-none rounded-xl"
                     />
                   </div>
                 </div>
@@ -345,9 +348,9 @@ Utilisateur          </label>
 
               {/* Aperçu période */}
               {hasDates && (
-                <div className="flex items-center justify-between bg-[#cfe3ff]/30 border border-[#00A4E0]/15 rounded-xl px-3 py-2">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-[#0077A8]">
-                    <Calendar size={12} className="text-[#00A4E0]" />
+                <div className="flex items-center justify-between gap-2 bg-[#cfe3ff]/30 border border-[#00A4E0]/15 rounded-xl px-3 py-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold text-[#0077A8] min-w-0 flex-wrap">
+                    <Calendar size={12} className="text-[#00A4E0] flex-shrink-0" />
                     {dateStart
                       ? new Date(dateStart + "T00:00:00").toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })
                       : "…"}
@@ -358,7 +361,7 @@ Utilisateur          </label>
                   </div>
                   <button
                     onClick={() => { onDateStartChange(""); onDateEndChange(""); }}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
+                    className="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
                   >
                     <X size={13} />
                   </button>
@@ -369,13 +372,13 @@ Utilisateur          </label>
         </div>
 
         {/* ── CTA ── */}
-        <div className="flex gap-3 pt-1">
+        <div className="flex gap-2.5 sm:gap-3 pt-1">
           <button
             onClick={onSearch}
             disabled={!selectedUser || loading}
-            className="relative flex-1 py-3.5 rounded-2xl font-bold text-sm text-white overflow-hidden
+            className="relative flex-1 min-h-[52px] py-3.5 rounded-2xl font-bold text-sm text-white overflow-hidden
                        disabled:opacity-40 disabled:cursor-not-allowed
-                       transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                       transition-all duration-300 sm:hover:scale-[1.02] active:scale-[0.98]"
             style={selectedUser
               ? { background: "linear-gradient(135deg, #00A4E0 0%, #0077A8 100%)", boxShadow: "0 8px 24px rgba(0,164,224,0.35)" }
               : { background: "#e5e7eb" }
@@ -399,10 +402,11 @@ Utilisateur          </label>
           {hasSearched && (
             <button
               onClick={onReset}
-              className="px-4 py-3.5 rounded-2xl border-2 border-gray-200 bg-white/70 text-gray-500
-                         hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm group"
+              className="min-w-[52px] px-4 py-3.5 rounded-2xl border-2 border-gray-200 bg-white/70 text-gray-500
+                         hover:border-red-200 hover:text-red-500 active:bg-red-50 hover:bg-red-50 transition-all shadow-sm group flex-shrink-0"
+              aria-label="Réinitialiser"
             >
-              <RotateCcw size={16} className="group-hover:rotate-180 transition-transform duration-500" />
+              <RotateCcw size={16} className="sm:group-hover:rotate-180 transition-transform duration-500 mx-auto" />
             </button>
           )}
         </div>

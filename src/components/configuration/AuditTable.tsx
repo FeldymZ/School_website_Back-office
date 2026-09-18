@@ -48,7 +48,7 @@ const getActionMeta = (action: string): ActionMeta => {
 
 /* ── Groupes ── */
 const GROUPS = [
-  { key: "Tous",         match: (_: string) => true },
+  { key: "Tous",         match: () => true },
   { key: "Auth",         match: (a: string) => a.startsWith("LOGIN") || a === "DECONNEXION" },
   { key: "Création",     match: (a: string) => a.startsWith("CREATION") },
   { key: "Modification", match: (a: string) => a.startsWith("MODIFICATION") || a.startsWith("UPLOAD") || a.startsWith("AJOUT") || a.startsWith("REMPLACEMENT") },
@@ -67,14 +67,17 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
   const [activeGroup, setActiveGroup] = useState("Tous");
   const [page, setPage] = useState(1);
 
-  const groupFn = GROUPS.find(g => g.key === activeGroup)?.match ?? (() => true);
-
-  const filtered = useMemo(() =>
-    logs
-      .filter(l => groupFn(l.action))
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-    [logs, activeGroup]
-  );
+  // Le groupe actif (et donc sa fonction de filtrage) est recalculé ici,
+  // à l'intérieur du useMemo, pour que les dépendances réelles (logs, activeGroup)
+  // correspondent exactement aux dépendances déclarées — sinon React Compiler
+  // détecte une dépendance inférée (groupFn) différente de celle du tableau
+  // et abandonne la mémoïsation.
+  const filtered = useMemo(() => {
+    const group = GROUPS.find(g => g.key === activeGroup) ?? GROUPS[0];
+    return logs
+      .filter(l => group.match(l.action))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [logs, activeGroup]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const rows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -92,23 +95,23 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
   /* ── Empty state ── */
   if (logs.length === 0) {
     return (
-      <div className="relative overflow-hidden rounded-3xl border-2 border-[#00A4E0]/15 shadow-2xl"
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-[#00A4E0]/15 shadow-2xl"
         style={{ background: "linear-gradient(135deg, #f0f8ff 0%, #ffffff 50%, #f0f8ff 100%)" }}>
-        <div className="absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-br from-[#00A4E0]/10 to-[#cfe3ff]/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-gradient-to-tr from-[#cfe3ff]/15 to-transparent rounded-full blur-3xl" />
-        <div className="relative z-10 p-24 text-center">
-          <div className="relative inline-block mb-8">
+        <div className="absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-br from-[#00A4E0]/10 to-[#cfe3ff]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-gradient-to-tr from-[#cfe3ff]/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 p-8 sm:p-24 text-center">
+          <div className="relative inline-block mb-6 sm:mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl blur-2xl opacity-25 animate-pulse scale-110" />
-            <div className="relative w-24 h-24 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-3xl flex items-center justify-center shadow-2xl"
+            <div className="relative w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-2xl"
               style={{ boxShadow: "0 16px 48px rgba(0,164,224,0.30)" }}>
-              <FileText className="w-12 h-12 text-white" />
+              <FileText className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
             </div>
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
+          <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 flex items-center justify-center gap-2">
             Aucun log d'audit
-            <Sparkles size={20} className="text-[#00A4E0] animate-pulse" />
+            <Sparkles size={18} className="text-[#00A4E0] animate-pulse" />
           </h3>
-          <p className="text-gray-400 max-w-xs mx-auto text-sm leading-relaxed">
+          <p className="text-gray-400 max-w-xs mx-auto text-xs sm:text-sm leading-relaxed">
             Aucune activité enregistrée pour cet administrateur sur la période sélectionnée
           </p>
         </div>
@@ -117,7 +120,7 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
   }
 
   return (
-    <div className="relative overflow-hidden bg-white/95 backdrop-blur-2xl rounded-3xl border border-white/60"
+    <div className="relative overflow-hidden bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/60"
       style={{ boxShadow: "0 8px 48px rgba(0,164,224,0.10), 0 1px 0 rgba(255,255,255,0.8) inset" }}>
 
       {/* Orbes décoratifs */}
@@ -125,19 +128,19 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
       <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-gradient-to-tr from-[#00A4E0]/8 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       {/* ── Barre supérieure : tabs + export ── */}
-      <div className="relative z-10 px-6 pt-5 pb-4 border-b border-gray-100/80 flex items-center justify-between gap-4 flex-wrap">
+      <div className="relative z-10 px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4 border-b border-gray-100/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
 
         {/* Tabs groupes */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-wrap overflow-x-auto -mx-1 px-1 sm:mx-0 sm:px-0">
           {GROUPS.map(g => {
             const cnt = g.key === "Tous" ? logs.length : logs.filter(l => g.match(l.action)).length;
             if (g.key !== "Tous" && cnt === 0) return null;
             const active = activeGroup === g.key;
             return (
               <button key={g.key} onClick={() => { setActiveGroup(g.key); setPage(1); }}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
+                className={`flex-shrink-0 flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all duration-200 whitespace-nowrap ${
                   active
-                    ? "text-white shadow-lg scale-[1.02]"
+                    ? "text-white shadow-lg sm:scale-[1.02]"
                     : "bg-gray-100/80 text-gray-500 hover:bg-[#cfe3ff]/50 hover:text-[#0077A8]"
                 }`}
                 style={active ? { background: "linear-gradient(135deg, #00A4E0, #0077A8)", boxShadow: "0 4px 16px rgba(0,164,224,0.30)" } : {}}>
@@ -154,88 +157,143 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
 
         {/* Export */}
         <button onClick={exportCsv}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-gray-500
+          className="flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold text-gray-500
                      bg-white border border-gray-200 hover:border-[#00A4E0]/40 hover:text-[#00A4E0]
-                     hover:bg-[#cfe3ff]/20 transition-all shadow-sm hover:shadow-md">
+                     active:bg-[#cfe3ff]/30 hover:bg-[#cfe3ff]/20 transition-all shadow-sm hover:shadow-md
+                     min-h-[40px] w-full sm:w-auto flex-shrink-0">
           <Download size={13} />
           Exporter CSV
         </button>
       </div>
 
-      {/* ── Entête tableau ── */}
-      <div className="relative z-10 grid grid-cols-[2fr_3fr_2fr_1.5fr] gap-0 bg-gradient-to-r from-gray-50/90 via-[#cfe3ff]/10 to-gray-50/90 border-b border-gray-100">
-        {[
-          { icon: <Shield size={13} className="text-blue-500" />, bg: "from-blue-100 to-sky-100", label: "Administrateur" },
-          { icon: <Activity size={13} className="text-[#00A4E0]" />, bg: "from-[#00A4E0] to-[#0077A8]", label: "Action", white: true },
-          { icon: <Target size={13} className="text-purple-500" />, bg: "from-purple-100 to-pink-100", label: "Sur quoi" },
-          { icon: <Calendar size={13} className="text-orange-500" />, bg: "from-orange-100 to-amber-100", label: "Date", right: true },
-        ].map(({ icon, bg, label, white, right }) => (
-          <div key={label} className={`px-6 py-4 flex items-center gap-2 ${right ? "justify-end" : ""}`}>
-            <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${bg} flex items-center justify-center shadow-sm flex-shrink-0`}>
-              {white ? <span className="text-white">{icon}</span> : icon}
+      {/* ── TABLEAU — DESKTOP (md et plus) ── */}
+      <div className="hidden md:block">
+        {/* Entête */}
+        <div className="relative z-10 grid grid-cols-[2fr_3fr_2fr_1.5fr] gap-0 bg-gradient-to-r from-gray-50/90 via-[#cfe3ff]/10 to-gray-50/90 border-b border-gray-100">
+          {[
+            { icon: <Shield size={13} className="text-blue-500" />, bg: "from-blue-100 to-sky-100", label: "Administrateur" },
+            { icon: <Activity size={13} className="text-[#00A4E0]" />, bg: "from-[#00A4E0] to-[#0077A8]", label: "Action", white: true },
+            { icon: <Target size={13} className="text-purple-500" />, bg: "from-purple-100 to-pink-100", label: "Sur quoi" },
+            { icon: <Calendar size={13} className="text-orange-500" />, bg: "from-orange-100 to-amber-100", label: "Date", right: true },
+          ].map(({ icon, bg, label, white, right }) => (
+            <div key={label} className={`px-6 py-4 flex items-center gap-2 ${right ? "justify-end" : ""}`}>
+              <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${bg} flex items-center justify-center shadow-sm flex-shrink-0`}>
+                {white ? <span className="text-white">{icon}</span> : icon}
+              </div>
+              <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">{label}</span>
             </div>
-            <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">{label}</span>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* Lignes */}
+        <div className="relative z-10 divide-y divide-gray-50/80">
+          {rows.map((log, i) => {
+            const meta = getActionMeta(log.action);
+            const hasTarget = log.target && log.target !== "-" && log.target !== "";
+            const d = new Date(log.createdAt);
+
+            return (
+              <div key={log.id}
+                className="grid grid-cols-[2fr_3fr_2fr_1.5fr] gap-0 hover:bg-gradient-to-r hover:from-[#cfe3ff]/8 hover:to-white transition-all duration-200 group"
+                style={{ animation: `slideIn 0.45s cubic-bezier(0.25,0.46,0.45,0.94) ${Math.min(i, 15) * 0.03}s both` }}>
+
+                {/* Acteur */}
+                <div className="px-6 py-4 flex items-center gap-3">
+                  <div className="relative shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center text-white text-sm font-bold shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all"
+                      style={{ boxShadow: "0 2px 12px rgba(0,164,224,0.25)" }}>
+                      {log.actorEmail.charAt(0).toUpperCase()}
+                    </div>
+                    <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white shadow-sm ${meta.dot}`} />
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800 truncate group-hover:text-[#0077A8] transition-colors">
+                    {log.actorEmail}
+                  </p>
+                </div>
+
+                {/* Action */}
+                <div className="px-6 py-4 flex items-center">
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-bold uppercase tracking-wide shadow-sm ${meta.pill}`}>
+                    {meta.icon}
+                    {meta.label}
+                  </span>
+                </div>
+
+                {/* Cible */}
+                <div className="px-6 py-4 flex items-center">
+                  {hasTarget ? (
+                    <div className="flex items-center gap-2 min-w-0">
+                      <CheckCircle size={13} className="text-gray-300 shrink-0" />
+                      <p className="text-sm text-gray-600 font-medium truncate group-hover:text-gray-800 transition-colors">
+                        {log.target}
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="text-gray-300 text-sm">—</span>
+                  )}
+                </div>
+
+                {/* Date */}
+                <div className="px-6 py-4 flex flex-col items-end justify-center">
+                  <p className="text-xs font-bold text-gray-700 tabular-nums">
+                    {d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}
+                  </p>
+                  <p className="text-[11px] text-gray-400 tabular-nums mt-0.5 font-medium">
+                    {d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* ── Lignes ── */}
-      <div className="relative z-10 divide-y divide-gray-50/80">
+      {/* ── CARTES — MOBILE/TABLETTE (moins de md) ── */}
+      <div className="md:hidden relative z-10 divide-y divide-gray-50/80">
         {rows.map((log, i) => {
           const meta = getActionMeta(log.action);
           const hasTarget = log.target && log.target !== "-" && log.target !== "";
           const d = new Date(log.createdAt);
 
           return (
-            <div key={log.id}
-              className="grid grid-cols-[2fr_3fr_2fr_1.5fr] gap-0 hover:bg-gradient-to-r hover:from-[#cfe3ff]/8 hover:to-white transition-all duration-200 group"
-              style={{ animation: `slideIn 0.45s cubic-bezier(0.25,0.46,0.45,0.94) ${i * 0.045}s both` }}>
-
-              {/* Acteur */}
-              <div className="px-6 py-4 flex items-center gap-3">
+            <div
+              key={log.id}
+              className="p-3.5 sm:p-4"
+              style={{ animation: `slideIn 0.4s cubic-bezier(0.25,0.46,0.45,0.94) ${Math.min(i, 10) * 0.04}s both` }}
+            >
+              <div className="flex items-start gap-3">
                 <div className="relative shrink-0">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center text-white text-sm font-bold shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all"
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center text-white text-sm font-bold shadow-md"
                     style={{ boxShadow: "0 2px 12px rgba(0,164,224,0.25)" }}>
                     {log.actorEmail.charAt(0).toUpperCase()}
                   </div>
                   <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white shadow-sm ${meta.dot}`} />
                 </div>
-                <p className="text-sm font-semibold text-gray-800 truncate group-hover:text-[#0077A8] transition-colors">
-                  {log.actorEmail}
-                </p>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-gray-800 truncate">{log.actorEmail}</p>
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wide mt-1.5 ${meta.pill}`}>
+                    {meta.icon}
+                    {meta.label}
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <p className="text-[11px] font-bold text-gray-700 tabular-nums whitespace-nowrap">
+                    {d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
+                  </p>
+                  <p className="text-[10px] text-gray-400 tabular-nums mt-0.5 font-medium whitespace-nowrap">
+                    {d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
               </div>
 
-              {/* Action */}
-              <div className="px-6 py-4 flex items-center">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-bold uppercase tracking-wide shadow-sm ${meta.pill}`}>
-                  {meta.icon}
-                  {meta.label}
-                </span>
-              </div>
-
-              {/* Cible */}
-              <div className="px-6 py-4 flex items-center">
-                {hasTarget ? (
-                  <div className="flex items-center gap-2 min-w-0">
-                    <CheckCircle size={13} className="text-gray-300 shrink-0" />
-                    <p className="text-sm text-gray-600 font-medium truncate group-hover:text-gray-800 transition-colors">
-                      {log.target}
-                    </p>
-                  </div>
-                ) : (
-                  <span className="text-gray-300 text-sm">—</span>
-                )}
-              </div>
-
-              {/* Date */}
-              <div className="px-6 py-4 flex flex-col items-end justify-center">
-                <p className="text-xs font-bold text-gray-700 tabular-nums">
-                  {d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}
-                </p>
-                <p className="text-[11px] text-gray-400 tabular-nums mt-0.5 font-medium">
-                  {d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                </p>
-              </div>
+              {hasTarget && (
+                <div className="flex items-center gap-1.5 mt-2 pl-12">
+                  <CheckCircle size={12} className="text-gray-300 shrink-0" />
+                  <p className="text-xs text-gray-600 font-medium truncate">{log.target}</p>
+                </div>
+              )}
             </div>
           );
         })}
@@ -243,8 +301,8 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
 
       {/* ── Pagination ── */}
       {totalPages > 1 && (
-        <div className="relative z-10 px-6 py-4 border-t border-gray-100/80 flex items-center justify-between gap-4 flex-wrap">
-          <p className="text-xs text-gray-400 font-medium">
+        <div className="relative z-10 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100/80 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+          <p className="text-[11px] sm:text-xs text-gray-400 font-medium order-2 sm:order-1">
             <span className="text-gray-700 font-bold">{(page-1)*PAGE_SIZE+1}</span>
             {" – "}
             <span className="text-gray-700 font-bold">{Math.min(page*PAGE_SIZE, filtered.length)}</span>
@@ -252,19 +310,19 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
             <span className="text-gray-700 font-bold">{filtered.length}</span>
             {" résultats"}
           </p>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 order-1 sm:order-2">
             <button onClick={() => setPage(p => Math.max(1,p-1))} disabled={page===1}
-              className="w-8 h-8 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-[#00A4E0]/40 hover:text-[#00A4E0] hover:bg-[#cfe3ff]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-[#00A4E0]/40 hover:text-[#00A4E0] active:bg-[#cfe3ff]/30 hover:bg-[#cfe3ff]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
               <ChevronLeft size={15} />
             </button>
-            {Array.from({length: Math.min(5,totalPages)},(_,i)=>{
+            {[...Array(Math.min(5, totalPages)).keys()].map((i) => {
               const n=Math.min(Math.max(page-2,1)+i,totalPages);
               return (
                 <button key={n} onClick={()=>setPage(n)}
-                  className={`w-8 h-8 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                  className={`w-9 h-9 sm:w-8 sm:h-8 rounded-xl text-xs font-bold transition-all shadow-sm ${
                     n===page
-                      ? "text-white scale-[1.05]"
-                      : "bg-white border border-gray-200 text-gray-500 hover:border-[#00A4E0]/40 hover:text-[#00A4E0] hover:bg-[#cfe3ff]/20"
+                      ? "text-white sm:scale-[1.05]"
+                      : "bg-white border border-gray-200 text-gray-500 hover:border-[#00A4E0]/40 hover:text-[#00A4E0] active:bg-[#cfe3ff]/30 hover:bg-[#cfe3ff]/20"
                   }`}
                   style={n===page ? { background: "linear-gradient(135deg,#00A4E0,#0077A8)", boxShadow: "0 4px 14px rgba(0,164,224,0.30)" } : {}}>
                   {n}
@@ -272,7 +330,7 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
               );
             })}
             <button onClick={() => setPage(p => Math.min(totalPages,p+1))} disabled={page===totalPages}
-              className="w-8 h-8 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-[#00A4E0]/40 hover:text-[#00A4E0] hover:bg-[#cfe3ff]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-[#00A4E0]/40 hover:text-[#00A4E0] active:bg-[#cfe3ff]/30 hover:bg-[#cfe3ff]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
               <ChevronRight size={15} />
             </button>
           </div>
@@ -280,18 +338,18 @@ const AuditTable = ({ logs, actorEmail }: Props) => {
       )}
 
       {/* ── Footer ── */}
-      <div className="relative z-10 px-8 py-4 border-t border-gray-100/80"
+      <div className="relative z-10 px-4 sm:px-8 py-3 sm:py-4 border-t border-gray-100/80"
         style={{ background: "linear-gradient(to right, rgba(249,250,251,0.8), rgba(207,227,255,0.15), rgba(249,250,251,0.8))" }}>
-        <div className="flex items-center justify-between text-xs text-gray-400">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 sm:gap-2 text-xs text-gray-400">
           <div className="flex items-center gap-2">
-            <Sparkles size={13} className="text-[#00A4E0]" />
+            <Sparkles size={13} className="text-[#00A4E0] flex-shrink-0" />
             <span className="font-medium">
               {filtered.length} entrée{filtered.length > 1 ? "s" : ""}
               {activeGroup !== "Tous" && <span className="text-[#00A4E0] font-bold"> · {activeGroup}</span>}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
             <span className="font-medium">Synchronisé</span>
           </div>
         </div>

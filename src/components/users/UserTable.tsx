@@ -20,15 +20,13 @@ interface Props {
 type RoleFilter = "ALL" | UserRole.ADMIN | UserRole.SUPERADMIN;
 
 /* ================= AVATAR (charge la vraie photo si disponible) ================= */
-const Avatar = ({ user }: { user: User }) => {
+const Avatar = ({ user, size = "md" }: { user: User; size?: "md" | "sm" }) => {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const initials = user.email.slice(0, 2).toUpperCase();
   const isSuper = user.role === UserRole.SUPERADMIN;
+  const dim = size === "sm" ? "w-8 h-8 text-[10px]" : "w-9 h-9 text-xs";
 
   useEffect(() => {
-    // Rien à charger si l'utilisateur n'a pas de photo : on ne touche pas à l'état ici.
-    // L'affichage se base directement sur user.hasPhoto au rendu (voir showPhoto ci-dessous),
-    // donc pas besoin de réinitialiser photoUrl synchroniquement.
     if (!user.hasPhoto) return;
 
     let objectUrl: string | null = null;
@@ -51,8 +49,6 @@ const Avatar = ({ user }: { user: User }) => {
     };
   }, [user.id, user.hasPhoto]);
 
-  // Dérivé du rendu : si hasPhoto passe à false, on retombe sur le fallback
-  // même si photoUrl garde encore une ancienne valeur en mémoire (state stale).
   const showPhoto = user.hasPhoto && photoUrl;
 
   if (showPhoto) {
@@ -60,14 +56,14 @@ const Avatar = ({ user }: { user: User }) => {
       <img
         src={photoUrl}
         alt={user.email}
-        className="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-100"
+        className={`${dim} rounded-full object-cover flex-shrink-0 border border-gray-100`}
       />
     );
   }
 
   return (
     <div
-      className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+      className={`${dim} rounded-full flex items-center justify-center font-bold flex-shrink-0 ${
         isSuper ? "bg-indigo-50 text-indigo-600" : "bg-sky-50 text-sky-600"
       }`}
     >
@@ -82,7 +78,7 @@ const StatusSwitch = ({ enabled, onClick }: { enabled: boolean; onClick: () => v
     onClick={onClick}
     role="switch"
     aria-checked={enabled}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#00A4E0] ${
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#00A4E0] flex-shrink-0 ${
       enabled ? "bg-emerald-500" : "bg-gray-200"
     }`}
   >
@@ -104,7 +100,7 @@ const CoverageBar = ({ menuAccess }: { menuAccess: string[] }) => {
   }
 
   return (
-    <div className="flex items-center gap-2 w-40">
+    <div className="flex items-center gap-2 w-full sm:w-40">
       <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
         <div
           className="h-full rounded-full bg-[#00A4E0]"
@@ -118,12 +114,12 @@ const CoverageBar = ({ menuAccess }: { menuAccess: string[] }) => {
   );
 };
 
-/* ================= PERMISSIONS MATRIX (expanded row) ================= */
+/* ================= PERMISSIONS MATRIX (expanded) ================= */
 const PermissionsMatrix = ({ menuAccess }: { menuAccess: string[] }) => {
   const sections = getSectionsStatus(menuAccess);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
       {sections.map((s) => (
         <div key={s.section} className="bg-white border border-gray-150 rounded-lg">
           <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50/60 rounded-t-lg">
@@ -186,12 +182,12 @@ const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, o
 
   if (users.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
-        <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gray-50 flex items-center justify-center">
-          <UserIcon className="w-6 h-6 text-gray-300" />
+      <div className="bg-white rounded-xl border border-gray-200 p-10 sm:p-16 text-center">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-4 rounded-full bg-gray-50 flex items-center justify-center">
+          <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-300" />
         </div>
-        <h3 className="text-base font-semibold text-gray-700 mb-1">Aucun utilisateur</h3>
-        <p className="text-sm text-gray-400">Créez le premier compte administrateur pour commencer.</p>
+        <h3 className="text-sm sm:text-base font-semibold text-gray-700 mb-1">Aucun utilisateur</h3>
+        <p className="text-xs sm:text-sm text-gray-400 px-4">Créez le premier compte administrateur pour commencer.</p>
       </div>
     );
   }
@@ -199,8 +195,8 @@ const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, o
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-gray-100 flex-wrap">
-        <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 border-b border-gray-100">
+        <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 overflow-x-auto">
           {([
             { key: "ALL", label: "Tous", count: counts.all },
             { key: UserRole.ADMIN, label: "Admin", count: counts.admin },
@@ -209,7 +205,7 @@ const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, o
             <button
               key={tab.key}
               onClick={() => setRoleFilter(tab.key)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
                 roleFilter === tab.key
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
@@ -227,14 +223,14 @@ const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, o
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par email"
-            className="pl-8 pr-3 py-1.5 w-56 border border-gray-200 rounded-lg text-sm
+            className="pl-8 pr-3 py-2 sm:py-1.5 w-full sm:w-56 border border-gray-200 rounded-lg text-sm
                        focus:outline-none focus:ring-1 focus:ring-[#00A4E0] focus:border-[#00A4E0]"
           />
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
+      {/* ===== TABLEAU — DESKTOP (md et plus) ===== */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
@@ -357,8 +353,116 @@ const UserTable: React.FC<Props> = ({ users, onToggleStatus, onChangePassword, o
         )}
       </div>
 
+      {/* ===== CARTES — MOBILE (moins de md) ===== */}
+      <div className="md:hidden divide-y divide-gray-50">
+        {filteredUsers.map((user) => {
+          const isAdmin = user.role === UserRole.ADMIN;
+          const isExpanded = expandedId === user.id;
+
+          return (
+            <div key={user.id}>
+              <div
+                className={`p-4 ${isAdmin ? "active:bg-gray-50" : ""}`}
+                onClick={() => isAdmin && setExpandedId(isExpanded ? null : user.id)}
+              >
+                <div className="flex items-start gap-3">
+                  <Avatar user={user} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="font-medium text-gray-900 text-sm truncate">
+                          {user.prenom} {user.nom}
+                        </span>
+                        {isAdmin && (
+                          <ChevronDown
+                            size={14}
+                            className={`text-gray-400 flex-shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                          />
+                        )}
+                      </div>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <StatusSwitch enabled={user.enabled} onClick={() => onToggleStatus(user)} />
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-400 truncate block">{user.email}</span>
+
+                    <div className="flex items-center gap-2 flex-wrap mt-2">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium ${
+                          user.role === UserRole.SUPERADMIN
+                            ? "bg-indigo-50 text-indigo-600"
+                            : "bg-sky-50 text-sky-600"
+                        }`}
+                      >
+                        <Shield size={11} />
+                        {user.role}
+                      </span>
+
+                      {user.role === UserRole.SUPERADMIN ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-600">
+                          <ShieldCheck size={12} />
+                          Accès complet
+                        </span>
+                      ) : (
+                        <CoverageBar menuAccess={user.menuAccess ?? []} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div
+                  className={`grid gap-1.5 mt-3 ${isAdmin && isSuperAdmin ? "grid-cols-3" : "grid-cols-1"}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {isAdmin && isSuperAdmin && (
+                    <button
+                      onClick={() => setEditTarget(user)}
+                      className="min-h-[40px] flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 text-gray-600 active:bg-gray-100 active:scale-95 transition-all"
+                    >
+                      <Pencil size={14} />
+                      <span className="text-xs font-medium">Modifier</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => onChangePassword(user)}
+                    className="min-h-[40px] flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 text-gray-600 active:bg-gray-100 active:scale-95 transition-all"
+                  >
+                    <Lock size={14} />
+                    <span className="text-xs font-medium">Mot de passe</span>
+                  </button>
+
+                  {isAdmin && isSuperAdmin && (
+                    <button
+                      onClick={() => setMenuTarget(user)}
+                      className="min-h-[40px] flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 text-gray-600 active:bg-gray-100 active:scale-95 transition-all"
+                    >
+                      <LayoutGrid size={14} />
+                      <span className="text-xs font-medium">Menus</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {isAdmin && isExpanded && (
+                <div className="bg-gray-50/50 px-4 pb-4">
+                  <PermissionsMatrix menuAccess={user.menuAccess ?? []} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {filteredUsers.length === 0 && (
+          <div className="py-12 text-center text-sm text-gray-400 px-4">
+            Aucun résultat pour « {search} »
+          </div>
+        )}
+      </div>
+
       {/* Footer */}
-      <div className="px-5 py-2.5 border-t border-gray-100 text-xs text-gray-400">
+      <div className="px-4 sm:px-5 py-2.5 border-t border-gray-100 text-xs text-gray-400">
         {filteredUsers.length} utilisateur{filteredUsers.length > 1 ? "s" : ""} affiché{filteredUsers.length > 1 ? "s" : ""}
       </div>
 

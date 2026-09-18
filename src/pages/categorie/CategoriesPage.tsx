@@ -19,6 +19,22 @@ type Categorie = {
   libelle: string
 }
 
+// Forme minimale d'une erreur Axios, pour éviter `any` tout en lisant err.response.data.message
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string
+    }
+  }
+}
+
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (typeof err === "object" && err !== null && "response" in err) {
+    return (err as ApiError).response?.data?.message ?? fallback
+  }
+  return fallback
+}
+
 // ✅ Tri alphabétique A→Z insensible aux accents et à la casse
 const sortAlpha = (arr: Categorie[]) =>
   [...arr].sort((a, b) =>
@@ -82,8 +98,8 @@ export default function CategoriesPage() {
       setDeleteId(null)
       showToast("Catégorie supprimée", "success")
       load()
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || "Impossible de supprimer"
+    } catch (err) {
+      const msg = getErrorMessage(err, "Impossible de supprimer")
       showToast(msg, "error")
     }
   }
@@ -91,21 +107,21 @@ export default function CategoriesPage() {
   /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-20 text-center">
+      <div className="p-3 sm:p-6 lg:p-8">
+        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 sm:p-20 text-center">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
           <div className="relative z-10">
-            <div className="w-20 h-20 mx-auto mb-6 relative">
+            <div className="w-14 h-14 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Tag className="w-10 h-10 text-white animate-bounce" />
+                <Tag className="w-7 h-7 sm:w-10 sm:h-10 text-white animate-bounce" />
               </div>
             </div>
-            <div className="inline-flex items-center gap-3 text-[#00A4E0]">
-              <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
-              <span className="text-lg font-semibold">Chargement des catégories...</span>
+            <div className="inline-flex items-center gap-2.5 sm:gap-3 text-[#00A4E0]">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 sm:border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm sm:text-lg font-semibold">Chargement des catégories...</span>
             </div>
-            <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
+            <p className="text-xs sm:text-sm text-[#A6A6A6] mt-2.5 sm:mt-3">Veuillez patienter un instant</p>
           </div>
         </div>
       </div>
@@ -114,28 +130,27 @@ export default function CategoriesPage() {
 
   /* ================= RENDER ================= */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
-      <div className="w-full space-y-8 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-3 sm:p-6">
+      <div className="w-full space-y-5 sm:space-y-8 animate-in fade-in duration-500">
 
         {/* HEADER */}
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-3xl opacity-5 blur-3xl" />
-          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white shadow-xl">
-            <div className="flex items-center gap-4">
+          <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white shadow-xl">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative group flex-shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
-                  <Tag className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl sm:rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                <div className="relative w-11 h-11 sm:w-16 sm:h-16 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+                  <Tag className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
                 </div>
               </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent truncate">
                   Catégories
                 </h1>
-                <p className="text-gray-600 mt-1 flex items-center gap-2 flex-wrap text-sm">
-                  <Sparkles size={14} className="text-[#00A4E0]" />
+                <p className="text-gray-600 mt-0.5 sm:mt-1 flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs sm:text-sm">
+                  <Sparkles size={13} className="text-[#00A4E0] flex-shrink-0" />
                   {categories.length} catégorie{categories.length > 1 ? "s" : ""} au total
-                  {/* ✅ Indicateur de tri */}
                   <span className="text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/40 px-2 py-0.5 rounded-full border border-[#00A4E0]/20">
                     A → Z
                   </span>
@@ -146,11 +161,11 @@ export default function CategoriesPage() {
         </div>
 
         {/* CREATE */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white shadow-lg">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
+        <div className="bg-white/80 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white shadow-lg">
+          <p className="text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 sm:mb-4">
             Ajouter une catégorie
           </p>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
             <div className="relative flex-1 group">
               <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#00A4E0] transition-colors" />
               <input
@@ -160,13 +175,13 @@ export default function CategoriesPage() {
                 placeholder="Nom de la nouvelle catégorie..."
                 className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200
                            focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
-                           transition-all bg-white/50"
+                           transition-all bg-white/50 text-sm sm:text-base"
               />
             </div>
             <button
               onClick={handleCreate}
-              className="group relative px-5 py-3 rounded-xl font-medium text-white overflow-hidden
-                         hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg"
+              className="group relative min-h-[48px] px-5 py-3 rounded-xl font-medium text-white overflow-hidden
+                         sm:hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#0077A8] to-[#00A4E0] opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -180,18 +195,18 @@ export default function CategoriesPage() {
 
         {/* EMPTY STATE */}
         {categories.length === 0 && (
-          <div className="bg-white rounded-3xl p-16 text-center space-y-6 border border-gray-100 shadow-xl">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-8 sm:p-16 text-center space-y-5 sm:space-y-6 border border-gray-100 shadow-xl">
             <div className="flex justify-center">
               <div className="relative">
-                <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center">
-                  <InboxIcon className="w-12 h-12 text-gray-400" />
+                <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl sm:rounded-3xl flex items-center justify-center">
+                  <InboxIcon className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
                 </div>
                 <div className="absolute -inset-2 bg-gradient-to-br from-gray-200 to-gray-300 rounded-3xl opacity-20 blur-2xl" />
               </div>
             </div>
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-gray-900">Aucune catégorie</h3>
-              <p className="text-gray-600 max-w-sm mx-auto">
+              <h3 className="text-lg sm:text-2xl font-bold text-gray-900">Aucune catégorie</h3>
+              <p className="text-gray-600 max-w-sm mx-auto text-sm sm:text-base px-4">
                 Commencez par créer votre première catégorie ci-dessus.
               </p>
             </div>
@@ -200,30 +215,29 @@ export default function CategoriesPage() {
 
         {/* LIST */}
         {categories.length > 0 && (
-          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              {/* ✅ Badge A→Z dans l'entête */}
+          <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Libellé</span>
+                <span className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider">Libellé</span>
                 <span className="text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/50 px-1.5 py-0.5 rounded-md border border-[#00A4E0]/20">
                   A→Z
                 </span>
               </div>
-              <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</span>
+              <span className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</span>
             </div>
 
             <div className="divide-y divide-gray-100">
               {categories.map((c, index) => (
                 <div
                   key={c.id}
-                  className="group flex items-center justify-between px-6 py-4
+                  className="group flex items-center justify-between gap-2 px-4 sm:px-6 py-3.5 sm:py-4
                              hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent
                              transition-all duration-200"
-                  style={{ animation: `fadeIn 0.3s ease-out ${index * 0.05}s both` }}
+                  style={{ animation: `fadeIn 0.3s ease-out ${Math.min(index, 10) * 0.04}s both` }}
                 >
-                  <div className="flex items-center gap-3 flex-1 mr-4">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-sm flex-shrink-0">
-                      <Tag size={13} className="text-white" />
+                  <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0 mr-2 sm:mr-4">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-sm flex-shrink-0">
+                      <Tag size={12} className="text-white" />
                     </div>
 
                     {editingId === c.id ? (
@@ -232,32 +246,32 @@ export default function CategoriesPage() {
                         onChange={(e) => setEditingValue(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleUpdate(c.id)}
                         autoFocus
-                        className="flex-1 px-3 py-2 rounded-xl border border-[#00A4E0] bg-blue-50/50
+                        className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-[#00A4E0] bg-blue-50/50
                                    focus:outline-none focus:ring-2 focus:ring-[#00A4E0]/30
                                    text-sm font-medium transition-all"
                       />
                     ) : (
-                      <span className="font-semibold text-gray-800 group-hover:text-[#00A4E0] transition-colors">
+                      <span className="font-semibold text-gray-800 group-hover:text-[#00A4E0] transition-colors text-sm sm:text-base truncate">
                         {c.libelle}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                     {editingId === c.id ? (
                       <>
                         <button
                           onClick={() => handleUpdate(c.id)}
-                          className="p-2.5 rounded-xl text-gray-600 hover:text-green-600
-                                     hover:bg-green-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                          className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-gray-600 hover:text-green-600
+                                     hover:bg-green-50 active:bg-green-100 transition-all duration-200 sm:hover:scale-110 active:scale-95"
                           title="Confirmer"
                         >
                           <Check size={16} />
                         </button>
                         <button
                           onClick={() => { setEditingId(null); setEditingValue("") }}
-                          className="p-2.5 rounded-xl text-gray-600 hover:text-gray-800
-                                     hover:bg-gray-100 transition-all duration-200 hover:scale-110 active:scale-95"
+                          className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-gray-600 hover:text-gray-800
+                                     hover:bg-gray-100 active:bg-gray-200 transition-all duration-200 sm:hover:scale-110 active:scale-95"
                           title="Annuler"
                         >
                           <X size={16} />
@@ -267,16 +281,16 @@ export default function CategoriesPage() {
                       <>
                         <button
                           onClick={() => { setEditingId(c.id); setEditingValue(c.libelle) }}
-                          className="p-2.5 rounded-xl text-gray-600 hover:text-[#00A4E0]
-                                     hover:bg-blue-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                          className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-gray-600 hover:text-[#00A4E0]
+                                     hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 sm:hover:scale-110 active:scale-95"
                           title="Modifier"
                         >
                           <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => setDeleteId(c.id)}
-                          className="p-2.5 rounded-xl text-gray-600 hover:text-red-600
-                                     hover:bg-red-50 transition-all duration-200 hover:scale-110 active:scale-95"
+                          className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-gray-600 hover:text-red-600
+                                     hover:bg-red-50 active:bg-red-100 transition-all duration-200 sm:hover:scale-110 active:scale-95"
                           title="Supprimer"
                         >
                           <Trash2 size={16} />
@@ -293,42 +307,42 @@ export default function CategoriesPage() {
 
       {/* MODAL DELETE */}
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden
-                         animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-t-2xl sm:rounded-3xl shadow-2xl w-full sm:max-w-md border border-gray-100 overflow-hidden
+                         animate-in fade-in slide-in-from-bottom-4 duration-300 pb-[calc(env(safe-area-inset-bottom))] sm:pb-0">
             <div className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-600" />
               <div className="absolute inset-0 opacity-10"
                 style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-              <div className="relative px-6 py-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30">
+              <div className="relative px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30 flex-shrink-0">
                     <AlertCircle size={20} className="text-white" />
                   </div>
-                  <div>
-                    <h2 className="font-bold text-white">Confirmer la suppression</h2>
-                    <p className="text-white/60 text-xs mt-0.5">Cette action est irréversible</p>
+                  <div className="min-w-0">
+                    <h2 className="font-bold text-white text-sm sm:text-base truncate">Confirmer la suppression</h2>
+                    <p className="text-white/60 text-[11px] sm:text-xs mt-0.5">Cette action est irréversible</p>
                   </div>
                 </div>
                 <button onClick={() => setDeleteId(null)}
-                  className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all">
+                  className="w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white transition-all flex-shrink-0">
                   <X size={15} />
                 </button>
               </div>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               <p className="text-sm text-gray-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                 Voulez-vous vraiment supprimer cette catégorie ?
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3">
                 <button onClick={() => setDeleteId(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium text-sm
-                             hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
+                  className="flex-1 min-h-[46px] py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium text-sm
+                             hover:bg-gray-50 active:bg-gray-100 hover:border-gray-300 transition-all duration-200">
                   Annuler
                 </button>
                 <button onClick={handleDelete}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-600
-                             text-white font-semibold text-sm hover:shadow-lg hover:scale-[1.02]
+                  className="flex-1 min-h-[46px] py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-600
+                             text-white font-semibold text-sm hover:shadow-lg sm:hover:scale-[1.02]
                              active:scale-[0.98] transition-all duration-200">
                   Supprimer
                 </button>
@@ -340,7 +354,7 @@ export default function CategoriesPage() {
 
       {/* TOAST */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border
+        <div className={`fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-auto z-50 flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl shadow-2xl border
                         animate-in fade-in slide-in-from-bottom-4 duration-300 ${
           toast.type === "error"
             ? "bg-red-50 border-red-100 text-red-700"
@@ -350,7 +364,7 @@ export default function CategoriesPage() {
             ? <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
             : <CheckCircle size={16} className="text-green-500 flex-shrink-0" />
           }
-          <span className="text-sm font-medium">{toast.msg}</span>
+          <span className="text-sm font-medium truncate">{toast.msg}</span>
         </div>
       )}
 
