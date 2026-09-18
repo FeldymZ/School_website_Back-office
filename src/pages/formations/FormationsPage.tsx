@@ -140,36 +140,36 @@ const FormationsPage = () => {
      ============================ */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6">
-        <div className="w-full space-y-8 animate-in fade-in duration-500">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
+        <div className="w-full space-y-6 sm:space-y-8 animate-in fade-in duration-500">
           {/* Header Skeleton */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl animate-pulse" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl animate-pulse" />
               <div className="space-y-2">
-                <div className="h-8 w-64 bg-gray-200 rounded-lg animate-pulse" />
+                <div className="h-7 sm:h-8 w-48 sm:w-64 bg-gray-200 rounded-lg animate-pulse" />
                 <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
               </div>
             </div>
-            <div className="h-12 w-48 bg-gray-200 rounded-xl animate-pulse" />
+            <div className="h-12 w-full sm:w-48 bg-gray-200 rounded-xl animate-pulse" />
           </div>
 
           {/* Search Bar Skeleton */}
-          <div className="bg-white/80 rounded-2xl p-6 border">
+          <div className="bg-white/80 rounded-2xl p-4 sm:p-6 border">
             <div className="h-12 bg-gray-200 rounded-xl animate-pulse" />
           </div>
 
           {/* Table Skeleton */}
           <div className="bg-white rounded-2xl border border-gray-100">
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="flex items-center gap-4">
-                  <div className="w-20 h-20 bg-gray-200 rounded-xl animate-pulse" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-xl animate-pulse flex-shrink-0" />
                   <div className="flex-1 space-y-2">
                     <div className="h-6 bg-gray-200 rounded animate-pulse w-3/4" />
                     <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
                   </div>
-                  <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
+                  <div className="hidden sm:block h-10 w-32 bg-gray-200 rounded animate-pulse" />
                 </div>
               ))}
             </div>
@@ -184,9 +184,9 @@ const FormationsPage = () => {
      ============================ */
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6 flex items-center justify-center">
         <div className="max-w-md w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-white rounded-3xl p-8 shadow-2xl border border-red-100 space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-red-100 space-y-6">
             <div className="flex justify-center">
               <div className="relative">
                 <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center animate-pulse">
@@ -196,7 +196,7 @@ const FormationsPage = () => {
               </div>
             </div>
             <div className="text-center space-y-2">
-              <h3 className="text-2xl font-bold text-gray-900">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Oups ! Une erreur est survenue
               </h3>
               <p className="text-gray-600">{error}</p>
@@ -220,27 +220,27 @@ const FormationsPage = () => {
      MAIN
      ============================ */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6">
-      <div className="w-full space-y-8 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
+      <div className="w-full space-y-6 sm:space-y-8 animate-in fade-in duration-500">
 
         {/* ================= HEADER ================= */}
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-3xl opacity-5 blur-3xl" />
-          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-xl">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="relative group">
+          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-5 sm:p-8 border border-white shadow-xl">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="relative group flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                  <div className="relative w-16 h-16 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
-                    <GraduationCap className="w-8 h-8 text-white" />
+                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
+                    <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                <div className="min-w-0">
+                  <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent truncate">
                     Formations Initiales
                   </h1>
-                  <p className="text-gray-600 mt-1 flex items-center gap-2">
-                    <Sparkles size={14} className="text-[#00A4E0]" />
+                  <p className="text-sm sm:text-base text-gray-600 mt-1 flex items-center gap-2">
+                    <Sparkles size={14} className="text-[#00A4E0] flex-shrink-0" />
                     {formations.length} formation{formations.length > 1 ? 's' : ''} disponible{formations.length > 1 ? 's' : ''}
                   </p>
                 </div>
@@ -248,12 +248,12 @@ const FormationsPage = () => {
 
               <button
                 onClick={() => setOpenCreate(true)}
-                className="group relative px-6 py-3 rounded-xl font-medium text-white overflow-hidden
+                className="group relative w-full lg:w-auto px-6 py-3 rounded-xl font-medium text-white overflow-hidden
                            hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0077A8] to-[#00A4E0] opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="relative flex items-center gap-2">
+                <span className="relative flex items-center justify-center gap-2">
                   <Plus size={20} />
                   Nouvelle formation
                 </span>
@@ -263,8 +263,8 @@ const FormationsPage = () => {
         </div>
 
         {/* ================= SEARCH & FILTERS ================= */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white shadow-lg">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-white shadow-lg">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#00A4E0] transition-colors" />
               <input
@@ -274,23 +274,23 @@ const FormationsPage = () => {
                 placeholder="Rechercher une formation par titre..."
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200
                            focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
-                           transition-all bg-white/50"
+                           transition-all bg-white/50 text-sm sm:text-base"
               />
             </div>
 
             <div className="flex gap-3">
               <button
-                className="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200
-                           hover:bg-gray-50 hover:border-gray-300 transition-all"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-gray-200
+                           hover:bg-gray-50 hover:border-gray-300 transition-all flex-1 md:flex-initial"
               >
                 <Filter size={18} />
-                <span className="hidden sm:inline">Filtres</span>
+                <span className="sm:inline">Filtres</span>
               </button>
 
-              <div className="flex bg-gray-100 rounded-xl p-1">
+              <div className="flex bg-gray-100 rounded-xl p-1 flex-shrink-0">
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`p-2.5 sm:p-2 rounded-lg transition-all ${
                     viewMode === "list"
                       ? "bg-white shadow-sm text-[#00A4E0]"
                       : "text-gray-600 hover:text-gray-900"
@@ -301,7 +301,7 @@ const FormationsPage = () => {
                 </button>
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`p-2.5 sm:p-2 rounded-lg transition-all ${
                     viewMode === "grid"
                       ? "bg-white shadow-sm text-[#00A4E0]"
                       : "text-gray-600 hover:text-gray-900"
@@ -317,20 +317,20 @@ const FormationsPage = () => {
 
         {/* ================= EMPTY STATE ================= */}
         {filteredFormations.length === 0 && (
-          <div className="bg-white rounded-3xl p-16 text-center space-y-6 border border-gray-100 shadow-xl">
+          <div className="bg-white rounded-3xl p-8 sm:p-16 text-center space-y-6 border border-gray-100 shadow-xl">
             <div className="flex justify-center">
               <div className="relative">
-                <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center">
-                  <BookOpen className="w-12 h-12 text-gray-400" />
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center">
+                  <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
                 </div>
                 <div className="absolute -inset-2 bg-gradient-to-br from-gray-200 to-gray-300 rounded-3xl opacity-20 blur-2xl" />
               </div>
             </div>
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-gray-900">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {searchQuery ? 'Aucun résultat trouvé' : 'Aucune formation disponible'}
               </h3>
-              <p className="text-gray-600 max-w-md mx-auto">
+              <p className="text-gray-600 max-w-md mx-auto text-sm sm:text-base">
                 {searchQuery
                   ? `Aucune formation ne correspond à "${searchQuery}"`
                   : 'Commencez par créer votre première formation pour la voir apparaître ici.'
@@ -351,9 +351,9 @@ const FormationsPage = () => {
           </div>
         )}
 
-        {/* ================= LIST VIEW ================= */}
+        {/* ================= LIST VIEW — DESKTOP/TABLETTE (tableau, lg et plus) ================= */}
         {viewMode === "list" && filteredFormations.length > 0 && (
-          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
+          <div className="hidden lg:block bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
@@ -529,9 +529,117 @@ const FormationsPage = () => {
           </div>
         )}
 
+        {/* ================= LIST VIEW — MOBILE/TABLETTE (cartes, moins de lg) ================= */}
+        {viewMode === "list" && filteredFormations.length > 0 && (
+          <div className="lg:hidden space-y-4">
+            {filteredFormations.map((f, index) => {
+              const cfg = LEVEL_CONFIG[f.level];
+              return (
+                <div
+                  key={f.id}
+                  className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg"
+                  style={{ animation: `fadeIn 0.3s ease-out ${index * 0.05}s both` }}
+                >
+                  {/* Image + infos principales */}
+                  <div className="flex items-center gap-4 p-4">
+                    <img
+                      src={resolveImageUrl(f.coverImageUrl)}
+                      alt={f.title}
+                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl border-2 border-gray-100 flex-shrink-0"
+                    />
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <h3 className="font-bold text-gray-900 truncate">{f.title}</h3>
+                      <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                        <Clock size={12} />
+                        Formation initiale
+                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg
+                                        ${cfg.lightBg} ${cfg.text} font-medium text-xs`}>
+                          <GraduationCap size={12} />
+                          {cfg.label}
+                        </div>
+                        {f.enabled ? (
+                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-green-50 text-green-700 text-xs font-medium">
+                            <CheckCircle size={12} />
+                            Active
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-xs font-medium">
+                            <XCircle size={12} />
+                            Inactive
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Fichiers */}
+                  <div className="px-4 pb-3 flex items-center gap-2 flex-wrap border-t border-gray-50 pt-3">
+                    <button
+                      onClick={() => { setSelectedId(f.id); setOpenCover(true); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700
+                                 active:bg-blue-100 transition-all text-xs font-medium"
+                    >
+                      <ImageIcon size={13} />
+                      Cover
+                    </button>
+                    <button
+                      onClick={() => { setSelectedId(f.id); setOpenGallery(true); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700
+                                 active:bg-purple-100 transition-all text-xs font-medium"
+                    >
+                      <ImageIcon size={13} />
+                      Galerie
+                    </button>
+                    <button
+                      onClick={() => { setSelectedId(f.id); setOpenPdf(true); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 text-orange-700
+                                 active:bg-orange-100 transition-all text-xs font-medium"
+                    >
+                      <FileText size={13} />
+                      PDF
+                    </button>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-50 bg-gray-50/50">
+                    <button
+                      onClick={() => { setSelectedId(f.id); setOpenDetails(true); }}
+                      className="p-2.5 rounded-xl text-gray-600 hover:text-[#00A4E0] hover:bg-blue-50
+                                 transition-all duration-200 active:scale-95"
+                      title="Voir les détails"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button
+                      onClick={() => { setSelectedId(f.id); setOpenEdit(true); }}
+                      className="p-2.5 rounded-xl text-gray-600 hover:text-green-600 hover:bg-green-50
+                                 transition-all duration-200 active:scale-95"
+                      title="Modifier"
+                    >
+                      <Pencil size={18} />
+                    </button>
+                    {isSuperAdmin && (
+                      <button
+                        onClick={() => { setSelectedId(f.id); setOpenDelete(true); }}
+                        className="p-2.5 rounded-xl text-gray-600 hover:text-red-600 hover:bg-red-50
+                                   transition-all duration-200 active:scale-95"
+                        title="Supprimer"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* ================= GRID VIEW ================= */}
         {viewMode === "grid" && filteredFormations.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
             {filteredFormations.map((f, index) => {
               const cfg = LEVEL_CONFIG[f.level];
               return (
@@ -545,7 +653,7 @@ const FormationsPage = () => {
                   }}
                 >
                   {/* Image Container */}
-                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                  <div className="relative h-40 sm:h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                     <img
                       src={resolveImageUrl(f.coverImageUrl)}
                       alt={f.title}
@@ -554,8 +662,8 @@ const FormationsPage = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                     {/* Floating Badge */}
-                    <div className="absolute top-4 right-4">
-                      <div className={`px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/90 border border-white/20
+                    <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
+                      <div className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full backdrop-blur-xl bg-white/90 border border-white/20
                                       ${cfg.text} font-medium text-xs flex items-center gap-1.5 shadow-lg`}>
                         <GraduationCap size={14} />
                         {cfg.label}
@@ -563,7 +671,7 @@ const FormationsPage = () => {
                     </div>
 
                     {/* Status Badge */}
-                    <div className="absolute top-4 left-4">
+                    <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
                       {f.enabled ? (
                         <div className="px-2 py-1 rounded-full backdrop-blur-xl bg-green-500/90 text-white text-xs font-medium flex items-center gap-1">
                           <CheckCircle size={12} />
@@ -579,12 +687,12 @@ const FormationsPage = () => {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6 space-y-4">
+                  <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#00A4E0] transition-colors line-clamp-2">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-[#00A4E0] transition-colors line-clamp-2">
                         {f.title}
                       </h3>
-                      <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
+                      <p className="text-xs sm:text-sm text-gray-600 mt-2 flex items-center gap-2">
                         <Clock size={14} />
                         Formation initiale
                       </p>
@@ -599,7 +707,7 @@ const FormationsPage = () => {
                         }}
                         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
                                    bg-gradient-to-r from-[#00A4E0] to-[#0077A8] text-white
-                                   hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 font-medium"
+                                   hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 font-medium text-sm sm:text-base"
                       >
                         <Eye size={16} />
                         Voir les détails

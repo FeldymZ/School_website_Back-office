@@ -67,7 +67,8 @@ const FormationsContinuesPage = () => {
         await FormationContinueService.getAll(page, 10)
       setFormations(sortAlpha(data.content)) // ✅ tri A→Z
       setTotalPages(data.totalPages)
-    } catch {
+    } catch (e) {
+      console.error("Erreur chargement formations continues", e)
       setFormations([])
     } finally {
       setLoading(false)
@@ -95,7 +96,8 @@ const FormationsContinuesPage = () => {
       await FormationContinueService.delete(deleteId)
       setDeleteId(null)
       await loadFormations()
-    } catch {
+    } catch (e) {
+      console.error("Erreur suppression formation continue", e)
     } finally {
       setDeleting(false)
     }
@@ -113,7 +115,8 @@ const FormationsContinuesPage = () => {
         )
       )
       setToggleTarget(null)
-    } catch {
+    } catch (e) {
+      console.error("Erreur changement de statut formation continue", e)
     } finally {
       setToggling(false)
     }
@@ -123,18 +126,18 @@ const FormationsContinuesPage = () => {
   if (loading) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-20 text-center">
+        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-10 sm:p-20 text-center">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
           <div className="relative z-10">
-            <div className="w-20 h-20 mx-auto mb-6 relative">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <GraduationCap className="w-10 h-10 text-white animate-bounce" />
+                <GraduationCap className="w-8 h-8 sm:w-10 sm:h-10 text-white animate-bounce" />
               </div>
             </div>
             <div className="inline-flex items-center gap-3 text-[#00A4E0]">
               <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
-              <span className="text-lg font-semibold">Chargement des formations...</span>
+              <span className="text-base sm:text-lg font-semibold">Chargement des formations...</span>
             </div>
             <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
           </div>
@@ -146,26 +149,26 @@ const FormationsContinuesPage = () => {
   /* ================= RENDER ================= */
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
-      <div className="w-full space-y-6 animate-in fade-in duration-500">
+      <div className="w-full space-y-5 sm:space-y-6 animate-in fade-in duration-500">
 
         {/* ===== HEADER ===== */}
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-3xl opacity-5 blur-3xl" />
-          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white shadow-xl">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
+          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-5 sm:p-8 border border-white shadow-xl">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <div className="relative flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50" />
-                  <div className="relative w-14 h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
-                    <GraduationCap className="w-7 h-7 text-white" />
+                  <div className="relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
+                    <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                   </div>
                 </div>
-                <div>
-                  <h1 className="text-2xl font-black bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                <div className="min-w-0">
+                  <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent truncate">
                     Formations Continues
                   </h1>
-                  <p className="text-gray-500 text-sm mt-0.5 flex items-center gap-1.5 flex-wrap">
-                    <Sparkles size={13} className="text-[#00A4E0]" />
+                  <p className="text-gray-500 text-xs sm:text-sm mt-0.5 flex items-center gap-1.5 flex-wrap">
+                    <Sparkles size={13} className="text-[#00A4E0] flex-shrink-0" />
                     {formations.length} formation{formations.length > 1 ? "s" : ""} — page {page + 1} / {totalPages}
                     {/* ✅ Indicateur de tri */}
                     <span className="ml-1 text-[10px] font-bold text-[#00A4E0] bg-[#cfe3ff]/40 px-2 py-0.5 rounded-full border border-[#00A4E0]/20">
@@ -177,12 +180,12 @@ const FormationsContinuesPage = () => {
 
               <button
                 onClick={() => setModal({ type: "create" })}
-                className="group relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden
+                className="group relative w-full lg:w-auto px-6 py-3 rounded-xl font-semibold text-white overflow-hidden
                            hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg shadow-blue-200"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0077A8] to-[#00A4E0] opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="relative flex items-center gap-2">
+                <span className="relative flex items-center justify-center gap-2">
                   <Plus size={18} /> Ajouter
                 </span>
               </button>
@@ -192,18 +195,18 @@ const FormationsContinuesPage = () => {
 
         {/* ===== EMPTY ===== */}
         {formations.length === 0 && (
-          <div className="bg-white rounded-3xl p-16 text-center space-y-4 border border-gray-100 shadow-lg">
-            <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto">
-              <BookOpen className="w-10 h-10 text-gray-400" />
+          <div className="bg-white rounded-3xl p-8 sm:p-16 text-center space-y-4 border border-gray-100 shadow-lg">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto">
+              <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900">Aucune formation</h3>
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900">Aucune formation</h3>
             <p className="text-gray-500 text-sm">Commencez par créer votre première formation continue.</p>
           </div>
         )}
 
-        {/* ===== TABLE ===== */}
+        {/* ===== TABLE — DESKTOP (lg et plus) ===== */}
         {formations.length > 0 && (
-          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
+          <div className="hidden lg:block bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
@@ -354,13 +357,128 @@ const FormationsContinuesPage = () => {
           </div>
         )}
 
+        {/* ===== CARTES — MOBILE/TABLETTE (moins de lg) ===== */}
+        {formations.length > 0 && (
+          <div className="lg:hidden space-y-3">
+            {formations.map((f, index) => (
+              <div
+                key={f.id}
+                className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg"
+                style={{ animation: `fadeIn 0.3s ease-out ${index * 0.04}s both` }}
+              >
+                {/* Ligne principale : image + libellé + statut */}
+                <div className="flex items-start gap-3 p-4">
+                  <div className="relative w-14 h-14 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100">
+                    <img
+                      src={resolveImageUrl(f.coverUrl)}
+                      alt={f.libelle}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <p className="font-bold text-gray-900 text-sm truncate">{f.libelle}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-semibold border ${
+                        f.enabled
+                          ? "bg-green-50 text-green-700 border-green-100"
+                          : "bg-gray-50 text-gray-500 border-gray-200"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${f.enabled ? "bg-green-500" : "bg-gray-400"}`} />
+                        {f.enabled ? "Visible" : "Masquée"}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-lg bg-gray-100 text-gray-600 text-[11px] font-mono font-bold">
+                        #{f.reference}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Détails : catégorie / sous-catégorie / prix */}
+                <div className="px-4 pb-3 grid grid-cols-2 gap-3 text-xs border-t border-gray-50 pt-3">
+                  <div>
+                    <p className="text-gray-400 mb-0.5">Catégorie</p>
+                    <p className="font-medium text-gray-700 truncate">
+                      {getCategorieName(f.sousCategorie?.categorieId) || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 mb-0.5">Sous-catégorie</p>
+                    {f.sousCategorie ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[11px] font-semibold border border-blue-100">
+                        <Tag size={9} />
+                        {f.sousCategorie.libelle}
+                      </span>
+                    ) : (
+                      <p className="text-gray-300">—</p>
+                    )}
+                  </div>
+                </div>
+
+                {f.prix != null && (
+                  <div className="px-4 pb-3 flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-1 font-bold text-gray-900">
+                      <Banknote size={13} className="text-[#00A4E0]" />
+                      {f.prix.toLocaleString()} FCFA
+                    </div>
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${
+                      f.afficherPrix ? "text-green-600" : "text-gray-400"
+                    }`}>
+                      {f.afficherPrix ? <Eye size={11} /> : <EyeOff size={11} />}
+                      {f.afficherPrix ? "Visible" : "Masqué"}
+                    </span>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-1.5 px-4 py-3 border-t border-gray-50 bg-gray-50/50">
+                  <button
+                    onClick={() => setModal({ type: "details", id: f.id })}
+                    className="p-2.5 rounded-xl text-gray-400 hover:text-[#00A4E0] hover:bg-blue-50
+                               transition-all duration-200 active:scale-95"
+                    title="Voir"
+                  >
+                    <Eye size={17} />
+                  </button>
+                  <button
+                    onClick={() => setModal({ type: "edit", id: f.id })}
+                    className="p-2.5 rounded-xl text-gray-400 hover:text-green-600 hover:bg-green-50
+                               transition-all duration-200 active:scale-95"
+                    title="Modifier"
+                  >
+                    <Pencil size={17} />
+                  </button>
+                  <button
+                    onClick={() => setToggleTarget(f)}
+                    title={f.enabled ? "Désactiver" : "Activer"}
+                    className={`p-2.5 rounded-xl transition-all duration-200 active:scale-95 ${
+                      f.enabled
+                        ? "text-gray-400 hover:text-orange-500 hover:bg-orange-50"
+                        : "text-gray-400 hover:text-green-600 hover:bg-green-50"
+                    }`}
+                  >
+                    {f.enabled ? <ToggleRight size={17} /> : <ToggleLeft size={17} />}
+                  </button>
+                  <button
+                    onClick={() => setDeleteId(f.id)}
+                    className="p-2.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50
+                               transition-all duration-200 active:scale-95"
+                    title="Supprimer"
+                  >
+                    <Trash2 size={17} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* ===== PAGINATION ===== */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-sm text-gray-500 order-2 sm:order-1">
               Page <span className="font-bold text-gray-900">{page + 1}</span> sur {totalPages}
             </p>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap justify-center order-1 sm:order-2">
               <button
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
@@ -400,44 +518,44 @@ const FormationsContinuesPage = () => {
 
       {/* ===== MODAL TOGGLE ===== */}
       {toggleTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden
-                         animate-in fade-in slide-in-from-bottom-4 duration-300">
+                         animate-in fade-in slide-in-from-bottom-4 duration-300 max-h-[95vh] overflow-y-auto">
             <div className="relative overflow-hidden">
               <div className={`absolute inset-0 ${toggleTarget.enabled ? "bg-gradient-to-r from-orange-500 to-amber-500" : "bg-gradient-to-r from-green-500 to-emerald-600"}`} />
               <div className="absolute inset-0 opacity-10"
                 style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-              <div className="relative px-6 py-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center ring-1 ring-white/30">
-                    {toggleTarget.enabled ? <ToggleRight size={20} className="text-white" /> : <ToggleLeft size={20} className="text-white" />}
+              <div className="relative px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-xl flex items-center justify-center ring-1 ring-white/30 flex-shrink-0">
+                    {toggleTarget.enabled ? <ToggleRight size={18} className="text-white" /> : <ToggleLeft size={18} className="text-white" />}
                   </div>
-                  <div>
-                    <h2 className="font-bold text-white">
+                  <div className="min-w-0">
+                    <h2 className="font-bold text-white text-sm sm:text-base truncate">
                       {toggleTarget.enabled ? "Désactiver la formation" : "Activer la formation"}
                     </h2>
                     <p className="text-white/60 text-xs mt-0.5">Modification de la visibilité publique</p>
                   </div>
                 </div>
-                <button onClick={() => setToggleTarget(null)} className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all">
+                <button onClick={() => setToggleTarget(null)} className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all flex-shrink-0">
                   <XCircle size={15} />
                 </button>
               </div>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-5 sm:p-6 space-y-4">
               <p className={`text-sm text-gray-600 rounded-xl px-4 py-3 border ${toggleTarget.enabled ? "bg-orange-50 border-orange-100" : "bg-green-50 border-green-100"}`}>
                 {toggleTarget.enabled
                   ? <>La formation <span className="font-bold">"{toggleTarget.libelle}"</span> sera masquée du catalogue public.</>
                   : <>La formation <span className="font-bold">"{toggleTarget.libelle}"</span> sera visible dans le catalogue public.</>
                 }
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button onClick={() => setToggleTarget(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all">
+                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all order-2 sm:order-1">
                   Annuler
                 </button>
                 <button onClick={handleToggleConfirm} disabled={toggling}
-                  className={`flex-1 py-2.5 rounded-xl text-white font-semibold text-sm transition-all
+                  className={`flex-1 py-2.5 rounded-xl text-white font-semibold text-sm transition-all order-1 sm:order-2
                               hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]
                               disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100
                               ${toggleTarget.enabled ? "bg-gradient-to-r from-orange-500 to-amber-500" : "bg-gradient-to-r from-green-500 to-emerald-600"}`}>
@@ -454,41 +572,41 @@ const FormationsContinuesPage = () => {
 
       {/* ===== MODAL DELETE ===== */}
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden
-                         animate-in fade-in slide-in-from-bottom-4 duration-300">
+                         animate-in fade-in slide-in-from-bottom-4 duration-300 max-h-[95vh] overflow-y-auto">
             <div className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-600" />
               <div className="absolute inset-0 opacity-10"
                 style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-              <div className="relative px-6 py-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center ring-1 ring-white/30">
-                    <AlertCircle size={20} className="text-white" />
+              <div className="relative px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-xl flex items-center justify-center ring-1 ring-white/30 flex-shrink-0">
+                    <AlertCircle size={18} className="text-white" />
                   </div>
-                  <div>
-                    <h2 className="font-bold text-white">Confirmer la suppression</h2>
+                  <div className="min-w-0">
+                    <h2 className="font-bold text-white text-sm sm:text-base">Confirmer la suppression</h2>
                     <p className="text-white/60 text-xs mt-0.5">Cette action est irréversible</p>
                   </div>
                 </div>
-                <button onClick={() => setDeleteId(null)} className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all">
+                <button onClick={() => setDeleteId(null)} className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all flex-shrink-0">
                   <XCircle size={15} />
                 </button>
               </div>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-5 sm:p-6 space-y-4">
               <p className="text-sm text-gray-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                 Voulez-vous vraiment supprimer cette formation ? Toutes les données associées seront perdues.
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button onClick={() => setDeleteId(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all">
+                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all order-2 sm:order-1">
                   Annuler
                 </button>
                 <button onClick={handleDelete} disabled={deleting}
                   className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-600
                              text-white font-semibold text-sm hover:shadow-lg hover:scale-[1.02]
-                             active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100">
+                             active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 order-1 sm:order-2">
                   {deleting
                     ? <span className="flex items-center justify-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Suppression...</span>
                     : "Supprimer"

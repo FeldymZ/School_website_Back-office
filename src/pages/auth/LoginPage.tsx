@@ -4,7 +4,8 @@ import axios from "axios";
 import { ShieldCheck } from "lucide-react";
 
 import { login } from "../../services/auth.service";
-import { useUser } from "../../context/UserContext";
+import { useUser } from "@/context/useUser";
+
 
 const LoginPage = () => {
   const navigate = useNavigate();

@@ -33,7 +33,7 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔴 Suppression image
+  // Suppression image
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<number | null>(null);
@@ -58,7 +58,7 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
         const data = await ActualiteService.getDetails(id);
         if (!cancelled) setDetails(data);
       } catch (e) {
-        console.error("❌ Erreur chargement galerie :", e);
+        console.error("Erreur chargement galerie :", e);
         if (!cancelled) onClose();
       }
     };
@@ -101,7 +101,7 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
       setDetails(refreshed);
       onUpdated?.();
     } catch (e) {
-      console.error("❌ Erreur ajout images :", e);
+      console.error("Erreur ajout images :", e);
       alert("Erreur lors de l'ajout des images");
     } finally {
       setLoading(false);
@@ -131,7 +131,7 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
       setDeleteOpen(false);
       setImageToDelete(null);
     } catch (e) {
-      console.error("❌ Erreur suppression image :", e);
+      console.error("Erreur suppression image :", e);
       alert("Suppression refusée");
     } finally {
       setDeleteLoading(false);
@@ -140,12 +140,12 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
 
   if (!details) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-        <div className="relative bg-white rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="relative bg-white rounded-2xl p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-300">
           <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-2xl" />
-          <div className="relative flex items-center gap-4 text-pink-600">
-            <div className="w-8 h-8 border-3 border-pink-600 border-t-transparent rounded-full animate-spin" />
-            <span className="font-semibold text-lg">Chargement de la galerie...</span>
+          <div className="relative flex items-center gap-3 sm:gap-4 text-pink-600">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 border-3 border-pink-600 border-t-transparent rounded-full animate-spin" />
+            <span className="font-semibold text-base sm:text-lg">Chargement de la galerie...</span>
           </div>
         </div>
       </div>
@@ -156,32 +156,32 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
         <div
           className="absolute inset-0 bg-black/70 backdrop-blur-md"
           onClick={onClose}
         />
 
-        <div className="relative bg-white w-full max-w-6xl rounded-3xl shadow-2xl animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto">
+        <div className="relative bg-white w-full max-w-6xl rounded-2xl sm:rounded-3xl shadow-2xl animate-in zoom-in-95 duration-500 max-h-[95vh] overflow-y-auto">
           {/* HEADER */}
           <div className="relative overflow-hidden sticky top-0 z-10">
             <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 opacity-95" />
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30" />
 
-            <div className="relative flex items-center justify-between px-8 py-6">
-              <div className="flex items-center gap-5">
-                <div className="relative group">
+            <div className="relative flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6">
+              <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+                <div className="relative group flex-shrink-0">
                   <div className="absolute inset-0 bg-white rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity animate-pulse" />
-                  <div className="relative w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-2xl border border-white/30 group-hover:scale-110 transition-transform duration-300">
-                    <ImageIcon className="text-white drop-shadow-lg" size={28} />
+                  <div className="relative w-11 h-11 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-2xl border border-white/30 group-hover:scale-110 transition-transform duration-300">
+                    <ImageIcon className="text-white drop-shadow-lg w-5 h-5 sm:w-7 sm:h-7" />
                   </div>
                 </div>
-                <div>
-                  <h2 className="text-3xl font-black text-white flex items-center gap-3 drop-shadow-lg">
+                <div className="min-w-0">
+                  <h2 className="text-base sm:text-3xl font-black text-white flex items-center gap-2 sm:gap-3 drop-shadow-lg truncate">
                     Galerie d'images
-                    <Sparkles size={22} className="text-yellow-300 animate-pulse drop-shadow-lg" />
+                    <Sparkles size={18} className="text-yellow-300 animate-pulse drop-shadow-lg flex-shrink-0 hidden sm:block" />
                   </h2>
-                  <p className="text-sm text-white/90 mt-1 font-medium drop-shadow">
+                  <p className="text-xs sm:text-sm text-white/90 mt-0.5 sm:mt-1 font-medium drop-shadow">
                     {galleryImagesAdmin.length} image{galleryImagesAdmin.length > 1 ? 's' : ''} dans la galerie
                   </p>
                 </div>
@@ -189,30 +189,30 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
 
               <button
                 onClick={onClose}
-                className="p-2.5 hover:bg-white/20 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-110 active:scale-95 group"
+                className="p-2 sm:p-2.5 hover:bg-white/20 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-110 active:scale-95 group flex-shrink-0"
               >
-                <X className="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-300" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:rotate-90 transition-transform duration-300" />
               </button>
             </div>
           </div>
 
           {/* CONTENT */}
-          <div className="p-8 space-y-8 bg-gradient-to-b from-gray-50 to-white">
+          <div className="p-4 sm:p-8 space-y-5 sm:space-y-8 bg-gradient-to-b from-gray-50 to-white">
             {/* Images existantes */}
             {galleryImagesAdmin.length > 0 ? (
               <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-lg">
-                    <ImageIcon size={20} className="text-white" />
+                <div className="flex items-center gap-2.5 sm:gap-3 mb-4 sm:mb-6">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <ImageIcon size={16} className="text-white" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">Images de la galerie</h3>
+                  <h3 className="text-sm sm:text-lg font-bold text-gray-900">Images de la galerie</h3>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
                   {galleryImagesAdmin.map((img, index) => (
                     <div
                       key={img.id}
-                      className="group relative aspect-square rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-pink-500 shadow-lg hover:shadow-2xl transition-all duration-300"
+                      className="group relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-pink-500 shadow-lg hover:shadow-2xl transition-all duration-300"
                       style={{
                         animation: `zoomIn 0.4s ease-out ${index * 0.05}s both`
                       }}
@@ -223,22 +223,22 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
 
-                      {/* Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {/* Overlay — desktop uniquement (hover réel) */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300" />
 
                       {canDelete && (
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-0 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
                           <button
                             onClick={() => openDeleteModal(img.id)}
-                            className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-2xl hover:scale-110 active:scale-95 group/btn"
+                            className="p-2 sm:p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-lg sm:rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-2xl hover:scale-110 active:scale-95 group/btn"
                           >
-                            <Trash2 className="text-white group-hover/btn:scale-110 transition-transform" size={20} />
+                            <Trash2 className="text-white group-hover/btn:scale-110 transition-transform" size={16} />
                           </button>
                         </div>
                       )}
 
                       {/* Numéro de l'image */}
-                      <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-lg">
+                      <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 bg-black/70 backdrop-blur-sm text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg">
                         #{index + 1}
                       </div>
                     </div>
@@ -246,21 +246,21 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
                 </div>
               </div>
             ) : (
-              <div className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 rounded-3xl shadow-xl border-2 border-pink-100 p-16">
+              <div className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 rounded-2xl sm:rounded-3xl shadow-xl border-2 border-pink-100 p-8 sm:p-16">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZWM0ODk5IiBzdHJva2Utb3BhY2l0eT0iMC4wNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
 
                 <div className="relative text-center">
                   <div className="relative inline-block">
                     <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full blur-2xl opacity-30 animate-pulse" />
-                    <div className="relative w-24 h-24 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xl">
-                      <ImageIcon className="w-12 h-12 text-white" />
+                    <div className="relative w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-2xl">
+                      <ImageIcon className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
                     </div>
                   </div>
 
-                  <h3 className="mt-8 text-2xl font-bold text-gray-900">
+                  <h3 className="mt-5 sm:mt-8 text-lg sm:text-2xl font-bold text-gray-900">
                     Aucune image dans la galerie
                   </h3>
-                  <p className="mt-3 text-gray-600 max-w-md mx-auto">
+                  <p className="mt-2 sm:mt-3 text-gray-600 max-w-md mx-auto text-sm sm:text-base">
                     Commencez par ajouter des images à votre galerie en utilisant le formulaire ci-dessous
                   </p>
                 </div>
@@ -269,13 +269,13 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
 
             {/* Preview des images à uploader */}
             {previews.length > 0 && (
-              <div className="space-y-4 animate-in slide-in-from-bottom duration-500">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg animate-pulse">
-                      <Plus size={20} className="text-white" />
+              <div className="space-y-3 sm:space-y-4 animate-in slide-in-from-bottom duration-500">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg animate-pulse flex-shrink-0">
+                      <Plus size={16} className="text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">
+                    <h3 className="text-sm sm:text-lg font-bold text-gray-900 truncate">
                       {previews.length} nouvelle{previews.length > 1 ? 's' : ''} image{previews.length > 1 ? 's' : ''}
                     </h3>
                   </div>
@@ -285,18 +285,18 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
                       setFiles([]);
                       setPreviews([]);
                     }}
-                    className="text-sm text-red-600 hover:text-red-700 font-semibold flex items-center gap-2 hover:scale-105 transition-all"
+                    className="text-xs sm:text-sm text-red-600 hover:text-red-700 font-semibold flex items-center gap-1.5 sm:gap-2 hover:scale-105 transition-all flex-shrink-0"
                   >
-                    <X size={16} />
+                    <X size={14} />
                     Annuler
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
                   {previews.map((preview, index) => (
                     <div
                       key={index}
-                      className="relative aspect-square rounded-2xl overflow-hidden border-3 border-green-500 shadow-2xl shadow-green-500/30"
+                      className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-3 border-green-500 shadow-2xl shadow-green-500/30"
                       style={{
                         animation: `zoomIn 0.3s ease-out ${index * 0.05}s both`
                       }}
@@ -307,8 +307,8 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20" />
-                      <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-lg flex items-center gap-1">
-                        <Plus size={12} />
+                      <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 bg-green-500 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg flex items-center gap-1">
+                        <Plus size={10} />
                         Nouveau
                       </div>
                     </div>
@@ -318,12 +318,12 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
             )}
 
             {/* UPLOAD ZONE */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-lg">
-                  <Upload size={20} className="text-white" />
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Upload size={16} className="text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Ajouter des images</h3>
+                <h3 className="text-sm sm:text-lg font-bold text-gray-900">Ajouter des images</h3>
               </div>
 
               <label className="group relative block cursor-pointer">
@@ -334,27 +334,27 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
                   onChange={handleFileChange}
                   className="sr-only"
                 />
-                <div className="relative overflow-hidden border-3 border-dashed border-pink-500/40 rounded-2xl p-16 text-center bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-indigo-50/20 hover:border-pink-500 hover:from-pink-50 hover:via-purple-50 hover:to-indigo-50 transition-all duration-500 group-hover:scale-[1.01]">
+                <div className="relative overflow-hidden border-2 sm:border-3 border-dashed border-pink-500/40 rounded-xl sm:rounded-2xl p-6 sm:p-16 text-center bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-indigo-50/20 hover:border-pink-500 hover:from-pink-50 hover:via-purple-50 hover:to-indigo-50 transition-all duration-500 group-hover:scale-[1.01]">
                   <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.1),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   <div className="relative">
-                    <div className="w-20 h-20 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-pink-500/40 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                      <ImagePlus className="w-10 h-10 text-white animate-bounce" />
+                    <div className="w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-2xl shadow-pink-500/40 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                      <ImagePlus className="w-7 h-7 sm:w-10 sm:h-10 text-white animate-bounce" />
                     </div>
-                    <p className="text-xl font-bold text-gray-900 mb-2">
+                    <p className="text-base sm:text-xl font-bold text-gray-900 mb-1.5 sm:mb-2">
                       Cliquez pour sélectionner des images
                     </p>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-3">
                       Ou glissez-déposez vos fichiers ici
                     </p>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-lg border border-gray-200">
+                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white rounded-full shadow-lg border border-gray-200 flex-wrap justify-center">
                       <div className="flex gap-1">
-                        <span className="px-2 py-0.5 bg-pink-100 text-pink-700 rounded text-xs font-semibold">PNG</span>
-                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-semibold">JPG</span>
-                        <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs font-semibold">WEBP</span>
+                        <span className="px-1.5 sm:px-2 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] sm:text-xs font-semibold">PNG</span>
+                        <span className="px-1.5 sm:px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] sm:text-xs font-semibold">JPG</span>
+                        <span className="px-1.5 sm:px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] sm:text-xs font-semibold">WEBP</span>
                       </div>
-                      <span className="text-xs text-gray-500">jusqu'à 10MB chacune</span>
+                      <span className="text-[10px] sm:text-xs text-gray-500">jusqu'à 10MB chacune</span>
                     </div>
                   </div>
                 </div>
@@ -364,12 +364,12 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
                 <button
                   onClick={handleAdd}
                   disabled={loading}
-                  className="w-full px-8 py-5 rounded-xl font-bold text-white text-lg
+                  className="w-full px-6 sm:px-8 py-3.5 sm:py-5 rounded-xl font-bold text-white text-sm sm:text-lg
                              bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600
                              hover:from-pink-700 hover:via-purple-700 hover:to-indigo-700
                              hover:shadow-2xl hover:shadow-pink-500/50 hover:scale-[1.02] active:scale-95
                              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-                             transition-all duration-300 flex items-center justify-center gap-3
+                             transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3
                              shadow-xl shadow-pink-500/30
                              relative overflow-hidden group/add"
                 >
@@ -378,13 +378,13 @@ const ActualiteImagesModal = ({ id, onClose, onUpdated }: Props) => {
 
                   {loading ? (
                     <>
-                      <Loader size={22} className="animate-spin" />
+                      <Loader size={20} className="animate-spin" />
                       <span className="relative">Ajout en cours...</span>
                     </>
                   ) : (
                     <>
-                      <Plus size={22} className="group-hover/add:scale-110 transition-transform" />
-                      <span className="relative">Ajouter {files.length} image{files.length > 1 ? 's' : ''} à la galerie</span>
+                      <Plus size={20} className="group-hover/add:scale-110 transition-transform" />
+                      <span className="relative">Ajouter {files.length} image{files.length > 1 ? 's' : ''}</span>
                     </>
                   )}
                 </button>

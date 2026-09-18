@@ -7,53 +7,55 @@ interface Props {
   onView: (id: number) => void;
 }
 
+/**
+ * Desktop/tablet table row (rendered from `sm` breakpoint up).
+ * Column visibility here must mirror the <th> visibility in ContactTable:
+ * Email is lg+ only, Date is md+ only.
+ */
 export default function ContactRow({ message, index, onView }: Props) {
   return (
     <tr className="bg-white transition-all hover:bg-gray-50">
       {/* Nom */}
-      <td className="px-6 py-5">
-        <div
-          style={{
-            animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
-          }}
-        >
+      <td className="px-4 lg:px-6 py-4 lg:py-5">
+        <div style={{ animation: `slideIn 0.5s ease-out ${index * 0.1}s both` }}>
           <p className="font-bold text-gray-900">{message.senderName}</p>
+          {/* Email shown here on tablets (sm–lg) where the dedicated column is hidden */}
+          <p className="lg:hidden text-xs text-gray-500 mt-0.5 truncate max-w-[180px]">
+            {message.senderEmail}
+          </p>
         </div>
       </td>
 
-      {/* Email */}
-      <td className="px-6 py-5">
-        <div
-          style={{
-            animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.1}s both`
-          }}
-        >
+      {/* Email (lg and up only) */}
+      <td className="hidden lg:table-cell px-6 py-5">
+        <div style={{ animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.1}s both` }}>
           <p className="text-gray-600">{message.senderEmail}</p>
         </div>
       </td>
 
       {/* Message */}
-      <td className="px-6 py-5">
-        <div
-          style={{
-            animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.2}s both`
-          }}
-        >
-          <p className="text-gray-700 line-clamp-2">
+      <td className="px-4 lg:px-6 py-4 lg:py-5">
+        <div style={{ animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.2}s both` }}>
+          <p className="text-gray-700 line-clamp-2 max-w-xs lg:max-w-sm">
             {message.message.length > 60
               ? message.message.slice(0, 60) + "…"
               : message.message}
           </p>
+          {/* Date shown here on small/medium screens where the dedicated column is hidden */}
+          <p className="md:hidden text-xs text-[#A6A6A6] mt-1.5">
+            {new Date(message.sentAt).toLocaleDateString('fr-FR', {
+              day: '2-digit',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </p>
         </div>
       </td>
 
-      {/* Date */}
-      <td className="px-6 py-5">
-        <div
-          style={{
-            animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.3}s both`
-          }}
-        >
+      {/* Date (md and up only) */}
+      <td className="hidden md:table-cell px-6 py-5">
+        <div style={{ animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.3}s both` }}>
           <p className="text-sm text-[#A6A6A6]">
             {new Date(message.sentAt).toLocaleDateString('fr-FR', {
               day: '2-digit',
@@ -67,14 +69,10 @@ export default function ContactRow({ message, index, onView }: Props) {
       </td>
 
       {/* Statut */}
-      <td className="px-6 py-5 text-center">
-        <div
-          style={{
-            animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.4}s both`
-          }}
-        >
+      <td className="px-4 lg:px-6 py-4 lg:py-5 text-center">
+        <div style={{ animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.4}s both` }}>
           <span
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm shadow-sm ${
+            className={`inline-flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-xl font-semibold text-xs lg:text-sm shadow-sm whitespace-nowrap ${
               message.replied
                 ? "bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 text-green-700"
                 : "bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 text-red-700"
@@ -82,11 +80,15 @@ export default function ContactRow({ message, index, onView }: Props) {
           >
             {message.replied ? (
               <>
-                <CheckCircle size={16} /> Répondu
+                <CheckCircle size={14} className="lg:hidden" />
+                <CheckCircle size={16} className="hidden lg:block" />
+                <span className="hidden sm:inline">Répondu</span>
               </>
             ) : (
               <>
-                <XCircle size={16} /> Non répondu
+                <XCircle size={14} className="lg:hidden" />
+                <XCircle size={16} className="hidden lg:block" />
+                <span className="hidden sm:inline">Non répondu</span>
               </>
             )}
           </span>
@@ -94,12 +96,8 @@ export default function ContactRow({ message, index, onView }: Props) {
       </td>
 
       {/* Actions */}
-      <td className="px-6 py-5 text-right">
-        <div
-          style={{
-            animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.5}s both`
-          }}
-        >
+      <td className="px-4 lg:px-6 py-4 lg:py-5 text-right">
+        <div style={{ animation: `slideIn 0.5s ease-out ${index * 0.1 + 0.5}s both` }}>
           <button
             onClick={() => onView(message.id)}
             className="group relative inline-flex items-center gap-2 p-2.5 rounded-xl border-2 border-[#cfe3ff] bg-[#cfe3ff]/30 text-[#00A4E0] hover:bg-[#cfe3ff]/60 hover:scale-110 active:scale-95 transition-all shadow-sm hover:shadow-lg"

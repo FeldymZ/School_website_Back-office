@@ -85,7 +85,7 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -93,28 +93,28 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
       />
 
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-4xl rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white w-full max-w-4xl rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] opacity-10" />
-          <div className="relative flex items-center justify-between px-8 py-6 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl flex items-center justify-center shadow-lg">
-                <GraduationCap className="w-6 h-6 text-white" />
+          <div className="relative flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-100">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
                   Nouvelle Formation
                 </h2>
-                <p className="text-sm text-gray-500 flex items-center gap-1">
-                  <Sparkles size={12} className="text-[#00A4E0]" />
-                  Créez une formation exceptionnelle
+                <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1">
+                  <Sparkles size={12} className="text-[#00A4E0] flex-shrink-0" />
+                  <span className="truncate">Créez une formation exceptionnelle</span>
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
@@ -122,7 +122,7 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
         </div>
 
         {/* Form */}
-        <div className="p-8 space-y-6">
+        <div className="p-4 sm:p-8 space-y-5 sm:space-y-6">
           {/* Nom */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700">
@@ -134,7 +134,7 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
               placeholder="Ex: Master en Intelligence Artificielle"
               className="w-full border border-gray-200 rounded-xl px-4 py-3
                          focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
-                         transition-all hover:border-gray-300"
+                         transition-all hover:border-gray-300 text-sm sm:text-base"
             />
           </div>
 
@@ -150,7 +150,7 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
                 onChange={(e) => setLevel(e.target.value as FormationLevel)}
                 className="w-full border border-gray-200 rounded-xl pl-12 pr-4 py-3
                            focus:outline-none focus:ring-2 focus:ring-[#00A4E0] focus:border-transparent
-                           transition-all hover:border-gray-300 appearance-none cursor-pointer"
+                           transition-all hover:border-gray-300 appearance-none cursor-pointer text-sm sm:text-base"
               >
                 <option value={FormationLevel.LICENCE}>Licence</option>
                 <option value={FormationLevel.MASTER}>Master</option>
@@ -182,21 +182,21 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
                 <img
                   src={coverPreview}
                   alt="Preview"
-                  className="w-full h-56 object-cover rounded-xl border-2 border-gray-200"
+                  className="w-full h-44 sm:h-56 object-cover rounded-xl border-2 border-gray-200"
                 />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-3">
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity rounded-xl flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 p-3">
                   <button
                     type="button"
                     onClick={() => {
                       setCover(null);
                       setCoverPreview(null);
                     }}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+                    className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 opacity-100"
                   >
                     <X size={16} />
                     Supprimer
                   </button>
-                  <label className="px-4 py-2 bg-[#00A4E0] text-white rounded-lg hover:bg-[#008cc0] transition-colors cursor-pointer flex items-center gap-2">
+                  <label className="w-full sm:w-auto px-4 py-2 bg-[#00A4E0] text-white rounded-lg hover:bg-[#008cc0] transition-colors cursor-pointer flex items-center justify-center gap-2 opacity-100">
                     <Upload size={16} />
                     Changer
                     <input
@@ -210,16 +210,16 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
               </div>
             ) : (
               <label className="block cursor-pointer">
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 hover:border-[#00A4E0] hover:bg-blue-50/50 transition-all">
-                  <div className="flex flex-col items-center gap-4 text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
-                      <ImageIcon className="w-10 h-10 text-white" />
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-12 hover:border-[#00A4E0] hover:bg-blue-50/50 transition-all">
+                  <div className="flex flex-col items-center gap-3 sm:gap-4 text-center">
+                    <div className="w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
+                      <ImageIcon className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-gray-900">
+                      <p className="text-sm sm:text-lg font-semibold text-gray-900">
                         Cliquez pour sélectionner une image
                       </p>
-                      <p className="text-sm text-gray-500 mt-2">
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
                         PNG, JPG ou WEBP (max. 5MB)
                       </p>
                     </div>
@@ -235,7 +235,7 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
             )}
           </div>
 
-          {/* ✅ NOUVEAU : Section PDF */}
+          {/* ✅ Section PDF */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700">
               Document PDF (optionnel)
@@ -243,35 +243,35 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
 
             {pdf ? (
               <div className="flex items-center gap-3 p-4 bg-orange-50 border-2 border-orange-200 rounded-xl">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <FileText className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900">{pdf.name}</p>
-                  <p className="text-sm text-gray-600">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">{pdf.name}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">
                     {(pdf.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setPdf(null)}
-                  className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex-shrink-0"
                 >
                   <X size={16} />
                 </button>
               </div>
             ) : (
               <label className="block cursor-pointer">
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 hover:border-orange-500 hover:bg-orange-50/50 transition-all">
-                  <div className="flex flex-col items-center gap-3 text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <FileText className="w-8 h-8 text-white" />
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-5 sm:p-8 hover:border-orange-500 hover:bg-orange-50/50 transition-all">
+                  <div className="flex flex-col items-center gap-2 sm:gap-3 text-center">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-gray-900 text-sm sm:text-base">
                         Ajouter un document PDF
                       </p>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">
                         Cliquez pour sélectionner un fichier
                       </p>
                     </div>
@@ -288,12 +288,12 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-6 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100">
             <button
               type="button"
               onClick={onClose}
               className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 font-medium text-gray-700
-                         hover:bg-gray-50 hover:border-gray-300 transition-all"
+                         hover:bg-gray-50 hover:border-gray-300 transition-all order-2 sm:order-1"
             >
               Annuler
             </button>
@@ -304,7 +304,7 @@ const FormationCreateModal = ({ open, onClose, onSuccess }: Props) => {
                          bg-gradient-to-r from-[#00A4E0] to-[#0077A8]
                          hover:shadow-lg hover:scale-105 active:scale-95
                          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-                         transition-all duration-200 flex items-center justify-center gap-2"
+                         transition-all duration-200 flex items-center justify-center gap-2 order-1 sm:order-2"
             >
               {loading ? (
                 <>

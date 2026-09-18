@@ -48,28 +48,28 @@ const FormationEditModal = ({ formationId, open, onClose, onSuccess }: Props) =>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <div className="relative bg-white w-full max-w-4xl rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white w-full max-w-4xl rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-10" />
-          <div className="relative flex items-center justify-between px-8 py-6 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                <GraduationCap className="w-6 h-6 text-white" />
+          <div className="relative flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-100">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
                 Modifier la formation
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
@@ -77,7 +77,7 @@ const FormationEditModal = ({ formationId, open, onClose, onSuccess }: Props) =>
         </div>
 
         {/* Form */}
-        <div className="p-8 space-y-6">
+        <div className="p-4 sm:p-8 space-y-5 sm:space-y-6">
           <input
             value={formation.title.replace(`${formation.level} `, "")}
             onChange={(e) =>
@@ -86,7 +86,7 @@ const FormationEditModal = ({ formationId, open, onClose, onSuccess }: Props) =>
                 title: `${formation.level} ${e.target.value}`,
               })
             }
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500"
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
           />
 
           <select
@@ -97,7 +97,7 @@ const FormationEditModal = ({ formationId, open, onClose, onSuccess }: Props) =>
                 level: e.target.value as FormationLevel,
               })
             }
-            className="w-full border border-gray-200 rounded-xl px-4 py-3"
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm sm:text-base"
           >
             <option value={FormationLevel.LICENCE}>Licence</option>
             <option value={FormationLevel.MASTER}>Master</option>
@@ -113,10 +113,10 @@ const FormationEditModal = ({ formationId, open, onClose, onSuccess }: Props) =>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium"
+            className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium flex items-center justify-center gap-2"
           >
             {loading ? (
-              <Loader className="animate-spin mx-auto" />
+              <Loader className="animate-spin" />
             ) : (
               <>
                 <Save size={18} /> Enregistrer

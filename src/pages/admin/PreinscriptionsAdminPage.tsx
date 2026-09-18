@@ -18,8 +18,6 @@ import {
 
 import { PreinscriptionService } from "@/services/preinscription.service";
 import { PreinscriptionDemande, StatutDemande } from "@/types/preinscription";
-import { getUserFromToken } from "@/utils/auth";
-import { UserRole } from "@/types/user";
 
 import PreinscriptionDetailsModal from "@/components/preinscriptions/PreinscriptionDetailsModal";
 import ConfirmActionModal from "@/components/common/ConfirmActionModal";
@@ -81,9 +79,6 @@ const PreinscriptionsAdminPage = () => {
   const [openValidate,  setOpenValidate]  = useState(false);
   const [openReject,    setOpenReject]    = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-
-  const user         = getUserFromToken();
-  const isSuperAdmin = user?.role === UserRole.SUPERADMIN;
 
   /* ✅ Download PDF — via API_CONFIG */
   const downloadPdfSecure = async (
@@ -322,9 +317,9 @@ const PreinscriptionsAdminPage = () => {
         </div>
       )}
 
-      {/* Table */}
+      {/* ===== DESKTOP : TABLEAU (lg et plus) ===== */}
       {filtered.length > 0 && (
-        <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
+        <div className="hidden lg:block bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
@@ -433,6 +428,100 @@ const PreinscriptionsAdminPage = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* ===== MOBILE / TABLETTE : CARTES (moins de lg) ===== */}
+      {filtered.length > 0 && (
+        <div className="lg:hidden space-y-3">
+          {filtered.map((d, index) => (
+            <div
+              key={d.id}
+              className="bg-white rounded-2xl border border-gray-100 shadow-lg p-4 space-y-3"
+              style={{ animation: `fadeIn 0.3s ease-out ${index * 0.04}s both` }}
+            >
+              {/* Ligne 1 : avatar + nom + statut */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00A4E0] to-[#0077A8] flex items-center justify-center shadow-sm flex-shrink-0">
+                    <span className="text-white text-sm font-bold">{d.nom.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 text-sm truncate">{d.nom} {d.prenom}</p>
+                    <p className="text-xs text-gray-500 truncate">{d.email}</p>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <StatutBadge statut={d.statut} />
+                </div>
+              </div>
+
+              {/* Ligne 2 : formation + dates */}
+              <div className="grid grid-cols-2 gap-3 text-sm pt-2 border-t border-gray-50">
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Formation</p>
+                  <p className="font-medium text-gray-700 truncate">{d.formation}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Date de demande</p>
+                  <p className="font-medium text-gray-700">{formatDate(d.createdAt)}</p>
+                </div>
+              </div>
+
+              {d.statut === "VALIDEE" && d.validatedAt && (
+                <div className="flex items-center gap-1.5 text-sm text-green-700 font-medium">
+                  <CalendarCheck size={14} className="text-green-500" />
+                  Validée le {formatDate(d.validatedAt)}
+                </div>
+              )}
+              {d.statut === "REJETEE" && d.rejectedAt && (
+                <div className="flex items-center gap-1.5 text-sm text-red-700 font-medium">
+                  <CalendarX size={14} className="text-red-500" />
+                  Rejetée le {formatDate(d.rejectedAt)}
+                </div>
+              )}
+
+              {/* Ligne 3 : actions */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-50">
+                <button
+                  onClick={() => { setSelectedId(d.id); setOpenDetails(true); }}
+                  className="p-2 rounded-xl text-gray-500 hover:text-[#00A4E0] hover:bg-blue-50
+                             transition-all duration-200 active:scale-95"
+                  title="Voir les détails">
+                  <Eye size={16} />
+                </button>
+
+                {d.statut === "EN_ATTENTE" && (
+                  <>
+                    <button
+                      onClick={() => { setSelectedId(d.id); setOpenValidate(true); }}
+                      className="p-2 rounded-xl text-gray-500 hover:text-green-600 hover:bg-green-50
+                                 transition-all duration-200 active:scale-95"
+                      title="Valider">
+                      <CheckCircle size={16} />
+                    </button>
+                    <button
+                      onClick={() => { setSelectedId(d.id); setOpenReject(true); }}
+                      className="p-2 rounded-xl text-gray-500 hover:text-red-600 hover:bg-red-50
+                                 transition-all duration-200 active:scale-95"
+                      title="Rejeter">
+                      <XCircle size={16} />
+                    </button>
+                  </>
+                )}
+
+                {d.statut === "VALIDEE" && d.pdfUrl && (
+                  <button
+                    onClick={() => downloadPdfSecure(d.id, d.nom, d.prenom)}
+                    className="p-2 rounded-xl text-gray-500 hover:text-purple-600 hover:bg-purple-50
+                               transition-all duration-200 active:scale-95"
+                    title="Télécharger PDF">
+                    <FileText size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

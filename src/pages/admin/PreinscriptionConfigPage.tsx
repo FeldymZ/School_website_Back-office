@@ -17,7 +17,9 @@ import {
   ChevronDown,
   ImagePlus,
   CheckCircle2,
+  LucideIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
 
 import {
   SessionUniversitaire,
@@ -35,19 +37,24 @@ type EditableEmetteur = PreinscriptionEmetteur & { _newSignature?: File | null }
 /* =====================================================
    SECTION HEADER
 ===================================================== */
-function SectionHeader({ icon: Icon, title, color, count }: {
-  icon: any; title: string; color: string; count: number;
-}) {
+interface SectionHeaderProps {
+  icon: LucideIcon;
+  title: string;
+  color: string;
+  count: number;
+}
+
+function SectionHeader({ icon: Icon, title, color, count }: SectionHeaderProps) {
   return (
     <div className="flex items-center gap-3">
-      <div className="relative">
+      <div className="relative flex-shrink-0">
         <div className={`absolute inset-0 bg-gradient-to-br ${color} rounded-xl blur-md opacity-40`} />
-        <div className={`relative w-10 h-10 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-md`}>
-          <Icon size={17} className="text-white" />
+        <div className={`relative w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-md`}>
+          <Icon size={16} className="text-white" />
         </div>
       </div>
-      <div>
-        <h2 className="font-bold text-gray-900 text-lg">{title}</h2>
+      <div className="min-w-0">
+        <h2 className="font-bold text-gray-900 text-base sm:text-lg truncate">{title}</h2>
         <p className="text-xs text-gray-400">{count} élément{count > 1 ? "s" : ""}</p>
       </div>
     </div>
@@ -138,18 +145,18 @@ const PreinscriptionConfigPage = () => {
   if (loading) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-20 text-center">
+        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-10 sm:p-20 text-center">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
           <div className="relative z-10">
-            <div className="w-20 h-20 mx-auto mb-6 relative">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Settings className="w-10 h-10 text-white animate-bounce" />
+                <Settings className="w-8 h-8 sm:w-10 sm:h-10 text-white animate-bounce" />
               </div>
             </div>
             <div className="inline-flex items-center gap-3 text-[#00A4E0]">
               <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
-              <span className="text-lg font-semibold">Chargement de la configuration...</span>
+              <span className="text-base sm:text-lg font-semibold">Chargement de la configuration...</span>
             </div>
             <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
           </div>
@@ -162,7 +169,7 @@ const PreinscriptionConfigPage = () => {
   if (loadError) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <div className="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-red-100 p-10 text-center max-w-md mx-auto space-y-4">
+        <div className="relative overflow-hidden bg-white rounded-2xl shadow-xl border border-red-100 p-8 sm:p-10 text-center max-w-md mx-auto space-y-4">
           <div className="absolute top-0 right-0 w-64 h-64 bg-red-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="relative z-10 space-y-4">
             <div className="w-16 h-16 mx-auto rounded-2xl bg-red-50 border-2 border-red-100 flex items-center justify-center">
@@ -183,26 +190,26 @@ const PreinscriptionConfigPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6 space-y-8 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6 space-y-6 sm:space-y-8 animate-in fade-in duration-500">
 
       {/* ── HEADER ── */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-3xl opacity-5 blur-3xl" />
-        <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white shadow-xl">
+        <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-5 sm:p-8 border border-white shadow-xl">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-3 sm:gap-4">
               <div className="relative group shrink-0">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                <div className="relative w-14 h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
-                  <Settings className="w-7 h-7 text-white" />
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
+                  <Settings className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                   Configuration Préinscriptions
                 </h1>
-                <p className="text-gray-500 text-sm mt-1 flex flex-wrap items-center gap-1.5">
-                  <Sparkles size={13} className="text-[#00A4E0]" />
+                <p className="text-gray-500 text-xs sm:text-sm mt-1 flex flex-wrap items-center gap-1.5">
+                  <Sparkles size={13} className="text-[#00A4E0] flex-shrink-0" />
                   {sessions.length} année{sessions.length > 1 ? "s" : ""} universitaire{sessions.length > 1 ? "s" : ""} ·{" "}
                   {periodes.length} période{periodes.length > 1 ? "s" : ""} ·{" "}
                   {emetteurs.length} émetteur{emetteurs.length > 1 ? "s" : ""}
@@ -212,7 +219,7 @@ const PreinscriptionConfigPage = () => {
             <button onClick={load}
               className="group inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm
                          border border-gray-200 bg-white hover:border-[#00A4E0] hover:text-[#00A4E0]
-                         hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm">
+                         hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm w-full lg:w-auto">
               <RefreshCw size={15} className="group-hover:rotate-180 transition-transform duration-500" />
               Rafraîchir
             </button>
@@ -231,26 +238,26 @@ const PreinscriptionConfigPage = () => {
           const isActive = activeTab === tab.key;
           return (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className={`group flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              className={`group flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
                 isActive ? "bg-gradient-to-r " + tab.color + " text-white shadow-md" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
               }`}>
-              <Icon size={16} className={isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"} />
-              <span>{tab.label}</span>
+              <Icon size={16} className={isActive ? "text-white flex-shrink-0" : "text-gray-400 group-hover:text-gray-600 flex-shrink-0"} />
+              <span className="truncate">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
       {/* ── CONTENT ── */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white shadow-lg p-6 animate-in fade-in duration-300">
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white shadow-lg p-4 sm:p-6 animate-in fade-in duration-300">
 
         {/* ANNÉES UNIVERSITAIRES */}
         {activeTab === "sessions" && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <SectionHeader icon={Calendar} title="Années universitaires" color="from-[#00A4E0] to-[#0077A8]" count={sessions.length} />
               <button onClick={() => { resetModalState(); setOpenCreateSession(true); }}
-                className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-blue-200">
+                className="group relative inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-blue-200 w-full sm:w-auto">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8]" />
                 <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
               </button>
@@ -261,19 +268,19 @@ const PreinscriptionConfigPage = () => {
               )}
               {sessions.map((s, i) => (
                 <div key={s.id}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-white border border-blue-100 hover:shadow-md transition-all duration-200 group"
+                  className="flex items-center justify-between gap-3 px-3 sm:px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-white border border-blue-100 hover:shadow-md transition-all duration-200 group"
                   style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[#00A4E0]" />
-                    <span className="font-semibold text-gray-800 text-sm">{s.annee}</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-2 h-2 rounded-full bg-[#00A4E0] flex-shrink-0" />
+                    <span className="font-semibold text-gray-800 text-sm truncate">{s.annee}</span>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 flex-shrink-0">
                     <button onClick={() => { resetModalState(); setEditSession(s); }}
-                      className="p-2 rounded-lg text-gray-400 hover:text-[#00A4E0] hover:bg-blue-50 transition-all hover:scale-110">
+                      className="p-2 rounded-lg text-gray-400 hover:text-[#00A4E0] hover:bg-blue-50 transition-all active:scale-95">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => setDeleteSession(s.id)}
-                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110">
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all active:scale-95">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -286,10 +293,10 @@ const PreinscriptionConfigPage = () => {
         {/* PÉRIODES DE DEMANDES */}
         {activeTab === "periodes" && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <SectionHeader icon={Clock} title="Périodes de demandes" color="from-purple-500 to-indigo-600" count={periodes.length} />
               <button onClick={() => { resetModalState(); setOpenCreatePeriode(true); }}
-                className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-purple-200">
+                className="group relative inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-purple-200 w-full sm:w-auto">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600" />
                 <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
               </button>
@@ -300,39 +307,39 @@ const PreinscriptionConfigPage = () => {
               )}
               {periodes.map((p, i) => (
                 <div key={p.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-4 rounded-xl bg-gradient-to-r from-purple-50/50 to-white border border-purple-100 hover:shadow-md transition-all duration-200 group"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-purple-50/50 to-white border border-purple-100 hover:shadow-md transition-all duration-200 group"
                   style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 mt-2 rounded-full bg-purple-400" />
-                    <div className="flex flex-col">
-                      <span className="text-sm text-gray-700 font-medium break-all">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="w-2 h-2 mt-2 rounded-full bg-purple-400 flex-shrink-0" />
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs sm:text-sm text-gray-700 font-medium break-words">
                         {new Date(p.dateDebut).toLocaleString("fr-FR")} → {new Date(p.dateFin).toLocaleString("fr-FR")}
                       </span>
                       <span className={`text-xs font-semibold mt-1 flex items-center gap-1 ${p.active ? "text-green-500" : "text-gray-400"}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${p.active ? "bg-green-400 animate-pulse" : "bg-gray-300"}`} />
+                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${p.active ? "bg-green-400 animate-pulse" : "bg-gray-300"}`} />
                         {p.active ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 flex-shrink-0 self-end sm:self-auto">
                     {!p.active && (
                       <button onClick={async () => { await PreinscriptionService.activatePeriode(p.id); await load(); }}
-                        className="p-2 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-all hover:scale-110" title="Activer">
+                        className="p-2 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-all active:scale-95" title="Activer">
                         <CheckCircle2 size={14} />
                       </button>
                     )}
                     {p.active && (
                       <button onClick={async () => { await PreinscriptionService.deactivatePeriode(p.id); await load(); }}
-                        className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all hover:scale-110" title="Désactiver">
+                        className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all active:scale-95" title="Désactiver">
                         <X size={14} />
                       </button>
                     )}
                     <button onClick={() => { resetModalState(); setEditPeriode(p); }}
-                      className="p-2 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all hover:scale-110">
+                      className="p-2 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all active:scale-95">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => setDeletePeriode(p.id)}
-                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110">
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all active:scale-95">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -345,10 +352,10 @@ const PreinscriptionConfigPage = () => {
         {/* ÉMETTEURS */}
         {activeTab === "emetteurs" && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <SectionHeader icon={UserCheck} title="Émetteurs" color="from-orange-400 to-amber-500" count={emetteurs.length} />
               <button onClick={() => { resetModalState(); setOpenCreateEmetteur(true); }}
-                className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-orange-200">
+                className="group relative inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm overflow-hidden hover:scale-105 active:scale-95 transition-all shadow-md shadow-orange-200 w-full sm:w-auto">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-500" />
                 <span className="relative flex items-center gap-1.5"><Plus size={14} /> Ajouter</span>
               </button>
@@ -359,29 +366,31 @@ const PreinscriptionConfigPage = () => {
               )}
               {emetteurs.map((e, i) => (
                 <div key={e.id}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-orange-50/50 to-white border border-orange-100 hover:shadow-md transition-all duration-200 group"
+                  className="flex items-center justify-between gap-3 px-3 sm:px-4 py-3 rounded-xl bg-gradient-to-r from-orange-50/50 to-white border border-orange-100 hover:shadow-md transition-all duration-200 group"
                   style={{ animation: `fadeIn 0.2s ease-out ${i * 0.04}s both` }}>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-xs font-bold">{e.nom.charAt(0).toUpperCase()}</span>
                     </div>
-                    <div>
-                      <p className="font-semibold text-gray-800 text-sm">{e.nom}</p>
-                      <p className="text-xs text-gray-500">{e.fonction}</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-semibold text-gray-800 text-sm truncate">{e.nom}</p>
+                        {e.actif && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-green-50 border border-green-200 text-green-600 text-[9px] font-bold uppercase tracking-wide flex-shrink-0">
+                            Actif
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 truncate">{e.fonction}</p>
                     </div>
-                    {e.actif && (
-                      <span className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 border border-green-200 text-green-600 text-[10px] font-bold uppercase tracking-wide">
-                        Actif
-                      </span>
-                    )}
                   </div>
-                  <div className="flex gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 flex-shrink-0">
                     <button onClick={() => { resetModalState(); setEditEmetteur(e); }}
-                      className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all hover:scale-110">
+                      className="p-2 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-all active:scale-95">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => setDeleteEmetteur(e.id)}
-                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all hover:scale-110">
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all active:scale-95">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -730,29 +739,38 @@ export default PreinscriptionConfigPage;
 /* =====================================================
    MODAL
 ===================================================== */
-function Modal({ title, color, icon, children, onClose, error }: any) {
+interface ModalProps {
+  title: string;
+  color: string;
+  icon: ReactNode;
+  children: ReactNode;
+  onClose: () => void;
+  error?: string | null;
+}
+
+function Modal({ title, color, icon, children, onClose, error }: ModalProps) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in duration-200"
       onClick={onClose}>
       <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-gray-100 overflow-hidden
-                      animate-in fade-in slide-in-from-bottom-4 duration-300 max-h-[90vh] flex flex-col"
+                      animate-in fade-in slide-in-from-bottom-4 duration-300 max-h-[95vh] flex flex-col"
         onClick={e => e.stopPropagation()}>
         <div className="relative overflow-hidden flex-shrink-0">
           <div className={`absolute inset-0 bg-gradient-to-r ${color}`} />
-          <div className="relative px-6 py-5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30">
+          <div className="relative px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30 flex-shrink-0">
                 {icon}
               </div>
-              <h2 className="font-bold text-white text-base">{title}</h2>
+              <h2 className="font-bold text-white text-sm sm:text-base truncate">{title}</h2>
             </div>
             <button onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95">
+              className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 flex-shrink-0">
               <X size={15} />
             </button>
           </div>
         </div>
-        <div className="p-6 space-y-4 overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto">
           {error && (
             <div className="flex items-start gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
               <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
@@ -769,37 +787,44 @@ function Modal({ title, color, icon, children, onClose, error }: any) {
 /* =====================================================
    CONFIRM MODAL
 ===================================================== */
-function ConfirmModal({ title, onConfirm, onClose, loading = false }: any) {
+interface ConfirmModalProps {
+  title: string;
+  onConfirm: () => void;
+  onClose: () => void;
+  loading?: boolean;
+}
+
+function ConfirmModal({ title, onConfirm, onClose, loading = false }: ConfirmModalProps) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4"
       onClick={loading ? undefined : onClose}>
-      <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-gray-100 overflow-hidden"
+      <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-gray-100 overflow-hidden max-h-[95vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}>
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-600" />
-          <div className="relative px-6 py-5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center ring-1 ring-white/30">
+          <div className="relative px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center ring-1 ring-white/30 flex-shrink-0">
                 <AlertTriangle size={17} className="text-white" />
               </div>
-              <h2 className="font-bold text-white text-base">Confirmation</h2>
+              <h2 className="font-bold text-white text-sm sm:text-base">Confirmation</h2>
             </div>
             <button onClick={onClose} disabled={loading}
-              className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all disabled:opacity-50">
+              className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all disabled:opacity-50 flex-shrink-0">
               <X size={15} />
             </button>
           </div>
         </div>
-        <div className="p-6 space-y-5 text-center">
-          <p className="text-gray-800 font-semibold">{title}</p>
+        <div className="p-5 sm:p-6 space-y-4 sm:space-y-5 text-center">
+          <p className="text-gray-800 font-semibold text-sm sm:text-base">{title}</p>
           <p className="text-gray-500 text-sm">Cette action est irréversible.</p>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button onClick={onClose} disabled={loading}
-              className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:border-gray-300 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:border-gray-300 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1">
               Annuler
             </button>
             <button onClick={onConfirm} disabled={loading}
-              className="flex-1 py-3 rounded-xl font-semibold text-white text-sm bg-gradient-to-r from-red-500 to-rose-600 hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              className="flex-1 py-3 rounded-xl font-semibold text-white text-sm bg-gradient-to-r from-red-500 to-rose-600 hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2">
               {loading ? <Loader2 size={15} className="animate-spin" /> : null}
               Supprimer
             </button>
@@ -813,7 +838,13 @@ function ConfirmModal({ title, onConfirm, onClose, loading = false }: any) {
 /* =====================================================
    SAVE BUTTON
 ===================================================== */
-function SaveButton({ onClick, label = "Enregistrer", loading = false }: { onClick: () => void; label?: string; loading?: boolean }) {
+interface SaveButtonProps {
+  onClick: () => void;
+  label?: string;
+  loading?: boolean;
+}
+
+function SaveButton({ onClick, label = "Enregistrer", loading = false }: SaveButtonProps) {
   return (
     <button onClick={onClick} disabled={loading}
       className="group relative w-full py-3 rounded-xl font-semibold text-white text-sm overflow-hidden

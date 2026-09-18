@@ -32,7 +32,7 @@ const ActualiteHistoryModal = ({ id, title, onClose }: Props) => {
   }, [id]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -40,25 +40,25 @@ const ActualiteHistoryModal = ({ id, title, onClose }: Props) => {
       />
 
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300">
+      <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 max-h-[95vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden flex-shrink-0">
           <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 opacity-10" />
-          <div className="relative px-8 py-6 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="relative group">
+          <div className="relative px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-100">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <div className="relative group flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
-                  <div className="relative w-14 h-14 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <Clock className="text-white" size={26} />
+                  <div className="relative w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <Clock className="text-white w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <h2 className="text-base sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
                     Historique
-                    <Sparkles size={18} className="text-orange-500 animate-pulse" />
+                    <Sparkles size={16} className="text-orange-500 animate-pulse flex-shrink-0 hidden sm:block" />
                   </h2>
-                  <p className="text-sm text-gray-500 mt-1 truncate">
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1 truncate">
                     {title}
                   </p>
                 </div>
@@ -75,59 +75,59 @@ const ActualiteHistoryModal = ({ id, title, onClose }: Props) => {
         </div>
 
         {/* Content */}
-        <div className="p-8">
+        <div className="p-4 sm:p-8 overflow-y-auto flex-1">
           {loading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-10 sm:py-12">
               <div className="flex items-center gap-3 text-orange-500">
                 <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                <span className="font-medium">Chargement de l'historique...</span>
+                <span className="font-medium text-sm sm:text-base">Chargement de l'historique...</span>
               </div>
             </div>
           ) : history.length === 0 ? (
-            <div className="bg-gradient-to-br from-[#cfe3ff] to-white rounded-2xl p-12 text-center border-2 border-[#00A4E0]/20">
-              <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Clock className="w-10 h-10 text-white" />
+            <div className="bg-gradient-to-br from-[#cfe3ff] to-white rounded-2xl p-8 sm:p-12 text-center border-2 border-[#00A4E0]/20">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Clock className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">
                 Aucun historique
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-xs sm:text-sm">
                 Aucune action enregistrée pour cette actualité
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               {history.map((h, index) => (
                 <div
                   key={index}
-                  className="group relative overflow-hidden bg-gradient-to-r from-gray-50 to-transparent rounded-xl p-4 border border-gray-200 hover:border-orange-300 transition-all hover:shadow-md"
+                  className="group relative overflow-hidden bg-gradient-to-r from-gray-50 to-transparent rounded-xl p-3 sm:p-4 border border-gray-200 hover:border-orange-300 transition-all hover:shadow-md"
                   style={{
                     animation: `slideUp 0.4s ease-out ${index * 0.1}s both`
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                  <div className="relative flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
+                  <div className="relative flex items-center justify-between gap-2 sm:gap-4">
+                    <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
+                      <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0 ${
                         h.action === "PUBLISHED"
                           ? "bg-gradient-to-br from-green-500 to-emerald-500"
                           : "bg-gradient-to-br from-[#A6A6A6] to-gray-500"
                       }`}>
                         {h.action === "PUBLISHED" ? (
-                          <Eye size={20} className="text-white" />
+                          <Eye size={16} className="text-white" />
                         ) : (
-                          <EyeOff size={20} className="text-white" />
+                          <EyeOff size={16} className="text-white" />
                         )}
                       </div>
 
-                      <div>
-                        <p className="font-semibold text-gray-900">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">
                           {h.action === "PUBLISHED" ? "Publication" : "Mise en brouillon"}
                         </p>
-                        <div className="flex items-center gap-2 mt-1 text-sm text-[#A6A6A6]">
-                          <Calendar size={14} />
-                          <span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1 text-xs sm:text-sm text-[#A6A6A6]">
+                          <Calendar size={12} className="flex-shrink-0" />
+                          <span className="truncate">
                             {new Date(h.actionDate).toLocaleDateString("fr-FR", {
                               day: "numeric",
                               month: "long",
@@ -140,7 +140,7 @@ const ActualiteHistoryModal = ({ id, title, onClose }: Props) => {
                       </div>
                     </div>
 
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    <span className={`flex-shrink-0 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap ${
                       h.action === "PUBLISHED"
                         ? "bg-green-100 text-green-700"
                         : "bg-gray-100 text-[#A6A6A6]"

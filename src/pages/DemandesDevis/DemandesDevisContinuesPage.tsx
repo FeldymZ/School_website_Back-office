@@ -24,6 +24,14 @@ import DetailDemandeDevisModal from "@/components/devis/DetailDemandeDevisModal"
 import { StatutDemande } from "@/components/common/StatutBadge"
 import DemandeDevisContinuesService from "@/services/DemandeDevisContinuesService"
 
+/* ================= TYPE ÉTENDU (évite les `any`) =================
+   Le type DemandeDevisContinue de base déclare déjà dateDemande (obligatoire).
+   Seul montantTotal manque parfois côté API : on l'ajoute en optionnel,
+   sans toucher aux autres champs déjà typés correctement dans le type de base. */
+interface DemandeDevisContinueExtended extends DemandeDevisContinue {
+  montantTotal?: number
+}
+
 /* ================= STATUT CONFIG ================= */
 const STATUT_CONFIG: Record<StatutDemande, {
   label: string
@@ -73,10 +81,18 @@ const formatHeure = (iso?: string) =>
     hour: "2-digit", minute: "2-digit"
   }) : "—"
 
+/* ================= TRI CROISSANT PAR DATE ================= */
+const sortByDateAsc = (arr: DemandeDevisContinueExtended[]) =>
+  [...arr].sort((a, b) => {
+    const dateA = a.dateDemande ? new Date(a.dateDemande).getTime() : 0
+    const dateB = b.dateDemande ? new Date(b.dateDemande).getTime() : 0
+    return dateA - dateB
+  })
+
 /* ================= PAGE ================= */
 export default function DemandesDevisContinuesPage() {
 
-  const [demandes, setDemandes]         = useState<DemandeDevisContinue[]>([])
+  const [demandes, setDemandes]         = useState<DemandeDevisContinueExtended[]>([])
   const [loading, setLoading]           = useState(true)
   const [page, setPage]                 = useState(0)
   const [totalPages, setTotalPages]     = useState(0)
@@ -84,7 +100,7 @@ export default function DemandesDevisContinuesPage() {
   const [filterStatut, setFilterStatut] =
     useState<"ALL" | "PAS_ENCORE_TRAITEE" | "EN_COURS" | "FERMEE">("ALL")
 
-  const [selectedDemande, setSelectedDemande] = useState<DemandeDevisContinue | null>(null)
+  const [selectedDemande, setSelectedDemande] = useState<DemandeDevisContinueExtended | null>(null)
   const [repondreOpen, setRepondreOpen]       = useState(false)
   const [detailOpen, setDetailOpen]           = useState(false)
 
@@ -92,9 +108,9 @@ export default function DemandesDevisContinuesPage() {
   const loadDemandes = async () => {
     try {
       setLoading(true)
-      const data: PageResponse<DemandeDevisContinue> =
+      const data: PageResponse<DemandeDevisContinueExtended> =
         await DemandeDevisContinuesService.getAll(page, 10)
-      setDemandes(data.content)
+      setDemandes(sortByDateAsc(data.content)) // ✅ tri croissant par date
       setTotalPages(data.totalPages)
     } catch (err) {
       console.error(err)
@@ -115,8 +131,8 @@ export default function DemandesDevisContinuesPage() {
   })
 
   /* ================= MONTANT — même logique que DetailDemandeDevisModal ================= */
-  const computeMontant = (d: DemandeDevisContinue) => {
-    if ((d as any).montantTotal) return (d as any).montantTotal
+  const computeMontant = (d: DemandeDevisContinueExtended) => {
+    if (d.montantTotal) return d.montantTotal
 
     return d.lignes?.reduce(
       (sum, l) => sum + (l.prix ?? 0) * l.nombreParticipants,
@@ -128,18 +144,18 @@ export default function DemandesDevisContinuesPage() {
   if (loading) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-20 text-center">
+        <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-10 sm:p-20 text-center">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full blur-3xl opacity-10 animate-pulse" />
           <div className="relative z-10">
-            <div className="w-20 h-20 mx-auto mb-6 relative">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl animate-pulse" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <ClipboardList className="w-10 h-10 text-white animate-bounce" />
+                <ClipboardList className="w-8 h-8 sm:w-10 sm:h-10 text-white animate-bounce" />
               </div>
             </div>
             <div className="inline-flex items-center gap-3 text-[#00A4E0]">
               <div className="w-6 h-6 border-3 border-[#00A4E0] border-t-transparent rounded-full animate-spin" />
-              <span className="text-lg font-semibold">Chargement des demandes de devis...</span>
+              <span className="text-base sm:text-lg font-semibold">Chargement des demandes de devis...</span>
             </div>
             <p className="text-sm text-[#A6A6A6] mt-3">Veuillez patienter un instant</p>
           </div>
@@ -151,41 +167,41 @@ export default function DemandesDevisContinuesPage() {
   /* ================= RENDER ================= */
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
-      <div className="w-full space-y-6 animate-in fade-in duration-500">
+      <div className="w-full space-y-5 sm:space-y-6 animate-in fade-in duration-500">
 
         {/* ===== HEADER ===== */}
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00A4E0] to-[#0077A8] rounded-3xl opacity-5 blur-3xl" />
-          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white shadow-xl">
+          <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-5 sm:p-8 border border-white shadow-xl">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <div className="relative flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl blur-xl opacity-50" />
-                  <div className="relative w-14 h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
-                    <ClipboardList className="w-7 h-7 text-white" />
+                  <div className="relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-2xl flex items-center justify-center shadow-lg">
+                    <ClipboardList className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                   </div>
                 </div>
-                <div>
-                  <h1 className="text-2xl font-black bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                <div className="min-w-0">
+                  <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent truncate">
                     Demandes de devis
                   </h1>
-                  <p className="text-gray-500 text-sm mt-0.5 flex items-center gap-1.5">
-                    <Sparkles size={13} className="text-[#00A4E0]" />
+                  <p className="text-gray-500 text-xs sm:text-sm mt-0.5 flex items-center gap-1.5">
+                    <Sparkles size={13} className="text-[#00A4E0] flex-shrink-0" />
                     {demandes.length} demande{demandes.length > 1 ? "s" : ""} au total
                   </p>
                 </div>
               </div>
 
               {/* COMPTEURS STATUTS */}
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 {(["PAS_ENCORE_TRAITEE", "EN_COURS", "FERMEE"] as const).map((s) => {
                   const count = demandes.filter(d => d.statut === s).length
                   const cfg = STATUT_CONFIG[s]
                   return (
-                    <div key={s} className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border ${cfg.bg} ${cfg.border}`}>
-                      <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                      <span className={`text-xs font-bold ${cfg.text}`}>{cfg.label}</span>
-                      <span className={`text-xs font-black ${cfg.text}`}>{count}</span>
+                    <div key={s} className={`inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border ${cfg.bg} ${cfg.border}`}>
+                      <span className={`w-2 h-2 rounded-full ${cfg.dot} flex-shrink-0`} />
+                      <span className={`text-[11px] sm:text-xs font-bold ${cfg.text} whitespace-nowrap`}>{cfg.label}</span>
+                      <span className={`text-[11px] sm:text-xs font-black ${cfg.text}`}>{count}</span>
                     </div>
                   )
                 })}
@@ -195,8 +211,8 @@ export default function DemandesDevisContinuesPage() {
         </div>
 
         {/* ===== SEARCH + FILTRES ===== */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-white shadow-lg">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white shadow-lg">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
 
             {/* SEARCH */}
             <div className="relative flex-1 group">
@@ -225,7 +241,7 @@ export default function DemandesDevisContinuesPage() {
                 <button
                   key={opt.value}
                   onClick={() => setFilterStatut(opt.value)}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
                     filterStatut === opt.value
                       ? "bg-gradient-to-r from-[#00A4E0] to-[#0077A8] text-white shadow-md shadow-blue-200"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -240,11 +256,11 @@ export default function DemandesDevisContinuesPage() {
 
         {/* ===== EMPTY ===== */}
         {filteredDemandes.length === 0 && (
-          <div className="bg-white rounded-3xl p-16 text-center space-y-4 border border-gray-100 shadow-lg">
-            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto">
-              <ClipboardList className="w-10 h-10 text-gray-400" />
+          <div className="bg-white rounded-3xl p-8 sm:p-16 text-center space-y-4 border border-gray-100 shadow-lg">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto">
+              <ClipboardList className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900">Aucune demande trouvée</h3>
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900">Aucune demande trouvée</h3>
             <p className="text-gray-500 text-sm">
               {searchQuery
                 ? `Aucun résultat pour "${searchQuery}"`
@@ -253,9 +269,9 @@ export default function DemandesDevisContinuesPage() {
           </div>
         )}
 
-        {/* ===== TABLE ===== */}
+        {/* ===== TABLE — DESKTOP (lg et plus) ===== */}
         {filteredDemandes.length > 0 && (
-          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
+          <div className="hidden lg:block bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
@@ -273,8 +289,8 @@ export default function DemandesDevisContinuesPage() {
                     const montant  = computeMontant(d)
                     const cfg      = STATUT_CONFIG[d.statut]
                     const isFermee = d.statut === "FERMEE"
-                    const dateStr  = formatDate((d as any).dateDemande)
-                    const heureStr = formatHeure((d as any).dateDemande)
+                    const dateStr  = formatDate(d.dateDemande)
+                    const heureStr = formatHeure(d.dateDemande)
 
                     return (
                       <tr
@@ -371,13 +387,104 @@ export default function DemandesDevisContinuesPage() {
           </div>
         )}
 
+        {/* ===== CARTES — MOBILE/TABLETTE (moins de lg) ===== */}
+        {filteredDemandes.length > 0 && (
+          <div className="lg:hidden space-y-3">
+            {filteredDemandes.map((d, index) => {
+              const montant  = computeMontant(d)
+              const cfg      = STATUT_CONFIG[d.statut]
+              const isFermee = d.statut === "FERMEE"
+              const dateStr  = formatDate(d.dateDemande)
+              const heureStr = formatHeure(d.dateDemande)
+
+              return (
+                <div
+                  key={d.id}
+                  className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg"
+                  style={{ animation: `fadeIn 0.3s ease-out ${index * 0.04}s both` }}
+                >
+                  {/* Ligne 1 : client + statut */}
+                  <div className="flex items-start justify-between gap-3 p-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00A4E0]/10 to-indigo-100
+                                      flex items-center justify-center flex-shrink-0">
+                        <User size={16} className="text-[#00A4E0]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-gray-900 text-sm truncate">{d.nomClient}</p>
+                        <p className="text-xs text-gray-400 truncate">{d.email}</p>
+                      </div>
+                    </div>
+                    <span className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg
+                                      text-[11px] font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                      {cfg.label}
+                    </span>
+                  </div>
+
+                  {/* Ligne 2 : référence / date / montant */}
+                  <div className="px-4 pb-3 grid grid-cols-3 gap-2 text-xs border-t border-gray-50 pt-3">
+                    <div>
+                      <p className="text-gray-400 mb-0.5">Référence</p>
+                      <span className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 font-mono font-bold text-[11px]">
+                        #{d.id}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 mb-0.5">Date</p>
+                      <div className="flex items-center gap-1 text-gray-700 font-semibold text-[11px]">
+                        <Calendar size={11} className="flex-shrink-0" />
+                        {dateStr}
+                      </div>
+                      <div className="flex items-center gap-1 text-gray-400 text-[10px] mt-0.5">
+                        <Clock size={10} className="flex-shrink-0" />
+                        {heureStr}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 mb-0.5">Montant</p>
+                      <div className="flex items-center gap-1 font-black text-[#00A4E0] text-[11px]">
+                        <Banknote size={11} className="flex-shrink-0" />
+                        {montant ? montant.toLocaleString() : "0"} FCFA
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-50 bg-gray-50/50">
+                    <button
+                      onClick={() => { setSelectedDemande(d); setDetailOpen(true) }}
+                      className="p-2.5 rounded-xl text-gray-400 hover:text-[#00A4E0] hover:bg-blue-50
+                                 transition-all duration-200 active:scale-95"
+                      title="Voir les détails"
+                    >
+                      <Eye size={17} />
+                    </button>
+                    {!isFermee && (
+                      <button
+                        onClick={() => { setSelectedDemande(d); setRepondreOpen(true) }}
+                        className="p-2.5 rounded-xl text-gray-400 hover:text-white
+                                   hover:bg-gradient-to-r hover:from-[#00A4E0] hover:to-[#0077A8]
+                                   transition-all duration-200 active:scale-95"
+                        title="Répondre"
+                      >
+                        <MessageSquare size={17} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
         {/* ===== PAGINATION ===== */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-sm text-gray-500 order-2 sm:order-1">
               Page <span className="font-bold text-gray-900">{page + 1}</span> sur {totalPages}
             </p>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap justify-center order-1 sm:order-2">
               <button
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}

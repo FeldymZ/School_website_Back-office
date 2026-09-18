@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom"
 import { ReactNode } from "react"
-import { useUser } from "@/context/UserContext"
+import { useUser } from "@/context/useUser"
 import { UserRole } from "@/types/user"
 import { hasRequiredRole } from "@/utils/role"
 

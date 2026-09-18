@@ -48,19 +48,7 @@ export default function RepondreDemandeDevisModal({
   /* ✅ FIX 4 — La demande est-elle déjà traitée ? */
   const isReadOnly = demande?.statut === "FERMEE"
 
-  /* ================= LOAD REPONSES ================= */
-  const loadReponses = async () => {
-    if (!demande) return
-    try {
-      setLoadingReponses(true)
-      const data = await DemandeDevisContinuesService.getReponses(demande.id)
-      setReponses(data)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoadingReponses(false)
-    }
-  }
+ 
 
   const handleFile = (file: File | null) => {
   if (!file) return setFile(null)

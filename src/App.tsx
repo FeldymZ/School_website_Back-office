@@ -15,9 +15,9 @@ import LoginPage from "./pages/auth/LoginPage";
 import ProtectedRoute from "./app/ProtectedRoute";
 import MenuAccessProtectedRoute from "./app/MenuAccessProtectedRoute"; // 🆕
 
-import { UserProvider } from "./context/UserContext"; // 🆕
+import { UserProvider } from "./context/UserProvider"; // 🆕
 import { LayoutProvider } from "./context/LayoutProvider";
-import { ThemeProvider } from "./context/ThemeContext"; // 🌙 mode sombre
+import { ThemeProvider } from "./context/ThemeProvider"; // 🌙 mode sombre
 
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import FormationsPage from "./pages/formations/FormationsPage";

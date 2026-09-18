@@ -38,9 +38,9 @@ const InfoRow = ({
   label: string
   value: string | number
 }) => (
-  <div className="flex items-center gap-3.5 py-3 border-b border-gray-100 last:border-0">
-    <div className="w-9 h-9 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-      <Icon size={15} className="text-[#00A4E0]" />
+  <div className="flex items-center gap-3 sm:gap-3.5 py-2.5 sm:py-3 border-b border-gray-100 last:border-0">
+    <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+      <Icon size={14} className="text-[#00A4E0]" />
     </div>
     <div className="min-w-0">
       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
@@ -82,6 +82,7 @@ export default function DetailDemandeDevisModal({
       onClose()
       onRefresh?.()
     } catch (e) {
+      console.error("Erreur lors de la clôture de la demande", e)
       alert("Erreur lors de la clôture")
     } finally {
       setCloturing(false)
@@ -90,11 +91,11 @@ export default function DetailDemandeDevisModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-gray-100 flex flex-col max-h-[85vh] overflow-hidden
+        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-gray-100 flex flex-col max-h-[95vh] sm:max-h-[85vh] overflow-hidden
                    animate-in fade-in slide-in-from-bottom-4 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
@@ -106,26 +107,26 @@ export default function DetailDemandeDevisModal({
             className="absolute inset-0 opacity-10"
             style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
           />
-          <div className="relative px-6 py-6 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
+          <div className="relative px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 bg-white/30 rounded-2xl blur-md" />
-                <div className="relative w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center ring-1 ring-white/30">
-                  <ClipboardList size={22} className="text-white" />
+                <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center ring-1 ring-white/30">
+                  <ClipboardList size={20} className="text-white" />
                 </div>
               </div>
-              <div>
-                <h2 className="font-bold text-white text-lg">Détail de la demande</h2>
-                <p className="text-white/60 text-xs mt-0.5 flex items-center gap-1.5">
-                  <Sparkles size={11} />
+              <div className="min-w-0">
+                <h2 className="font-bold text-white text-base sm:text-lg truncate">Détail de la demande</h2>
+                <p className="text-white/60 text-[11px] sm:text-xs mt-0.5 flex items-center gap-1.5">
+                  <Sparkles size={11} className="flex-shrink-0" />
                   #{demande.id}
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center
-                         text-white transition-all duration-200 hover:scale-110 active:scale-95"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center
+                         text-white transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
             >
               <X size={16} />
             </button>
@@ -133,10 +134,10 @@ export default function DetailDemandeDevisModal({
         </div>
 
         {/* ===== CONTENU SCROLL ===== */}
-        <div className="p-5 space-y-5 overflow-y-auto flex-1">
+        <div className="p-4 sm:p-5 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
 
           {/* INFOS CLIENT */}
-          <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl px-4 py-1 border border-gray-100">
+          <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl px-3 sm:px-4 py-1 border border-gray-100">
             <InfoRow icon={User}     label="Nom"       value={demande.nomClient} />
             <InfoRow icon={Mail}     label="Email"     value={demande.email} />
             <InfoRow icon={Phone}    label="Téléphone" value={demande.telephone} />
@@ -149,7 +150,7 @@ export default function DetailDemandeDevisModal({
           {/* FORMATIONS */}
           <div>
             <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2 text-sm">
-              <div className="w-6 h-6 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-lg flex items-center justify-center">
+              <div className="w-6 h-6 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-lg flex items-center justify-center flex-shrink-0">
                 <ClipboardList size={13} className="text-white" />
               </div>
               Formations choisies
@@ -160,7 +161,7 @@ export default function DetailDemandeDevisModal({
                 {demande.lignes.map((ligne, index) => (
                   <div
                     key={index}
-                    className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm
+                    className="bg-white border border-gray-100 rounded-2xl p-3 sm:p-4 shadow-sm
                                hover:border-blue-100 hover:shadow-md transition-all duration-200"
                     style={{ animation: `fadeIn 0.2s ease-out ${index * 0.06}s both` }}
                   >
@@ -194,11 +195,11 @@ export default function DetailDemandeDevisModal({
 
           {/* TOTAL */}
           {total > 0 && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl px-5 py-4 border border-blue-100 flex justify-between items-center">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 border border-blue-100 flex justify-between items-center gap-3">
               <span className="font-bold text-gray-800 text-sm">Total estimé</span>
-              <span className="font-black text-xl text-[#00A4E0]">
+              <span className="font-black text-lg sm:text-xl text-[#00A4E0] whitespace-nowrap">
                 {total.toLocaleString()}
-                <span className="text-sm font-semibold text-gray-500 ml-1">FCFA</span>
+                <span className="text-xs sm:text-sm font-semibold text-gray-500 ml-1">FCFA</span>
               </span>
             </div>
           )}
@@ -206,14 +207,15 @@ export default function DetailDemandeDevisModal({
         </div>
 
         {/* ===== FOOTER FIXE ===== */}
-        <div className="px-5 pb-5 pt-3 border-t border-gray-50 flex-shrink-0 flex gap-3">
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-3 border-t border-gray-50 flex-shrink-0 flex flex-col sm:flex-row gap-3">
 
           {/* Bouton Clôturer — uniquement si pas FERMEE */}
           {demande.statut !== "FERMEE" && (
             <button
               onClick={() => setConfirmOpen(true)}
               className="group relative flex-1 py-3 rounded-xl font-semibold text-white text-sm overflow-hidden
-                         hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-md shadow-red-200"
+                         hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-md shadow-red-200
+                         order-1"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-600" />
               <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -228,7 +230,7 @@ export default function DetailDemandeDevisModal({
             onClick={onClose}
             className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium text-sm
                        hover:bg-gray-50 hover:border-gray-300 transition-all duration-200
-                       hover:scale-[1.01] active:scale-[0.99]"
+                       hover:scale-[1.01] active:scale-[0.99] order-2"
           >
             Fermer
           </button>
@@ -239,12 +241,12 @@ export default function DetailDemandeDevisModal({
       {/* ===== CONFIRM MODAL CLÔTURE ===== */}
       {confirmOpen && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4"
           onClick={() => setConfirmOpen(false)}
         >
           <div
             className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden
-                       animate-in fade-in slide-in-from-bottom-4 duration-200"
+                       animate-in fade-in slide-in-from-bottom-4 duration-200 max-h-[95vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header rouge */}
@@ -254,19 +256,19 @@ export default function DetailDemandeDevisModal({
                 className="absolute inset-0 opacity-10"
                 style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
               />
-              <div className="relative px-6 py-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30">
-                    <AlertCircle size={20} className="text-white" />
+              <div className="relative px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30 flex-shrink-0">
+                    <AlertCircle size={18} className="text-white" />
                   </div>
-                  <div>
-                    <h2 className="font-bold text-white">Confirmer la clôture</h2>
+                  <div className="min-w-0">
+                    <h2 className="font-bold text-white text-sm sm:text-base truncate">Confirmer la clôture</h2>
                     <p className="text-white/60 text-xs mt-0.5">Cette action est irréversible</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setConfirmOpen(false)}
-                  className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all"
+                  className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all flex-shrink-0"
                 >
                   <X size={15} />
                 </button>
@@ -274,15 +276,15 @@ export default function DetailDemandeDevisModal({
             </div>
 
             {/* Body */}
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               <p className="text-sm text-gray-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                 Voulez-vous vraiment clôturer cette demande ? Elle ne pourra plus recevoir de réponse.
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setConfirmOpen(false)}
                   className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium text-sm
-                             hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+                             hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 order-2 sm:order-1"
                 >
                   Annuler
                 </button>
@@ -292,7 +294,7 @@ export default function DetailDemandeDevisModal({
                   className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-600
                              text-white font-semibold text-sm hover:shadow-lg hover:scale-[1.02]
                              active:scale-[0.98] transition-all duration-200
-                             disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                             disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 order-1 sm:order-2"
                 >
                   {cloturing ? (
                     <span className="flex items-center justify-center gap-2">

@@ -7,7 +7,7 @@ import { User, UserRole } from "@/types/user";
 import { UserService } from "@/services/userService";
 import ManageMenuAccessModal from "@/components/ManageMenuAccessModal";
 import EditAdminModal from "@/components/users/EditAdminModal";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/context/useUser";
 import { getSectionsStatus, getTotalCoverage } from "@/utils/menuAccessLabels";
 
 interface Props {
@@ -26,23 +26,24 @@ const Avatar = ({ user }: { user: User }) => {
   const isSuper = user.role === UserRole.SUPERADMIN;
 
   useEffect(() => {
+    // Rien à charger si l'utilisateur n'a pas de photo : on ne touche pas à l'état ici.
+    // L'affichage se base directement sur user.hasPhoto au rendu (voir showPhoto ci-dessous),
+    // donc pas besoin de réinitialiser photoUrl synchroniquement.
+    if (!user.hasPhoto) return;
+
     let objectUrl: string | null = null;
     let cancelled = false;
 
-    if (user.hasPhoto) {
-      UserService.getPhotoUrl(user.id).then((url) => {
-        if (cancelled) {
-          if (url) URL.revokeObjectURL(url);
-          return;
-        }
-        if (url) {
-          objectUrl = url;
-          setPhotoUrl(url);
-        }
-      });
-    } else {
-      setPhotoUrl(null);
-    }
+    UserService.getPhotoUrl(user.id).then((url) => {
+      if (cancelled) {
+        if (url) URL.revokeObjectURL(url);
+        return;
+      }
+      if (url) {
+        objectUrl = url;
+        setPhotoUrl(url);
+      }
+    });
 
     return () => {
       cancelled = true;
@@ -50,7 +51,11 @@ const Avatar = ({ user }: { user: User }) => {
     };
   }, [user.id, user.hasPhoto]);
 
-  if (photoUrl) {
+  // Dérivé du rendu : si hasPhoto passe à false, on retombe sur le fallback
+  // même si photoUrl garde encore une ancienne valeur en mémoire (state stale).
+  const showPhoto = user.hasPhoto && photoUrl;
+
+  if (showPhoto) {
     return (
       <img
         src={photoUrl}

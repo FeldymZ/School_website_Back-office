@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Menu, LogOut, UserCircle, Sparkles, AlertTriangle, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLayout } from "../context/useLayout";
-import { useUser } from "../context/UserContext";
+import { useUser } from "../context/useUser";
 import { logout } from "../utils/auth";
 import { UserService } from "@/services/userService";
 import { User } from "@/types/user";
@@ -118,14 +118,15 @@ const UserAvatar = ({
       <img
         src={photoUrl}
         alt="Photo de profil"
-        className="w-9 h-9 rounded-full object-cover shadow-lg group-hover:shadow-xl transition-shadow"
+        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover shadow-lg group-hover:shadow-xl transition-shadow"
       />
     );
   }
 
   return (
-    <div className="w-9 h-9 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-      <UserCircle size={20} className="text-white" />
+    <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+      <UserCircle size={18} className="text-white sm:hidden" />
+      <UserCircle size={20} className="text-white hidden sm:block" />
     </div>
   );
 };
@@ -169,41 +170,42 @@ const Topbar = () => {
   };
 
   return (
-    <header className="relative h-16 bg-gradient-to-r from-white via-white to-[#cfe3ff]/20 border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-20 shadow-sm">
+    <header className="relative h-16 bg-gradient-to-r from-white via-white to-[#cfe3ff]/20 border-b border-gray-200 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20 shadow-sm">
       {/* Decorative gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#00A4E0]/5 to-transparent opacity-50" />
 
       {/* LEFT */}
-      <div className="relative z-10 flex items-center gap-4">
+      <div className="relative z-10 flex items-center gap-2 sm:gap-4 min-w-0">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-2 text-gray-600 hover:text-[#00A4E0] hover:bg-[#cfe3ff]/30 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          className="lg:hidden p-2 text-gray-600 hover:text-[#00A4E0] hover:bg-[#cfe3ff]/30 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+          aria-label="Ouvrir le menu"
         >
           <Menu size={22} />
         </button>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
             <div className="w-1 h-8 bg-gradient-to-b from-[#00A4E0] to-[#0077A8] rounded-full" />
             <Sparkles size={18} className="text-[#00A4E0] animate-pulse" />
           </div>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+          <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent truncate">
             {title}
           </h1>
         </div>
       </div>
 
       {/* RIGHT */}
-      <div className="relative z-10 flex items-center gap-3">
+      <div className="relative z-10 flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
         {/* User Profile (cliquable → ouvre "Mon profil") */}
         <button
           type="button"
           onClick={() => setShowEditProfile(true)}
-          className="group relative flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-[#cfe3ff]/30 to-transparent border border-[#cfe3ff] hover:border-[#00A4E0] transition-all duration-200 cursor-pointer"
+          className="group relative flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#cfe3ff]/30 to-transparent border border-[#cfe3ff] hover:border-[#00A4E0] transition-all duration-200 cursor-pointer"
         >
           <div className="relative">
             <UserAvatar hasPhoto={me?.hasPhoto} onPhotoLoaded={setMyPhotoUrl} />
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white" />
           </div>
 
           <div className="hidden md:block text-left">
@@ -224,13 +226,14 @@ const Topbar = () => {
         {/* Logout Button */}
         <button
           onClick={() => setShowLogoutConfirm(true)}
-          className="group relative p-3 text-gray-500 hover:text-white rounded-xl border border-gray-200 hover:border-red-500 bg-white hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-600 transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
+          className="group relative p-2 sm:p-3 text-gray-500 hover:text-white rounded-xl border border-gray-200 hover:border-red-500 bg-white hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-600 transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg flex-shrink-0"
           title="Se déconnecter"
         >
-          <LogOut size={20} className="relative z-10" />
+          <LogOut size={18} className="relative z-10 sm:hidden" />
+          <LogOut size={20} className="relative z-10 hidden sm:block" />
 
-          {/* Tooltip */}
-          <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+          {/* Tooltip (desktop uniquement, inutile au tactile) */}
+          <div className="hidden sm:block absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
             <div className="bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl">
               Se déconnecter
               <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900" />
