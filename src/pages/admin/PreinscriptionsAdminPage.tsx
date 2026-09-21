@@ -14,7 +14,11 @@ import {
   CalendarCheck,
   CalendarX,
   Users,
+  Download,
+  FileDown,
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { PreinscriptionService } from "@/services/preinscription.service";
 import { PreinscriptionDemande, StatutDemande } from "@/types/preinscription";
@@ -67,6 +71,57 @@ const StatCard = ({
   </div>
 );
 
+/* ── Export Helpers (partagés CSV / PDF) ── */
+const CSV_STATUT_LABEL: Record<StatutDemande, string> = {
+  EN_ATTENTE: "En attente",
+  VALIDEE: "Validée",
+  REJETEE: "Rejetée",
+};
+
+const buildExportRows = (rows: PreinscriptionDemande[]) =>
+  rows.map((d) => ({
+    nom: d.nom,
+    prenom: d.prenom,
+    email: d.email,
+    formation: d.formation,
+    statut: CSV_STATUT_LABEL[d.statut],
+    dateDemande: formatDate(d.createdAt),
+    dateValidation: d.validatedAt ? formatDate(d.validatedAt) : "",
+    dateRejet: d.rejectedAt ? formatDate(d.rejectedAt) : "",
+  }));
+
+/** Échappe une valeur pour un champ CSV (RFC 4180) : entoure de guillemets
+ *  si la valeur contient une virgule, un guillemet ou un retour à la ligne,
+ *  et double les guillemets internes. */
+const escapeCsvField = (value: string | number | null | undefined): string => {
+  const str = value == null ? "" : String(value);
+  if (/[",\n;]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+};
+
+const buildCsvContent = (rows: PreinscriptionDemande[]): string => {
+  const headers = [
+    "Nom",
+    "Prénom",
+    "Email",
+    "Formation",
+    "Statut",
+    "Date de demande",
+    "Date de validation",
+    "Date de rejet",
+  ];
+
+  const exportRows = buildExportRows(rows);
+  const lines = exportRows.map((r) => [
+    r.nom, r.prenom, r.email, r.formation, r.statut, r.dateDemande, r.dateValidation, r.dateRejet,
+  ].map(escapeCsvField).join(";"));
+
+  // BOM UTF-8 pour un affichage correct des accents dans Excel
+  return "\uFEFF" + [headers.map(escapeCsvField).join(";"), ...lines].join("\n");
+};
+
 /* ── Page ── */
 const PreinscriptionsAdminPage = () => {
   const [demandes,      setDemandes]      = useState<PreinscriptionDemande[]>([]);
@@ -79,6 +134,8 @@ const PreinscriptionsAdminPage = () => {
   const [openValidate,  setOpenValidate]  = useState(false);
   const [openReject,    setOpenReject]    = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [exportingCsv,  setExportingCsv]  = useState(false);
+  const [exportingPdf,  setExportingPdf]  = useState(false);
 
   /* ✅ Download PDF — via API_CONFIG */
   const downloadPdfSecure = async (
@@ -174,6 +231,74 @@ const PreinscriptionsAdminPage = () => {
   const countValidees  = demandes.filter(d => d.statut === "VALIDEE").length;
   const countRejetees  = demandes.filter(d => d.statut === "REJETEE").length;
 
+  /* ── Export CSV (basé sur la liste actuellement filtrée) ── */
+  const handleExportCsv = () => {
+    if (filtered.length === 0) return;
+
+    try {
+      setExportingCsv(true);
+      const csvContent = buildCsvContent(filtered);
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const date = new Date().toISOString().slice(0, 10);
+
+      link.href = url;
+      link.download = `preinscriptions_${date}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de l'export CSV");
+    } finally {
+      setExportingCsv(false);
+    }
+  };
+
+  /* ── Export PDF (basé sur la liste actuellement filtrée) ── */
+  const handleExportPdf = () => {
+    if (filtered.length === 0) return;
+
+    try {
+      setExportingPdf(true);
+
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const exportRows = buildExportRows(filtered);
+      const dateStr = new Date().toLocaleDateString("fr-FR");
+
+      // En-tête du document
+      doc.setFontSize(16);
+      doc.setTextColor(0, 119, 168); // #0077A8
+      doc.text("Préinscriptions", 14, 15);
+
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.text(`Exporté le ${dateStr} — ${exportRows.length} demande${exportRows.length > 1 ? "s" : ""}`, 14, 21);
+
+      autoTable(doc, {
+        startY: 27,
+        head: [["Nom", "Prénom", "Email", "Formation", "Statut", "Date demande", "Date validation", "Date rejet"]],
+        body: exportRows.map((r) => [
+          r.nom, r.prenom, r.email, r.formation, r.statut, r.dateDemande, r.dateValidation, r.dateRejet,
+        ]),
+        styles: { fontSize: 8, cellPadding: 2.5 },
+        headStyles: { fillColor: [0, 164, 224], textColor: 255, fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [245, 250, 253] },
+        columnStyles: {
+          2: { cellWidth: 45 }, // email, souvent plus long
+        },
+      });
+
+      const date = new Date().toISOString().slice(0, 10);
+      doc.save(`preinscriptions_${date}.pdf`);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de l'export PDF");
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   /* ── Loading ── */
   if (loading) {
     return (
@@ -248,13 +373,42 @@ const PreinscriptionsAdminPage = () => {
                 </p>
               </div>
             </div>
-            <button onClick={loadDemandes}
-              className="group inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm
-                         border border-gray-200 bg-white hover:border-[#00A4E0] hover:text-[#00A4E0]
-                         hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm">
-              <RefreshCw size={15} className="group-hover:rotate-180 transition-transform duration-500" />
-              Rafraîchir
-            </button>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={handleExportCsv}
+                disabled={exportingCsv || filtered.length === 0}
+                className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm
+                           border border-gray-200 bg-white hover:border-emerald-400 hover:text-emerald-600
+                           hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                title={filtered.length === 0 ? "Aucune donnée à exporter" : "Exporter la liste filtrée en CSV"}
+              >
+                <Download size={15} className="group-hover:translate-y-0.5 transition-transform duration-200" />
+                CSV
+              </button>
+
+              <button
+                onClick={handleExportPdf}
+                disabled={exportingPdf || filtered.length === 0}
+                className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm
+                           border border-gray-200 bg-white hover:border-rose-400 hover:text-rose-600
+                           hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                title={filtered.length === 0 ? "Aucune donnée à exporter" : "Exporter la liste filtrée en PDF"}
+              >
+                <FileDown size={15} className="group-hover:translate-y-0.5 transition-transform duration-200" />
+                PDF
+              </button>
+
+              <button onClick={loadDemandes}
+                className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm
+                           border border-gray-200 bg-white hover:border-[#00A4E0] hover:text-[#00A4E0]
+                           hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm">
+                <RefreshCw size={15} className="group-hover:rotate-180 transition-transform duration-500" />
+                Rafraîchir
+              </button>
+            </div>
           </div>
         </div>
       </div>
