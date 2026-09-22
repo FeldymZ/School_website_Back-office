@@ -5,17 +5,19 @@ import Topbar from "../components/Topbar";
 const AdminLayout = () => {
   return (
     <div className="h-screen bg-gray-100 overflow-hidden">
-      {/* Sidebar en position fixed : ne pousse jamais le contenu, elle se superpose */}
-      <Sidebar />
+      {/* Sidebar FIXE */}
+      <div className="fixed left-0 top-0 h-screen w-64 z-30">
+        <Sidebar />
+      </div>
 
-      {/* Zone principale :
-          - tablette et mobile (< lg) : aucune marge, sidebar totalement cachée par défaut
-          - desktop (lg+) : marge = largeur de la sidebar pleinement dépliée (w-52 = 208px) */}
-      <div className="ml-0 lg:ml-52 h-screen flex flex-col transition-[margin] duration-300">
+      {/* Zone principale (décalée à droite) */}
+      <div className="ml-64 h-screen flex flex-col">
+        {/* Topbar FIXE */}
         <div className="sticky top-0 z-20">
           <Topbar />
         </div>
 
+        {/* Contenu scrollable */}
         <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
