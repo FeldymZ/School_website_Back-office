@@ -10,8 +10,8 @@ const AdminLayout = () => {
 
       {/* Zone principale :
           - tablette et mobile (< lg) : aucune marge, sidebar totalement cachée par défaut
-          - desktop (lg+) : marge = largeur de la sidebar pleinement dépliée (w-64 = 256px) */}
-      <div className="ml-0 lg:ml-64 h-screen flex flex-col transition-[margin] duration-300">
+          - desktop (lg+) : marge = largeur de la sidebar pleinement dépliée (w-52 = 208px) */}
+      <div className="ml-0 lg:ml-52 h-screen flex flex-col transition-[margin] duration-300">
         <div className="sticky top-0 z-20">
           <Topbar />
         </div>

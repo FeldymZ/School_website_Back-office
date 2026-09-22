@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ShieldCheck } from "lucide-react";
+import { Globe } from "lucide-react";
 
 import { login } from "../../services/auth.service";
 import { useUser } from "@/context/useUser";
@@ -40,8 +40,8 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="flex min-h-[420px]">
+      <div className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <div className="flex min-h-[560px]">
           <div
             className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
             style={{ backgroundColor: "#00A4E0" }}
@@ -51,40 +51,97 @@ const LoginPage = () => {
               <div className="absolute bottom-10 right-10 w-80 h-80 bg-white/30 rounded-full blur-3xl animate-pulse delay-1000" />
             </div>
 
-            <div className="relative z-10 flex flex-col items-center justify-center w-full px-12 text-white text-center">
-              <ShieldCheck size={64} className="mb-6 opacity-90 animate-bounce" />
-              <h1 className="text-4xl font-bold mb-4">
+            <div className="relative z-10 flex flex-col items-center justify-center w-full px-16 text-white text-center">
+
+              {/* ===== Globe tech avec anneaux orbitaux (desktop) ===== */}
+              <div className="relative w-44 h-44 mb-8 flex items-center justify-center">
+                {/* Anneau orbital externe */}
+                <div
+                  className="absolute inset-0 rounded-full border-2 border-dashed border-white/30"
+                  style={{ animation: "spin-slow 12s linear infinite" }}
+                />
+                {/* Anneau orbital interne, sens inverse */}
+                <div
+                  className="absolute inset-4 rounded-full border border-white/20"
+                  style={{ animation: "spin-slow-reverse 8s linear infinite" }}
+                />
+
+                {/* Points orbitaux (satellites) */}
+                <div
+                  className="absolute inset-0"
+                  style={{ animation: "spin-slow 12s linear infinite" }}
+                >
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-lg shadow-white/50" />
+                </div>
+                <div
+                  className="absolute inset-4"
+                  style={{ animation: "spin-slow-reverse 8s linear infinite" }}
+                >
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white/70" />
+                </div>
+
+                {/* Halo derrière le globe */}
+                <div className="absolute inset-8 rounded-full bg-white/20 blur-xl" />
+
+                {/* Globe central */}
+                <div className="relative w-24 h-24 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-2xl ring-1 ring-white/30">
+                  <Globe size={48} className="text-white drop-shadow-lg" strokeWidth={1.5} />
+                </div>
+              </div>
+
+              <h1 className="text-5xl font-bold mb-5 leading-tight">
                 Administration sécurisée
               </h1>
-              <p className="text-lg opacity-90 max-w-sm">
+              <p className="text-xl opacity-90 max-w-md leading-relaxed">
                 Accédez à votre espace d’administration ESIITECH en toute
                 confiance.
               </p>
             </div>
           </div>
 
-          <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-8">
-            <div className="w-full max-w-md">
-              <div className="flex justify-center mb-8">
+          <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-8 sm:p-10 lg:p-14">
+            <div className="w-full max-w-lg">
+
+              {/* ===== Globe tech compact (mobile/tablette uniquement) ===== */}
+              <div
+                className="lg:hidden relative w-24 h-24 mx-auto mb-6 flex items-center justify-center"
+              >
+                <div
+                  className="absolute inset-0 rounded-full border-2 border-dashed"
+                  style={{ borderColor: "#00A4E0", opacity: 0.3, animation: "spin-slow 12s linear infinite" }}
+                />
+                <div
+                  className="absolute inset-2 rounded-full border"
+                  style={{ borderColor: "#00A4E0", opacity: 0.2, animation: "spin-slow-reverse 8s linear infinite" }}
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{ animation: "spin-slow 12s linear infinite" }}
+                >
+                  <div
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full shadow-lg"
+                    style={{ backgroundColor: "#00A4E0" }}
+                  />
+                </div>
+                <div className="absolute inset-4 rounded-full blur-lg" style={{ backgroundColor: "#00A4E0", opacity: 0.15 }} />
+                <div
+                  className="relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg ring-1"
+                  style={{ backgroundColor: "#cfe3ff", ringColor: "#00A4E0" } as React.CSSProperties}
+                >
+                  <Globe size={26} style={{ color: "#00A4E0" }} strokeWidth={1.5} />
+                </div>
+              </div>
+
+              <div className="flex justify-center mb-8 lg:mb-10">
                 <img
                   src="https://api-test.esiitech-gabon.com/assets/logos/esiitech.png"
                   alt="ESIITECH"
-                  className="h-14 object-contain"
+                  className="h-12 sm:h-16 object-contain"
                 />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="text-center">
-                  <h2
-                    className="text-3xl font-bold mb-2"
-                    style={{ color: "#00A4E0" }}
-                  >
-                    Connexion
-                  </h2>
-                  <p className="text-sm" style={{ color: "#A6A6A6" }}>
-                    Compte administrateur
-                  </p>
-                </div>
+              <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-7">
+                
 
                 {error && (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -103,7 +160,7 @@ const LoginPage = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 sm:px-5 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg text-sm sm:text-base focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -116,27 +173,38 @@ const LoginPage = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 sm:px-5 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg text-sm sm:text-base focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full text-white py-3 rounded-lg font-semibold disabled:opacity-50"
+                  className="w-full text-white py-3 sm:py-3.5 rounded-lg font-semibold text-sm sm:text-base disabled:opacity-50"
                   style={{ backgroundColor: "#00A4E0" }}
                 >
                   {loading ? "Connexion..." : "Se connecter"}
                 </button>
               </form>
 
-              <p className="text-center mt-8 text-xs text-gray-400">
+              <p className="text-center mt-8 lg:mt-10 text-xs text-gray-400">
                 © 2026 ESIITECH GABON. Tous droits réservés.
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes spin-slow-reverse {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
+        }
+      `}</style>
     </div>
   );
 };

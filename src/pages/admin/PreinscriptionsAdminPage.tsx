@@ -256,7 +256,7 @@ const PreinscriptionsAdminPage = () => {
   };
 
   /* ── Export PDF (basé sur la liste actuellement filtrée) ── */
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     if (filtered.length === 0) return;
 
     try {
@@ -265,18 +265,56 @@ const PreinscriptionsAdminPage = () => {
       const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
       const exportRows = buildExportRows(filtered);
       const dateStr = new Date().toLocaleDateString("fr-FR");
+      const pageWidth = doc.internal.pageSize.getWidth();
 
-      // En-tête du document
-      doc.setFontSize(16);
-      doc.setTextColor(0, 119, 168); // #0077A8
-      doc.text("Préinscriptions", 14, 15);
+      // ── Chargement du logo en base64 (nécessaire pour jsPDF) ──
+      let logoDataUrl: string | null = null;
+      try {
+        const logoUrl = "https://api-test.esiitech-gabon.com/assets/logos/esiitech.png";
+        const res = await fetch(logoUrl);
+        const blob = await res.blob();
+        logoDataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (logoErr) {
+        console.error("Logo non chargé pour le PDF, export sans logo", logoErr);
+      }
 
-      doc.setFontSize(9);
-      doc.setTextColor(120, 120, 120);
-      doc.text(`Exporté le ${dateStr} — ${exportRows.length} demande${exportRows.length > 1 ? "s" : ""}`, 14, 21);
+      // ── En-tête dessiné sur chaque page ──
+      const drawHeader = () => {
+        if (logoDataUrl) {
+          // Logo en haut à gauche (largeur 22mm, hauteur proportionnelle ~10mm)
+          try {
+            doc.addImage(logoDataUrl, "PNG", 14, 8, 22, 10);
+          } catch (imgErr) {
+            console.error("Erreur insertion logo dans le PDF", imgErr);
+          }
+        }
+
+        doc.setFontSize(16);
+        doc.setTextColor(0, 119, 168); // #0077A8
+        doc.text("Préinscriptions", logoDataUrl ? 40 : 14, 15);
+
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.text(
+          `Exporté le ${dateStr} — ${exportRows.length} demande${exportRows.length > 1 ? "s" : ""}`,
+          logoDataUrl ? 40 : 14,
+          21
+        );
+
+        // Ligne de séparation sous l'en-tête
+        doc.setDrawColor(220, 220, 220);
+        doc.line(14, 24, pageWidth - 14, 24);
+      };
+
+      drawHeader();
 
       autoTable(doc, {
-        startY: 27,
+        startY: 28,
         head: [["Nom", "Prénom", "Email", "Formation", "Statut", "Date demande", "Date validation", "Date rejet"]],
         body: exportRows.map((r) => [
           r.nom, r.prenom, r.email, r.formation, r.statut, r.dateDemande, r.dateValidation, r.dateRejet,
@@ -287,6 +325,11 @@ const PreinscriptionsAdminPage = () => {
         columnStyles: {
           2: { cellWidth: 45 }, // email, souvent plus long
         },
+        // Redessine le logo + en-tête sur chaque nouvelle page générée par autoTable
+        didDrawPage: () => {
+          drawHeader();
+        },
+        margin: { top: 28 },
       });
 
       const date = new Date().toISOString().slice(0, 10);
@@ -397,7 +440,11 @@ const PreinscriptionsAdminPage = () => {
                            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 title={filtered.length === 0 ? "Aucune donnée à exporter" : "Exporter la liste filtrée en PDF"}
               >
-                <FileDown size={15} className="group-hover:translate-y-0.5 transition-transform duration-200" />
+                {exportingPdf ? (
+                  <div className="w-3.5 h-3.5 border-2 border-rose-500/30 border-t-rose-500 rounded-full animate-spin" />
+                ) : (
+                  <FileDown size={15} className="group-hover:translate-y-0.5 transition-transform duration-200" />
+                )}
                 PDF
               </button>
 
