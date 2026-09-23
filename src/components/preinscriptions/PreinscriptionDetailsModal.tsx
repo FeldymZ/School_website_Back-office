@@ -22,6 +22,7 @@ import {
   Send,
   CalendarCheck,
   CalendarX,
+  AlertTriangle,
 } from "lucide-react";
 
 import { PreinscriptionService } from "@/services/preinscription.service";
@@ -300,6 +301,37 @@ export default function PreinscriptionDetailsModal({
                     </div>
                   </div>
                 </div>
+
+                {/* ── Motif du rejet ── */}
+                {demande.statut === "REJETEE" && (
+                  <div className="bg-red-50/70 border border-red-100 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle size={15} className="text-red-500" />
+                        <h4 className="text-sm font-black text-red-700 uppercase tracking-wide">
+                          Motif du rejet
+                        </h4>
+                      </div>
+                      {demande.rejectedAt && (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600">
+                          <CalendarX size={13} />
+                          Rejetée le {formatDate(demande.rejectedAt)}
+                        </span>
+                      )}
+                    </div>
+
+                    {demande.motifRejet ? (
+                      <p className="bg-white border border-red-100 rounded-xl px-4 py-3 text-sm text-gray-800
+                                    leading-relaxed whitespace-pre-line break-words">
+                        {demande.motifRejet}
+                      </p>
+                    ) : (
+                      <p className="bg-white border border-red-100 rounded-xl px-4 py-3 text-sm text-gray-400 italic">
+                        Aucun motif renseigné (demande rejetée avant l'ajout du motif obligatoire).
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* Informations personnelles */}
                 <Section title="Informations personnelles" icon={<User size={14} />}>

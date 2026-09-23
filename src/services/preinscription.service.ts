@@ -1,4 +1,7 @@
 import api from "@/services/api";
+
+import axios from "axios";
+
 import {
   PreinscriptionDemande,
   PreinscriptionEmetteur,
@@ -9,11 +12,16 @@ import {
 /* =====================================================
    🔧 HELPER
 ===================================================== */
-const handleError = (error: any) => {
-  console.error("❌ API ERROR:", error?.response?.data || error.message);
+const handleError = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    console.error("❌ API ERROR:", error.response?.data ?? error.message);
+  } else if (error instanceof Error) {
+    console.error("❌ API ERROR:", error.message);
+  } else {
+    console.error("❌ API ERROR:", error);
+  }
   throw error;
 };
-
 export const PreinscriptionService = {
 
   /* =====================================================
@@ -50,11 +58,18 @@ export const PreinscriptionService = {
     }
   },
 
-  async reject(id: number): Promise<void> {
+  /* ================= REJETER (motif obligatoire) ================= */
+
+  async reject(id: number, motif: string): Promise<PreinscriptionDemande> {
     try {
-      await api.post(`/api/admin/preinscriptions/${id}/rejeter`);
+      const res = await api.post(
+        `/api/admin/preinscriptions/${id}/rejeter`,
+        { motif }
+      );
+      return res.data;
     } catch (e) {
       handleError(e);
+      throw e;
     }
   },
 

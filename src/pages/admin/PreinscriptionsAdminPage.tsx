@@ -16,6 +16,7 @@ import {
   Users,
   Download,
   FileDown,
+  MessageSquareText,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -24,9 +25,11 @@ import { PreinscriptionService } from "@/services/preinscription.service";
 import { PreinscriptionDemande, StatutDemande } from "@/types/preinscription";
 
 import PreinscriptionDetailsModal from "@/components/preinscriptions/PreinscriptionDetailsModal";
+
 import ConfirmActionModal from "@/components/common/ConfirmActionModal";
 import { API_CONFIG } from "@/config/api";
 import { formatDate } from "@/utils/date";
+import RejectPreinscriptionModal from "@/components/preinscriptions/Rejectpreinscriptionmodal";
 
 /* ── Statut config ── */
 const STATUT_CONFIG = {
@@ -71,6 +74,20 @@ const StatCard = ({
   </div>
 );
 
+/* ── Récupère le message d'erreur renvoyé par l'API (axios ou fetch) ── */
+const extractApiMessage = (err: unknown, fallback: string): string => {
+  const e = err as {
+    response?: { data?: { message?: string; errors?: Record<string, string> | string[] } };
+    message?: string;
+  };
+  const data = e?.response?.data;
+  if (data?.errors) {
+    const list = Array.isArray(data.errors) ? data.errors : Object.values(data.errors);
+    if (list.length) return list.join(" ");
+  }
+  return data?.message || fallback;
+};
+
 /* ── Export Helpers (partagés CSV / PDF) ── */
 const CSV_STATUT_LABEL: Record<StatutDemande, string> = {
   EN_ATTENTE: "En attente",
@@ -88,14 +105,15 @@ const buildExportRows = (rows: PreinscriptionDemande[]) =>
     dateDemande: formatDate(d.createdAt),
     dateValidation: d.validatedAt ? formatDate(d.validatedAt) : "",
     dateRejet: d.rejectedAt ? formatDate(d.rejectedAt) : "",
+    motifRejet: d.statut === "REJETEE" ? (d.motifRejet ?? "") : "",
   }));
 
 /** Échappe une valeur pour un champ CSV (RFC 4180) : entoure de guillemets
- *  si la valeur contient une virgule, un guillemet ou un retour à la ligne,
+ *  si la valeur contient un séparateur, un guillemet ou un retour à la ligne,
  *  et double les guillemets internes. */
 const escapeCsvField = (value: string | number | null | undefined): string => {
   const str = value == null ? "" : String(value);
-  if (/[",\n;]/.test(str)) {
+  if (/[",\n\r;]/.test(str)) {
     return `"${str.replace(/"/g, '""')}"`;
   }
   return str;
@@ -111,15 +129,17 @@ const buildCsvContent = (rows: PreinscriptionDemande[]): string => {
     "Date de demande",
     "Date de validation",
     "Date de rejet",
+    "Motif du rejet",
   ];
 
   const exportRows = buildExportRows(rows);
   const lines = exportRows.map((r) => [
-    r.nom, r.prenom, r.email, r.formation, r.statut, r.dateDemande, r.dateValidation, r.dateRejet,
+    r.nom, r.prenom, r.email, r.formation, r.statut,
+    r.dateDemande, r.dateValidation, r.dateRejet, r.motifRejet,
   ].map(escapeCsvField).join(";"));
 
   // BOM UTF-8 pour un affichage correct des accents dans Excel
-  return "\uFEFF" + [headers.map(escapeCsvField).join(";"), ...lines].join("\n");
+  return "﻿" + [headers.map(escapeCsvField).join(";"), ...lines].join("\n");
 };
 
 /* ── Page ── */
@@ -133,9 +153,15 @@ const PreinscriptionsAdminPage = () => {
   const [openDetails,   setOpenDetails]   = useState(false);
   const [openValidate,  setOpenValidate]  = useState(false);
   const [openReject,    setOpenReject]    = useState(false);
+  const [rejectError,   setRejectError]   = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [exportingCsv,  setExportingCsv]  = useState(false);
   const [exportingPdf,  setExportingPdf]  = useState(false);
+
+  const selectedDemande = useMemo(
+    () => demandes.find(d => d.id === selectedId) ?? null,
+    [demandes, selectedId]
+  );
 
   /* ✅ Download PDF — via API_CONFIG */
   const downloadPdfSecure = async (
@@ -192,23 +218,37 @@ const PreinscriptionsAdminPage = () => {
       setOpenValidate(false);
       setSelectedId(null);
       await loadDemandes();
-    } catch {
-      alert("Erreur validation");
+    } catch (err) {
+      alert(extractApiMessage(err, "Erreur validation"));
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleReject = async () => {
+  const openRejectModal = (id: number) => {
+    setSelectedId(id);
+    setRejectError(null);
+    setOpenReject(true);
+  };
+
+  const closeRejectModal = () => {
+    if (actionLoading) return;
+    setOpenReject(false);
+    setRejectError(null);
+  };
+
+  const handleReject = async (motif: string) => {
     if (!selectedId) return;
     try {
       setActionLoading(true);
-      await PreinscriptionService.reject(selectedId);
+      setRejectError(null);
+      await PreinscriptionService.reject(selectedId, motif);
       setOpenReject(false);
       setSelectedId(null);
       await loadDemandes();
-    } catch {
-      alert("Erreur rejet");
+    } catch (err) {
+      // On garde la modale ouverte pour ne pas perdre le motif saisi
+      setRejectError(extractApiMessage(err, "Erreur lors du rejet de la demande"));
     } finally {
       setActionLoading(false);
     }
@@ -216,12 +256,14 @@ const PreinscriptionsAdminPage = () => {
 
   /* ── Filter ── */
   const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase();
     return demandes.filter(d => {
       const matchSearch =
-        d.nom.toLowerCase().includes(searchQuery.toLowerCase())      ||
-        d.prenom.toLowerCase().includes(searchQuery.toLowerCase())   ||
-        d.email.toLowerCase().includes(searchQuery.toLowerCase())    ||
-        d.formation.toLowerCase().includes(searchQuery.toLowerCase());
+        d.nom.toLowerCase().includes(q)       ||
+        d.prenom.toLowerCase().includes(q)    ||
+        d.email.toLowerCase().includes(q)     ||
+        d.formation.toLowerCase().includes(q) ||
+        (d.motifRejet ?? "").toLowerCase().includes(q);
       const matchStatut = filterStatut === "TOUS" || d.statut === filterStatut;
       return matchSearch && matchStatut;
     });
@@ -286,7 +328,6 @@ const PreinscriptionsAdminPage = () => {
       // ── En-tête dessiné sur chaque page ──
       const drawHeader = () => {
         if (logoDataUrl) {
-          // Logo en haut à gauche (largeur 22mm, hauteur proportionnelle ~10mm)
           try {
             doc.addImage(logoDataUrl, "PNG", 14, 8, 22, 10);
           } catch (imgErr) {
@@ -306,7 +347,6 @@ const PreinscriptionsAdminPage = () => {
           21
         );
 
-        // Ligne de séparation sous l'en-tête
         doc.setDrawColor(220, 220, 220);
         doc.line(14, 24, pageWidth - 14, 24);
       };
@@ -315,17 +355,21 @@ const PreinscriptionsAdminPage = () => {
 
       autoTable(doc, {
         startY: 28,
-        head: [["Nom", "Prénom", "Email", "Formation", "Statut", "Date demande", "Date validation", "Date rejet"]],
+        head: [[
+          "Nom", "Prénom", "Email", "Formation", "Statut",
+          "Date demande", "Date validation", "Date rejet", "Motif du rejet",
+        ]],
         body: exportRows.map((r) => [
-          r.nom, r.prenom, r.email, r.formation, r.statut, r.dateDemande, r.dateValidation, r.dateRejet,
+          r.nom, r.prenom, r.email, r.formation, r.statut,
+          r.dateDemande, r.dateValidation, r.dateRejet, r.motifRejet,
         ]),
-        styles: { fontSize: 8, cellPadding: 2.5 },
+        styles: { fontSize: 7.5, cellPadding: 2, overflow: "linebreak", valign: "top" },
         headStyles: { fillColor: [0, 164, 224], textColor: 255, fontStyle: "bold" },
         alternateRowStyles: { fillColor: [245, 250, 253] },
         columnStyles: {
-          2: { cellWidth: 45 }, // email, souvent plus long
+          2: { cellWidth: 42 }, // email
+          8: { cellWidth: 60 }, // motif du rejet (texte long, retour à la ligne)
         },
-        // Redessine le logo + en-tête sur chaque nouvelle page générée par autoTable
         didDrawPage: () => {
           drawHeader();
         },
@@ -475,7 +519,7 @@ const PreinscriptionsAdminPage = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#00A4E0] transition-colors" />
             <input
               type="text"
-              placeholder="Rechercher par nom, email, formation..."
+              placeholder="Rechercher par nom, email, formation, motif..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200
@@ -568,10 +612,21 @@ const PreinscriptionsAdminPage = () => {
                           {formatDate(d.validatedAt)}
                         </span>
                       ) : d.statut === "REJETEE" && d.rejectedAt ? (
-                        <span className="inline-flex items-center gap-1.5 text-sm text-red-700 font-medium whitespace-nowrap">
-                          <CalendarX size={14} className="text-red-500" />
-                          {formatDate(d.rejectedAt)}
-                        </span>
+                        <div className="space-y-1 max-w-xs">
+                          <span className="inline-flex items-center gap-1.5 text-sm text-red-700 font-medium whitespace-nowrap">
+                            <CalendarX size={14} className="text-red-500" />
+                            {formatDate(d.rejectedAt)}
+                          </span>
+                          {d.motifRejet && (
+                            <p
+                              className="flex items-start gap-1.5 text-xs text-gray-500 italic line-clamp-2"
+                              title={d.motifRejet}
+                            >
+                              <MessageSquareText size={12} className="text-red-400 flex-shrink-0 mt-0.5" />
+                              <span>{d.motifRejet}</span>
+                            </p>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-sm text-gray-300">—</span>
                       )}
@@ -602,7 +657,7 @@ const PreinscriptionsAdminPage = () => {
                               <CheckCircle size={16} />
                             </button>
                             <button
-                              onClick={() => { setSelectedId(d.id); setOpenReject(true); }}
+                              onClick={() => openRejectModal(d.id)}
                               className="p-2 rounded-xl text-gray-500 hover:text-red-600 hover:bg-red-50
                                          transition-all duration-200 hover:scale-110 active:scale-95"
                               title="Rejeter">
@@ -611,7 +666,6 @@ const PreinscriptionsAdminPage = () => {
                           </>
                         )}
 
-                        {/* ✅ PDF — via API_CONFIG */}
                         {d.statut === "VALIDEE" && d.pdfUrl && (
                           <button
                             onClick={() => downloadPdfSecure(d.id, d.nom, d.prenom)}
@@ -676,9 +730,17 @@ const PreinscriptionsAdminPage = () => {
                 </div>
               )}
               {d.statut === "REJETEE" && d.rejectedAt && (
-                <div className="flex items-center gap-1.5 text-sm text-red-700 font-medium">
-                  <CalendarX size={14} className="text-red-500" />
-                  Rejetée le {formatDate(d.rejectedAt)}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 text-sm text-red-700 font-medium">
+                    <CalendarX size={14} className="text-red-500" />
+                    Rejetée le {formatDate(d.rejectedAt)}
+                  </div>
+                  {d.motifRejet && (
+                    <div className="p-3 rounded-xl bg-red-50/60 border border-red-100">
+                      <p className="text-xs font-semibold text-red-700 mb-1">Motif du rejet</p>
+                      <p className="text-sm text-gray-700 whitespace-pre-line break-words">{d.motifRejet}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -702,7 +764,7 @@ const PreinscriptionsAdminPage = () => {
                       <CheckCircle size={16} />
                     </button>
                     <button
-                      onClick={() => { setSelectedId(d.id); setOpenReject(true); }}
+                      onClick={() => openRejectModal(d.id)}
                       className="p-2 rounded-xl text-gray-500 hover:text-red-600 hover:bg-red-50
                                  transition-all duration-200 active:scale-95"
                       title="Rejeter">
@@ -746,17 +808,13 @@ const PreinscriptionsAdminPage = () => {
         onCancel={() => setOpenValidate(false)}
       />
 
-      <ConfirmActionModal
+      <RejectPreinscriptionModal
         open={openReject}
         loading={actionLoading}
-        title="Rejeter la demande"
-        message="Confirmer le rejet de cette préinscription ?"
-        confirmLabel="Rejeter"
-        confirmClass="bg-red-600 hover:bg-red-700 text-white"
-        icon={<XCircle size={28} className="text-red-600" />}
-        iconBg="bg-red-100"
+        candidatLabel={selectedDemande ? `${selectedDemande.nom} ${selectedDemande.prenom}` : undefined}
+        serverError={rejectError}
         onConfirm={handleReject}
-        onCancel={() => setOpenReject(false)}
+        onCancel={closeRejectModal}
       />
 
       <style>{`

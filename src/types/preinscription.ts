@@ -60,6 +60,11 @@ export type PreinscriptionRequest = {
   etablissementProvenance: string;
 };
 
+/* Body de POST /api/admin/preinscriptions/{id}/rejeter */
+export type RejetPreinscriptionRequest = {
+  motif: string;
+};
+
 /* =========================
    DEMANDE
 ========================= */
@@ -107,6 +112,10 @@ export interface PreinscriptionDemande {
   validatedAt?: string;
   rejectedAt?: string;
   pdfUrl?: string;
+
+  /* ================= REJET ================= */
+
+  motifRejet?: string | null;
 
   /* ================= DIPLOME ================= */
 
