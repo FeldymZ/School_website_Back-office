@@ -78,11 +78,11 @@ const MenuItemComp = ({
             <div className={`flex-shrink-0 transition-transform duration-200 ${!isActive ? "group-hover/item:scale-110" : ""}`}>
               <item.icon size={19} />
             </div>
-            <span className="font-semibold flex-1 truncate whitespace-nowrap lg:hidden lg:group-hover:inline">
+            <span className="font-semibold flex-1 truncate whitespace-nowrap">
               {item.label}
             </span>
             {isActive && (
-              <Sparkles size={14} className="ml-auto opacity-70 animate-pulse lg:hidden lg:group-hover:inline" />
+              <Sparkles size={14} className="ml-auto opacity-70 animate-pulse" />
             )}
           </>
         )}
@@ -103,25 +103,23 @@ const MenuItemComp = ({
         <div className={`flex-shrink-0 transition-transform duration-200 ${!isChildActive ? "group-hover/item:scale-110" : ""}`}>
           <item.icon size={19} className={isChildActive ? "text-[#00A4E0]" : ""} />
         </div>
-        <span className={`font-semibold flex-1 truncate whitespace-nowrap text-left lg:hidden lg:group-hover:inline ${isChildActive ? "text-[#00A4E0]" : ""}`}>
+        <span className={`font-semibold flex-1 truncate whitespace-nowrap text-left ${isChildActive ? "text-[#00A4E0]" : ""}`}>
           {item.label}
         </span>
         {!open && totalBadge > 0 && (
           <span className="inline-flex items-center justify-center text-[10px] font-black
-                           bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] animate-pulse
-                           lg:hidden lg:group-hover:inline-flex">
+                           bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] animate-pulse">
             {totalBadge}
           </span>
         )}
         <ChevronDown
           size={15}
-          className={`ml-auto flex-shrink-0 transition-transform duration-300 opacity-50 ${open ? "rotate-180" : ""} lg:hidden lg:group-hover:inline`}
+          className={`ml-auto flex-shrink-0 transition-transform duration-300 opacity-50 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
-      {/* Sous-menu : visible seulement quand la sidebar est réellement dépliée
-          (mobile ouvert, ou desktop survolé) — sinon ça n'a pas de place pour s'afficher */}
-      <div className={`overflow-hidden transition-all duration-300 lg:hidden lg:group-hover:block ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+      {/* Sous-menu */}
+      <div className={`overflow-hidden transition-all duration-300 ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
         <div className="ml-4 mt-1 mb-1 pl-3 border-l-2 border-[#00A4E0]/20 space-y-0.5">
           {children.map((child) => (
             <SubNavLink key={child.path} item={child} badge={getBadge(child.badgeKey)} onNavigate={onNavigate} />
@@ -134,7 +132,7 @@ const MenuItemComp = ({
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="space-y-1">
-    <div className="flex items-center gap-2 px-4 mb-2 lg:hidden lg:group-hover:flex">
+    <div className="flex items-center gap-2 px-4 mb-2">
       <div className="w-1 h-3.5 bg-gradient-to-b from-[#00A4E0] to-[#0077A8] rounded-full" />
       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">{title}</p>
     </div>
@@ -222,19 +220,18 @@ export default function Sidebar() {
       )}
 
       {/* ===== SIDEBAR =====
-          Mobile : cachée par défaut (w-0), s'ouvre en overlay plein (w-72) au clic sur le hamburger.
-          Desktop (lg+) : rail d'icônes fixe (w-20), s'élargit en overlay (w-72) au survol,
-          avec ombre — ne pousse jamais le contenu, elle se superpose. */}
+          Mobile : cachée par défaut (w-0), s'ouvre en overlay (w-72) au clic sur le hamburger.
+          Desktop (lg+) : toujours dépliée (w-72), fixe à gauche. */}
       <aside
         className={`
-          group fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-100
+          fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-100
           flex flex-col overflow-hidden
           transition-all duration-300 ease-in-out
           ${sidebarOpen ? "w-72 shadow-2xl" : "w-0"}
-          lg:w-20 lg:shadow-sm lg:hover:w-72 lg:hover:shadow-2xl
+          lg:w-72 lg:shadow-sm
         `}
       >
-        {/* Largeur interne fixe pour que le texte ne se déforme pas pendant l'animation */}
+        {/* Largeur interne fixe pour que le texte ne se déforme pas pendant l'animation mobile */}
         <div className="w-72 h-full flex flex-col flex-shrink-0">
           <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100 flex-shrink-0">
             <div className="flex items-center gap-3 min-w-0">
@@ -244,7 +241,7 @@ export default function Sidebar() {
                   <GraduationCap className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <div className="min-w-0 lg:hidden lg:group-hover:block">
+              <div className="min-w-0">
                 <h1 className="font-black text-sm bg-gradient-to-r from-[#00A4E0] to-[#0077A8] bg-clip-text text-transparent tracking-wide whitespace-nowrap">
                   ESIITECH
                 </h1>
