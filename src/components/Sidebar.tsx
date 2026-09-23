@@ -66,7 +66,7 @@ const MenuItemComp = ({
         end
         onClick={onNavigate}
         className={({ isActive }) =>
-          `group/item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+          `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
             isActive
               ? "bg-gradient-to-r from-[#00A4E0] to-[#0077A8] text-white shadow-md"
               : "text-gray-600 hover:bg-[#cfe3ff]/30 hover:text-[#00A4E0]"
@@ -75,15 +75,11 @@ const MenuItemComp = ({
       >
         {({ isActive }) => (
           <>
-            <div className={`flex-shrink-0 transition-transform duration-200 ${!isActive ? "group-hover/item:scale-110" : ""}`}>
+            <div className={`flex-shrink-0 transition-transform duration-200 ${!isActive ? "group-hover:scale-110" : ""}`}>
               <item.icon size={19} />
             </div>
-            <span className="font-semibold flex-1 truncate whitespace-nowrap lg:hidden lg:group-hover:inline">
-              {item.label}
-            </span>
-            {isActive && (
-              <Sparkles size={14} className="ml-auto opacity-70 animate-pulse lg:hidden lg:group-hover:inline" />
-            )}
+            <span className="font-semibold flex-1 truncate">{item.label}</span>
+            {isActive && <Sparkles size={14} className="ml-auto opacity-70 animate-pulse" />}
           </>
         )}
       </NavLink>
@@ -96,32 +92,26 @@ const MenuItemComp = ({
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className={`group/item w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+        className={`w-full group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
           isChildActive ? "bg-[#00A4E0]/8 text-[#00A4E0]" : "text-gray-600 hover:bg-[#cfe3ff]/30 hover:text-[#00A4E0]"
         }`}
       >
-        <div className={`flex-shrink-0 transition-transform duration-200 ${!isChildActive ? "group-hover/item:scale-110" : ""}`}>
+        <div className={`flex-shrink-0 transition-transform duration-200 ${!isChildActive ? "group-hover:scale-110" : ""}`}>
           <item.icon size={19} className={isChildActive ? "text-[#00A4E0]" : ""} />
         </div>
-        <span className={`font-semibold flex-1 truncate whitespace-nowrap text-left lg:hidden lg:group-hover:inline ${isChildActive ? "text-[#00A4E0]" : ""}`}>
+        <span className={`font-semibold flex-1 truncate text-left ${isChildActive ? "text-[#00A4E0]" : ""}`}>
           {item.label}
         </span>
         {!open && totalBadge > 0 && (
           <span className="inline-flex items-center justify-center text-[10px] font-black
-                           bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] animate-pulse
-                           lg:hidden lg:group-hover:inline-flex">
+                           bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] animate-pulse">
             {totalBadge}
           </span>
         )}
-        <ChevronDown
-          size={15}
-          className={`ml-auto flex-shrink-0 transition-transform duration-300 opacity-50 ${open ? "rotate-180" : ""} lg:hidden lg:group-hover:inline`}
-        />
+        <ChevronDown size={15} className={`ml-auto flex-shrink-0 transition-transform duration-300 opacity-50 ${open ? "rotate-180" : ""}`} />
       </button>
 
-      {/* Sous-menu : visible seulement quand la sidebar est réellement dépliée
-          (mobile ouvert, ou desktop survolé) — sinon ça n'a pas de place pour s'afficher */}
-      <div className={`overflow-hidden transition-all duration-300 lg:hidden lg:group-hover:block ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+      <div className={`overflow-hidden transition-all duration-300 ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
         <div className="ml-4 mt-1 mb-1 pl-3 border-l-2 border-[#00A4E0]/20 space-y-0.5">
           {children.map((child) => (
             <SubNavLink key={child.path} item={child} badge={getBadge(child.badgeKey)} onNavigate={onNavigate} />
@@ -134,9 +124,9 @@ const MenuItemComp = ({
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="space-y-1">
-    <div className="flex items-center gap-2 px-4 mb-2 lg:hidden lg:group-hover:flex">
+    <div className="flex items-center gap-2 px-4 mb-2">
       <div className="w-1 h-3.5 bg-gradient-to-b from-[#00A4E0] to-[#0077A8] rounded-full" />
-      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">{title}</p>
+      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{title}</p>
     </div>
     {children}
   </div>
@@ -212,73 +202,60 @@ export default function Sidebar() {
   if (!canAccessAdmin) return null
 
   return (
-    <>
-      {/* Fond sombre — mobile uniquement, quand le menu est ouvert via le hamburger */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
-          onClick={closeSidebar}
-        />
-      )}
-
-      {/* ===== SIDEBAR =====
-          Mobile : cachée par défaut (w-0), s'ouvre en overlay plein (w-72) au clic sur le hamburger.
-          Desktop (lg+) : rail d'icônes fixe (w-20), s'élargit en overlay (w-72) au survol,
-          avec ombre — ne pousse jamais le contenu, elle se superpose. */}
-      <aside
-        className={`
-          group fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-100
-          flex flex-col overflow-hidden
-          transition-all duration-300 ease-in-out
-          ${sidebarOpen ? "w-72 shadow-2xl" : "w-0"}
-          lg:w-20 lg:shadow-sm lg:hover:w-72 lg:hover:shadow-2xl
-        `}
-      >
-        {/* Largeur interne fixe pour que le texte ne se déforme pas pendant l'animation */}
-        <div className="w-72 h-full flex flex-col flex-shrink-0">
-          <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100 flex-shrink-0">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="relative flex-shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl blur-md opacity-50" />
-                <div className="relative w-10 h-10 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl flex items-center justify-center shadow-lg">
-                  <GraduationCap className="w-5 h-5 text-white" />
-                </div>
-              </div>
-              <div className="min-w-0 lg:hidden lg:group-hover:block">
-                <h1 className="font-black text-sm bg-gradient-to-r from-[#00A4E0] to-[#0077A8] bg-clip-text text-transparent tracking-wide whitespace-nowrap">
-                  ESIITECH
-                </h1>
-                <p className="text-[10px] text-gray-400 font-semibold tracking-wider uppercase whitespace-nowrap">Administration</p>
+    <aside
+      className={`
+        h-screen bg-white border-r border-gray-100 shadow-sm
+        flex flex-col flex-shrink-0
+        overflow-hidden
+        transition-all duration-300 ease-in-out
+        ${sidebarOpen ? "w-72 sm:w-64" : "w-0"}
+        lg:w-64
+      `}
+    >
+      {/* Contenu interne à largeur fixe, pour éviter que le texte ne se compresse pendant l'animation */}
+      <div className="w-72 sm:w-64 lg:w-64 h-full flex flex-col flex-shrink-0">
+        <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl blur-md opacity-50" />
+              <div className="relative w-10 h-10 bg-gradient-to-br from-[#00A4E0] to-[#0077A8] rounded-xl flex items-center justify-center shadow-lg">
+                <GraduationCap className="w-5 h-5 text-white" />
               </div>
             </div>
-
-            {/* Bouton fermer — mobile uniquement */}
-            <button
-              onClick={closeSidebar}
-              className="lg:hidden p-2 text-gray-400 hover:text-[#00A4E0] hover:bg-[#cfe3ff]/30 rounded-lg transition-colors flex-shrink-0"
-              aria-label="Fermer le menu"
-            >
-              <X size={20} />
-            </button>
+            <div>
+              <h1 className="font-black text-sm bg-gradient-to-r from-[#00A4E0] to-[#0077A8] bg-clip-text text-transparent tracking-wide">
+                ESIITECH
+              </h1>
+              <p className="text-[10px] text-gray-400 font-semibold tracking-wider uppercase">Administration</p>
+            </div>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-6">
-            {Object.entries(sections).map(([sectionTitle, items]) => (
-              <Section key={sectionTitle} title={sectionTitle}>
-                {items.map((item) => (
-                  <MenuItemComp
-                    key={item.label}
-                    item={item}
-                    children={(item.children ?? []).filter(isChildVisible)}
-                    getBadge={getBadge}
-                    onNavigate={closeSidebar}
-                  />
-                ))}
-              </Section>
-            ))}
-          </nav>
+          {/* Bouton fermer — visible uniquement sur mobile/tablette */}
+          <button
+            onClick={closeSidebar}
+            className="lg:hidden p-2 text-gray-400 hover:text-[#00A4E0] hover:bg-[#cfe3ff]/30 rounded-lg transition-colors"
+            aria-label="Fermer le menu"
+          >
+            <X size={20} />
+          </button>
         </div>
-      </aside>
-    </>
+
+        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-6">
+          {Object.entries(sections).map(([sectionTitle, items]) => (
+            <Section key={sectionTitle} title={sectionTitle}>
+              {items.map((item) => (
+                <MenuItemComp
+                  key={item.label}
+                  item={item}
+                  children={(item.children ?? []).filter(isChildVisible)}
+                  getBadge={getBadge}
+                  onNavigate={closeSidebar}
+                />
+              ))}
+            </Section>
+          ))}
+        </nav>
+      </div>
+    </aside>
   )
 }
