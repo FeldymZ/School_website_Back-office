@@ -88,25 +88,105 @@ const extractApiMessage = (err: unknown, fallback: string): string => {
   return data?.message || fallback;
 };
 
-/* ── Export Helpers (partagés CSV / PDF) ── */
+/* =========================================================
+   EXPORT HELPERS (partagés CSV / PDF)
+========================================================= */
+
 const CSV_STATUT_LABEL: Record<StatutDemande, string> = {
   EN_ATTENTE: "En attente",
   VALIDEE: "Validée",
   REJETEE: "Rejetée",
 };
 
+const CIVILITE_LABEL: Record<string, string> = {
+  M: "M.",
+  MME: "Mme",
+  MLLE: "Mlle",
+};
+
+const NIVEAU_LABEL: Record<string, string> = {
+  PREMIERE_ANNEE: "1ère année",
+  DEUXIEME_ANNEE: "2ème année",
+  TROISIEME_ANNEE: "3ème année",
+};
+
+const STATUT_DIPLOME_LABEL: Record<string, string> = {
+  OBTENU: "Obtenu",
+  EN_COURS: "En cours",
+};
+
+/** Traduit une valeur d'enum ; garde la valeur brute si elle est inconnue */
+const toLabel = (map: Record<string, string>, value?: string | null): string =>
+  value ? map[value] ?? value : "";
+
+/** Toutes les informations d'une demande, prêtes à être exportées */
 const buildExportRows = (rows: PreinscriptionDemande[]) =>
   rows.map((d) => ({
-    nom: d.nom,
-    prenom: d.prenom,
-    email: d.email,
-    formation: d.formation,
-    statut: CSV_STATUT_LABEL[d.statut],
-    dateDemande: formatDate(d.createdAt),
+    id: String(d.id),
+
+    /* Identité */
+    civilite: toLabel(CIVILITE_LABEL, d.civilite),
+    nom: d.nom ?? "",
+    prenom: d.prenom ?? "",
+    dateNaissance: d.dateNaissance ? formatDate(d.dateNaissance) : "",
+    lieuNaissance: d.lieuNaissance ?? "",
+    nationalite: d.nationalite ?? "",
+
+    /* Contact */
+    email: d.email ?? "",
+    telephone: d.telephone ?? "",
+    whatsapp: d.whatsapp ?? "",
+
+    /* Formation */
+    niveau: toLabel(NIVEAU_LABEL, d.niveau),
+    formation: d.formation ?? "",
+    anneeUniversitaire: d.anneeUniversitaire ?? "",
+
+    /* Diplôme */
+    diplomePresente: d.diplomePresente ?? "",
+    statutDiplome: toLabel(STATUT_DIPLOME_LABEL, d.statutDiplome),
+    anneeObtention: d.anneeObtention != null ? String(d.anneeObtention) : "",
+    etablissementProvenance: d.etablissementProvenance ?? "",
+
+    /* Statut */
+    statut: CSV_STATUT_LABEL[d.statut] ?? d.statut,
+    dateDemande: d.createdAt ? formatDate(d.createdAt) : "",
     dateValidation: d.validatedAt ? formatDate(d.validatedAt) : "",
     dateRejet: d.rejectedAt ? formatDate(d.rejectedAt) : "",
-    motifRejet: d.statut === "REJETEE" ? (d.motifRejet ?? "") : "",
+    motifRejet: d.statut === "REJETEE" ? d.motifRejet ?? "" : "",
   }));
+
+type ExportRow = ReturnType<typeof buildExportRows>[number];
+
+/**
+ * Colonnes des exports — utilisées à la fois par le CSV et le PDF.
+ * pdfWidth : largeur de la colonne dans le PDF (mm). Sans largeur,
+ * la colonne prend la place restante (Motif du rejet).
+ */
+const EXPORT_COLUMNS: { header: string; key: keyof ExportRow; pdfWidth?: number }[] = [
+  { header: "N°",                          key: "id",                      pdfWidth: 8  },
+  { header: "Civilité",                    key: "civilite",                pdfWidth: 11 },
+  { header: "Nom",                         key: "nom",                     pdfWidth: 20 },
+  { header: "Prénom",                      key: "prenom",                  pdfWidth: 20 },
+  { header: "Date de naissance",           key: "dateNaissance",           pdfWidth: 16 },
+  { header: "Lieu de naissance",           key: "lieuNaissance",           pdfWidth: 18 },
+  { header: "Nationalité",                 key: "nationalite",             pdfWidth: 16 },
+  { header: "Email",                       key: "email",                   pdfWidth: 30 },
+  { header: "Téléphone",                   key: "telephone",               pdfWidth: 18 },
+  { header: "WhatsApp",                    key: "whatsapp",                pdfWidth: 18 },
+  { header: "Niveau souhaité",             key: "niveau",                  pdfWidth: 14 },
+  { header: "Formation",                   key: "formation",               pdfWidth: 24 },
+  { header: "Année universitaire",         key: "anneeUniversitaire",      pdfWidth: 15 },
+  { header: "Diplôme présenté",            key: "diplomePresente",         pdfWidth: 22 },
+  { header: "Statut du diplôme",           key: "statutDiplome",           pdfWidth: 13 },
+  { header: "Année d'obtention",           key: "anneeObtention",          pdfWidth: 12 },
+  { header: "Établissement de provenance", key: "etablissementProvenance", pdfWidth: 24 },
+  { header: "Statut",                      key: "statut",                  pdfWidth: 14 },
+  { header: "Date de demande",             key: "dateDemande",             pdfWidth: 15 },
+  { header: "Date de validation",          key: "dateValidation",          pdfWidth: 15 },
+  { header: "Date de rejet",               key: "dateRejet",               pdfWidth: 15 },
+  { header: "Motif du rejet",              key: "motifRejet" }, // place restante
+];
 
 /** Échappe une valeur pour un champ CSV (RFC 4180) : entoure de guillemets
  *  si la valeur contient un séparateur, un guillemet ou un retour à la ligne,
@@ -120,29 +200,20 @@ const escapeCsvField = (value: string | number | null | undefined): string => {
 };
 
 const buildCsvContent = (rows: PreinscriptionDemande[]): string => {
-  const headers = [
-    "Nom",
-    "Prénom",
-    "Email",
-    "Formation",
-    "Statut",
-    "Date de demande",
-    "Date de validation",
-    "Date de rejet",
-    "Motif du rejet",
-  ];
-
   const exportRows = buildExportRows(rows);
-  const lines = exportRows.map((r) => [
-    r.nom, r.prenom, r.email, r.formation, r.statut,
-    r.dateDemande, r.dateValidation, r.dateRejet, r.motifRejet,
-  ].map(escapeCsvField).join(";"));
+
+  const headerLine = EXPORT_COLUMNS.map((c) => escapeCsvField(c.header)).join(";");
+  const lines = exportRows.map((r) =>
+    EXPORT_COLUMNS.map((c) => escapeCsvField(r[c.key])).join(";")
+  );
 
   // BOM UTF-8 pour un affichage correct des accents dans Excel
-  return "﻿" + [headers.map(escapeCsvField).join(";"), ...lines].join("\n");
+  return "\uFEFF" + [headerLine, ...lines].join("\n");
 };
 
-/* ── Page ── */
+/* =========================================================
+   PAGE
+========================================================= */
 const PreinscriptionsAdminPage = () => {
   const [demandes,      setDemandes]      = useState<PreinscriptionDemande[]>([]);
   const [loading,       setLoading]       = useState(true);
@@ -254,16 +325,18 @@ const PreinscriptionsAdminPage = () => {
     }
   };
 
-  /* ── Filter ── */
+  /* ── Filter (recherche sur toutes les informations utiles) ── */
   const filtered = useMemo(() => {
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.trim().toLowerCase();
     return demandes.filter(d => {
       const matchSearch =
-        d.nom.toLowerCase().includes(q)       ||
-        d.prenom.toLowerCase().includes(q)    ||
-        d.email.toLowerCase().includes(q)     ||
-        d.formation.toLowerCase().includes(q) ||
-        (d.motifRejet ?? "").toLowerCase().includes(q);
+        !q ||
+        [
+          d.nom, d.prenom, d.email, d.telephone, d.whatsapp,
+          d.formation, d.niveau, d.nationalite, d.lieuNaissance,
+          d.diplomePresente, d.etablissementProvenance,
+          d.anneeUniversitaire, d.motifRejet,
+        ].some(v => (v ?? "").toString().toLowerCase().includes(q));
       const matchStatut = filterStatut === "TOUS" || d.statut === filterStatut;
       return matchSearch && matchStatut;
     });
@@ -297,17 +370,19 @@ const PreinscriptionsAdminPage = () => {
     }
   };
 
-  /* ── Export PDF (basé sur la liste actuellement filtrée) ── */
+  /* ── Export PDF : toutes les informations, une colonne par champ ── */
   const handleExportPdf = async () => {
     if (filtered.length === 0) return;
 
     try {
       setExportingPdf(true);
 
-      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      // A3 paysage : 420 mm de large, nécessaire pour 22 colonnes lisibles
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
       const exportRows = buildExportRows(filtered);
       const dateStr = new Date().toLocaleDateString("fr-FR");
       const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
 
       // ── Chargement du logo en base64 (nécessaire pour jsPDF) ──
       let logoDataUrl: string | null = null;
@@ -325,55 +400,68 @@ const PreinscriptionsAdminPage = () => {
         console.error("Logo non chargé pour le PDF, export sans logo", logoErr);
       }
 
-      // ── En-tête dessiné sur chaque page ──
-      const drawHeader = () => {
+      // ── En-tête + pied de page dessinés sur chaque page ──
+      const drawHeader = (pageNumber: number) => {
         if (logoDataUrl) {
           try {
-            doc.addImage(logoDataUrl, "PNG", 14, 8, 22, 10);
+            doc.addImage(logoDataUrl, "PNG", 10, 8, 26, 12);
           } catch (imgErr) {
             console.error("Erreur insertion logo dans le PDF", imgErr);
           }
         }
 
-        doc.setFontSize(16);
+        const textX = logoDataUrl ? 40 : 10;
+
+        doc.setFontSize(18);
         doc.setTextColor(0, 119, 168); // #0077A8
-        doc.text("Préinscriptions", logoDataUrl ? 40 : 14, 15);
+        doc.text("Préinscriptions — liste complète", textX, 15);
 
         doc.setFontSize(9);
         doc.setTextColor(120, 120, 120);
         doc.text(
           `Exporté le ${dateStr} — ${exportRows.length} demande${exportRows.length > 1 ? "s" : ""}`,
-          logoDataUrl ? 40 : 14,
+          textX,
           21
         );
 
         doc.setDrawColor(220, 220, 220);
-        doc.line(14, 24, pageWidth - 14, 24);
+        doc.line(10, 25, pageWidth - 10, 25);
+
+        // Numéro de page
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Page ${pageNumber}`, pageWidth - 10, pageHeight - 6, { align: "right" });
       };
 
-      drawHeader();
-
       autoTable(doc, {
-        startY: 28,
-        head: [[
-          "Nom", "Prénom", "Email", "Formation", "Statut",
-          "Date demande", "Date validation", "Date rejet", "Motif du rejet",
-        ]],
-        body: exportRows.map((r) => [
-          r.nom, r.prenom, r.email, r.formation, r.statut,
-          r.dateDemande, r.dateValidation, r.dateRejet, r.motifRejet,
-        ]),
-        styles: { fontSize: 7.5, cellPadding: 2, overflow: "linebreak", valign: "top" },
-        headStyles: { fillColor: [0, 164, 224], textColor: 255, fontStyle: "bold" },
+        startY: 29,
+        head: [EXPORT_COLUMNS.map((c) => c.header)],
+        body: exportRows.map((r) => EXPORT_COLUMNS.map((c) => r[c.key] || "—")),
+        styles: {
+          fontSize: 6.5,
+          cellPadding: 1.5,
+          overflow: "linebreak",
+          valign: "top",
+          lineColor: [230, 230, 230],
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: [0, 164, 224],
+          textColor: 255,
+          fontStyle: "bold",
+          fontSize: 6.5,
+          valign: "middle",
+        },
         alternateRowStyles: { fillColor: [245, 250, 253] },
-        columnStyles: {
-          2: { cellWidth: 42 }, // email
-          8: { cellWidth: 60 }, // motif du rejet (texte long, retour à la ligne)
+        columnStyles: Object.fromEntries(
+          EXPORT_COLUMNS.map((c, i) => [i, c.pdfWidth ? { cellWidth: c.pdfWidth } : {}])
+        ),
+        // L'en-tête des colonnes se répète sur chaque page
+        showHead: "everyPage",
+        didDrawPage: (data) => {
+          drawHeader(data.pageNumber);
         },
-        didDrawPage: () => {
-          drawHeader();
-        },
-        margin: { top: 28 },
+        margin: { top: 29, left: 10, right: 10, bottom: 12 },
       });
 
       const date = new Date().toISOString().slice(0, 10);
@@ -519,7 +607,7 @@ const PreinscriptionsAdminPage = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#00A4E0] transition-colors" />
             <input
               type="text"
-              placeholder="Rechercher par nom, email, formation, motif..."
+              placeholder="Rechercher par nom, email, téléphone, formation, diplôme, motif..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200
