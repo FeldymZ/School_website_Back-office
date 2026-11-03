@@ -39,13 +39,22 @@ import BannerList from "./components/banners/BannerList";
 import BannerMessagePage from "./pages/bannerMessage/BannerMessagePage";
 
 import FormationsContinuesPage from "./pages/Formationscontinues/FormationsContinuesPage";
-import DemandesDevisContinuesPage from "./pages/DemandesDevis/DemandesDevisContinuesPage";
+// 🆕 Module devis : demandes + validateurs (remplace DemandesDevisContinuesPage)
+import DemandesDevisAdminPage from "./pages/admin/DemandesDevisAdminPage";
+import EmetteursDevisPage from "./pages/admin/EmetteursDevisPage";
+
+// 🆕 Session de formation : agenda + demandes de participation
+import AgendaFormationPage from "./pages/admin/AgendaFormationPage";
+import ParticipationsFormationPage from "./pages/admin/ParticipationsFormationPage";
 
 import CategoriesPage from "./pages/categorie/CategoriesPage";
 import SousCategoriesPage from "./pages/categorie/SousCategoriesPage";
 
 import PreinscriptionsAdminPage from "./pages/admin/PreinscriptionsAdminPage";
 import PreinscriptionConfigPage from "./pages/admin/PreinscriptionConfigPage";
+
+// 🆕 Gestion des modules du menu (SUPERADMIN)
+import ModulesPage from "./pages/admin/ModulesPage";
 
 const AppRoutes = () => {
   const navigate = useNavigate();
@@ -125,11 +134,41 @@ const AppRoutes = () => {
           }
         />
 
+        {/* 🆕 Demandes de devis : liste, détail, validation, envoi */}
         <Route
           path="demandes-devis"
           element={
             <MenuAccessProtectedRoute permissionKey="FORMATIONS_CONTINUES_DEVIS">
-              <DemandesDevisContinuesPage />
+              <DemandesDevisAdminPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        {/* 🆕 Validateurs des devis : accès séparé de « Devis » */}
+        <Route
+          path="demandes-devis/validateurs"
+          element={
+            <MenuAccessProtectedRoute permissionKey="FORMATIONS_CONTINUES_VALIDATEURS">
+              <EmetteursDevisPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        {/* ================= 🆕 SESSION DE FORMATION ================= */}
+        <Route
+          path="sessions-formation/agenda"
+          element={
+            <MenuAccessProtectedRoute permissionKey="FORMATIONS_SESSIONS_AGENDA">
+              <AgendaFormationPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        <Route
+          path="sessions-formation/participations"
+          element={
+            <MenuAccessProtectedRoute permissionKey="FORMATIONS_SESSIONS_PARTICIPATIONS">
+              <ParticipationsFormationPage />
             </MenuAccessProtectedRoute>
           }
         />
@@ -260,6 +299,16 @@ const AppRoutes = () => {
           element={
             <MenuAccessProtectedRoute permissionKey="ADMINISTRATION_AUDITS">
               <ConfigurationPage />
+            </MenuAccessProtectedRoute>
+          }
+        />
+
+        {/* 🆕 Modules du menu : liens + cases d'accès (SUPERADMIN uniquement) */}
+        <Route
+          path="modules"
+          element={
+            <MenuAccessProtectedRoute superAdminOnly>
+              <ModulesPage />
             </MenuAccessProtectedRoute>
           }
         />

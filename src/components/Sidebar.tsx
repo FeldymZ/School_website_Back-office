@@ -10,6 +10,9 @@ import { hasRequiredRole } from "@/utils/role"
 import DemandeDevisContinuesService from "@/services/DemandeDevisContinuesService"
 import { PreinscriptionService } from "@/services/preinscription.service"
 import { SIDEBAR_CONFIG, SidebarChild, SidebarItem } from "@/config/sidebarConfig"
+// 🆕 Menu dynamique : modules gérés dans Administration → Modules
+import { construireMenu } from "@/config/menuDynamique"
+import { chargerModules, useMenuModules } from "@/stores/menuModulesStore"
 
 const SubNavLink = ({
   item,
@@ -81,6 +84,13 @@ const MenuItemComp = ({
             <span className="font-semibold flex-1 truncate whitespace-nowrap">
               {item.label}
             </span>
+            {/* 🆕 Pastille rouge sur un lien direct (ex. Devis non traités) */}
+            {(getBadge(item.badgeKey) ?? 0) > 0 && (
+              <span className="inline-flex items-center justify-center text-[10px] font-black
+                               bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] animate-pulse">
+                {getBadge(item.badgeKey)}
+              </span>
+            )}
             {isActive && (
               <Sparkles size={14} className="ml-auto opacity-70 animate-pulse" />
             )}
@@ -148,11 +158,20 @@ export default function Sidebar() {
   const { user, loading } = useUser()
   const { sidebarOpen, closeSidebar } = useLayout()
 
+  // 🆕 Modules du serveur (null tant qu'ils ne sont pas chargés → menu par défaut)
+  const modules = useMenuModules()
+  const menu = modules ? construireMenu(modules) : SIDEBAR_CONFIG
+
   const userRole = user?.role
   const menuAccess = user?.menuAccess ?? []
 
   const canAccessSuperAdmin = userRole && hasRequiredRole(userRole, [UserRole.SUPERADMIN])
   const canAccessAdmin = userRole && hasRequiredRole(userRole, [UserRole.ADMIN])
+
+  // 🆕 Chargement des modules du menu
+  useEffect(() => {
+    if (canAccessAdmin) chargerModules()
+  }, [canAccessAdmin])
 
   useEffect(() => {
     if (!canAccessAdmin) return
@@ -189,18 +208,20 @@ export default function Sidebar() {
 
   const isChildVisible = (child: SidebarChild) => {
     if (canAccessSuperAdmin) return true
+    if (child.superAdminOnly) return false
     if (!child.permissionKey) return true
     return menuAccess.includes(child.permissionKey)
   }
 
   const isItemVisible = (item: SidebarItem) => {
     if (canAccessSuperAdmin) return true
+    if (item.superAdminOnly) return false
     if (item.children) return item.children.some(isChildVisible)
     if (!item.permissionKey) return true
     return menuAccess.includes(item.permissionKey)
   }
 
-  const sections = SIDEBAR_CONFIG.reduce<Record<string, SidebarItem[]>>((acc, item) => {
+  const sections = menu.reduce<Record<string, SidebarItem[]>>((acc, item) => {
     if (!isItemVisible(item)) return acc
     acc[item.section] = [...(acc[item.section] ?? []), item]
     return acc
@@ -264,7 +285,7 @@ export default function Sidebar() {
               <Section key={sectionTitle} title={sectionTitle}>
                 {items.map((item) => (
                   <MenuItemComp
-                    key={item.label}
+                    key={`${sectionTitle}-${item.label}`}
                     item={item}
                     children={(item.children ?? []).filter(isChildVisible)}
                     getBadge={getBadge}
