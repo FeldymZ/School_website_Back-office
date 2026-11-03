@@ -51,9 +51,14 @@ export const DevisEmetteurService = {
     await call(() => api.put(`${API}/${id}`, toFormData(p)), "Erreur lors de la modification")
   },
 
-  /* SUPPRIMER */
+  /* SUPPRIMER (définitif : même par défaut ou déjà utilisé dans des devis) */
   async remove(id: number): Promise<void> {
     await call(() => api.delete(`${API}/${id}`), "Erreur lors de la suppression")
+  },
+
+  /* 🆕 RETIRER LE STATUT « PAR DÉFAUT » (SUPERADMIN) */
+  async retirerParDefaut(id: number): Promise<void> {
+    await call(() => api.put(`${API}/${id}/retirer-defaut`), "Action réservée au SUPERADMIN")
   },
 
   /* DÉFINIR PAR DÉFAUT (SUPERADMIN) */

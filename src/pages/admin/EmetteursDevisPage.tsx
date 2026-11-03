@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   UserCheck, Plus, Pencil, Trash2, CheckCircle2, Loader2, AlertCircle, Stamp, PenLine,
-  RefreshCw, ImageOff, Upload, ArrowLeft, Sparkles, User, Briefcase, Star,
+  RefreshCw, ImageOff, Upload, ArrowLeft, Sparkles, User, Briefcase, Star, StarOff,
 } from "lucide-react";
 
 import { DevisEmetteurService, type EmetteurPayload } from "@/services/devisEmetteur.service";
@@ -183,6 +183,17 @@ const EmetteurFormModal = ({ emetteur, onClose, onSaved }: FormProps) => {
   );
 };
 
+/* Message de confirmation adapté au validateur à supprimer */
+const messageSuppression = (e: DevisEmetteur | null) => {
+  if (!e) return "";
+  const parties = [`Supprimer définitivement ${e.nom} ?`];
+  if (e.actif) parties.push("C'est le validateur par défaut : il faudra choisir le validateur à chaque devis.");
+  if (e.nbDevis > 0) {
+    parties.push(`Les ${e.nbDevis} devis déjà validés gardent son nom, sa signature et son cachet.`);
+  }
+  return parties.join(" ");
+};
+
 /* =========================================================
    Page
 ========================================================= */
@@ -235,6 +246,19 @@ const EmetteursDevisPage = () => {
     try {
       setBusyId(e.id);
       await DevisEmetteurService.activer(e.id);
+      await charger();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Action impossible (réservée au SUPERADMIN)");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  /* 🆕 Retirer le statut « par défaut » */
+  const retirerParDefaut = async (e: DevisEmetteur) => {
+    try {
+      setBusyId(e.id);
+      await DevisEmetteurService.retirerParDefaut(e.id);
       await charger();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Action impossible (réservée au SUPERADMIN)");
@@ -390,7 +414,14 @@ const EmetteursDevisPage = () => {
               <div className="flex items-center justify-between gap-2 px-4 sm:px-5 py-2.5 border-t border-gray-100">
                 <span className="text-xs text-gray-400">{e.nbDevis} devis validé{e.nbDevis > 1 ? "s" : ""}</span>
                 <div className="flex items-center gap-1">
-                  {!e.actif && (
+                  {e.actif ? (
+                    /* 🆕 Retirer le statut « par défaut » */
+                    <button type="button" onClick={() => retirerParDefaut(e)} disabled={busyId === e.id}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-amber-700 hover:bg-amber-50 transition-colors disabled:opacity-50">
+                      {busyId === e.id ? <Loader2 size={13} className="animate-spin" /> : <StarOff size={13} />}
+                      Retirer par défaut
+                    </button>
+                  ) : (
                     <button type="button" onClick={() => definirParDefaut(e)} disabled={busyId === e.id}
                       className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-green-700 hover:bg-green-50 transition-colors disabled:opacity-50">
                       {busyId === e.id ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
@@ -401,8 +432,8 @@ const EmetteursDevisPage = () => {
                     className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#00A4E0] hover:bg-[#00A4E0]/8 transition-colors">
                     <Pencil size={15} />
                   </button>
-                  <button type="button" onClick={() => setDeleteTarget(e)} disabled={e.actif || e.nbDevis > 0} aria-label="Supprimer"
-                    title={e.actif ? "Le validateur par défaut ne peut pas être supprimé" : e.nbDevis > 0 ? "Utilisé dans des devis" : "Supprimer"}
+                  <button type="button" onClick={() => setDeleteTarget(e)} disabled={busyId === e.id} aria-label="Supprimer"
+                    title="Supprimer"
                     className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-30 disabled:pointer-events-none">
                     <Trash2 size={15} />
                   </button>
@@ -430,7 +461,7 @@ const EmetteursDevisPage = () => {
         open={deleteTarget !== null}
         loading={deleteTarget !== null && busyId === deleteTarget.id}
         title="Supprimer le validateur"
-        message={`Supprimer définitivement ${deleteTarget?.nom ?? ""} ?`}
+        message={messageSuppression(deleteTarget)}
         confirmLabel="Supprimer"
         confirmClass="bg-red-600 hover:bg-red-700 text-white"
         icon={<Trash2 size={28} className="text-red-600" />}
